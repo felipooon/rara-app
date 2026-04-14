@@ -1,0 +1,61 @@
+{% extends "panel/base_panel.html" %}
+
+{% block content %}
+
+<h1>Productos</h1>
+
+<a href="/panel/productos/crear/" class="btn-categoria">
+    + Crear producto
+</a>
+
+<hr>
+
+<form method="GET" style="margin-bottom:20px; display:flex; gap:10px;">
+
+  <select name="categoria">
+    <option value="">Todas las categorías</option>
+    {% for c in categorias %}
+      <option value="{{ c.id }}">{{ c.nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <select name="estado">
+    <option value="">Todos</option>
+    <option value="disponible">Disponibles</option>
+    <option value="agotado">Agotados</option>
+  </select>
+
+  <button type="submit" class="btn-categoria">Filtrar</button>
+
+</form>
+
+<div class="catalogo">
+
+{% for p in productos %}
+    <div class="producto">
+
+    {% if p.imagen %}
+        <img src="{{ p.imagen.url }}">
+    {% endif %}
+
+    <h3>{{ p.nombre }}</h3>
+    <p>${{ p.precio }}</p>
+
+    {% if p.disponible %}
+        <p style="color:green;">Disponible</p>
+        <a href="{% url 'toggle_producto' p.id %}" class="btn-categoria">
+            Marcar como agotado
+        </a>
+    {% else %}
+        <p style="color:red;">Agotado</p>
+        <a href="{% url 'toggle_producto' p.id %}" class="btn-categoria">
+            Marcar como disponible
+        </a>
+    {% endif %}
+
+</div>
+{% endfor %}
+
+</div>
+
+{% endblock %}

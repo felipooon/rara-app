@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<h1>{{ categoria.nombre }}</h1>
+
+<div class="catalogo2">
+
+  {% for p in productos %}
+    <div class="producto">
+
+      {% if p.imagen %}
+        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+      {% endif %}
+
+      {% if not p.disponible %}
+        <span class="agotado">Agotado</span>
+      {% endif %}
+
+      <h3>{{ p.nombre }}</h3>
+      <p>${{ p.precio }}</p>
+
+      <a href="#" class="btn-categoria">Ver</a>
+
+    </div>
+  {% empty %}
+    <p>No hay productos en esta categoría</p>
+  {% endfor %}
+
+</div>
+
+{% endblock %}

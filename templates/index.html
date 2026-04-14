@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inicio - Rara Tienda{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section id="inicio" class="intro">
+  <div class="container"></div>
+</section>
+
+<!-- Catálogo -->
+<section id="catalogo" class="catalogo-seccion">
+
+  <div class="catalogo">
+    <h2>Nuestras colecciones</h2>
+  </div>
+
+  <div class="catalogo">
+
+
+    {% for c in categorias %}
+
+      <div class="producto">
+
+        {% if c.imagen %}
+          <img src="{{ c.imagen.url }}" alt="{{ c.nombre }}">
+        {% else %}
+          <img src="{% static 'img/default-category.png' %}" alt="Sin imagen">
+        {% endif %}
+
+        <h3>{{ c.nombre }}</h3>
+
+        <a href="{% url 'categoria' c.slug %}" class="btn-categoria">
+          Ir a Colección
+        </a>
+
+      </div>
+
+    {% empty %}
+      <p>No hay categorías creadas aún.</p>
+    {% endfor %}
+
+  </div>
+
+  </div>
+</section>
+
+<!-- Nosotros -->
+<section id="acerca" class="nosotros">
+  <img src="{% static 'img/nosotros.png' %}" alt="Nosotros" class="hero-bg">
+
+  <div class="contenido">
+    <h2>¿Quiénes somos?</h2>
+    <p>
+      Somos una pareja de entusiastas pajareros de la región de Los Lagos,
+      que espera disfrutes de estos novedosos productos tanto como nosotros.
+    </p>
+  </div>
+</section>
+
+<!-- Contacto -->
+<section id="contacto" class="contacto">
+  <div class="container">
+    <h2>Contáctanos</h2>
+    <p>Escríbenos por WhatsApp o síguenos en redes sociales:</p>
+
+    <a href="https://wa.me/56930027170" class="btn" target="_blank">
+      <i class="fab fa-whatsapp"></i> WhatsApp
+    </a>
+
+    <a href="https://www.instagram.com/lararatienda/" class="btn" target="_blank">
+      <i class="fab fa-instagram"></i> Instagram
+    </a>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Rara Tienda{% endblock %}</title>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="icon" href="{% static 'img/favicon.ico' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<header>
+  <nav class="navbar">
+    <div class="nav-left">
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+
+      <a href="/" class="logo">
+        <i class="fa-solid fa-crow"></i> Rara Tienda
+      </a>
+
+      <ul class="nav-links" id="nav-links">
+  <button id="close-menu" class="close-button">&times;</button>
+
+  <li><a href="/#inicio">Inicio</a></li>
+  <li><a href="/#catalogo">Catálogo</a></li>
+  <li><a href="/#acerca">Acerca</a></li>
+  <li><a href="/#contacto">Contacto</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main>
+  {% block content %}
+  {% endblock %}
+</main>
+
+<footer class="footer">
+  <p>&copy; 2025 Rara Tienda</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const toggle = document.getElementById("menu-toggle");
+  const links = document.getElementById("nav-links");
+  const close = document.getElementById("close-menu");
+
+  toggle.addEventListener("click", () => {
+    links.classList.add("show");
+  });
+
+  close.addEventListener("click", () => {
+    links.classList.remove("show");
+  });
+
+  // cerrar al hacer click en un link (UX pro)
+  document.querySelectorAll(".nav-links a").forEach(link => {
+    link.addEventListener("click", () => {
+      links.classList.remove("show");
+    });
+  });
+
+  // efecto scroll navbar
+  window.addEventListener("scroll", () => {
+    document.querySelector(".navbar")
+      .classList.toggle("scrolled", window.scrollY > 10);
+  });
+
+  document.addEventListener("click", (e) => {
+  if (!links.contains(e.target) && !toggle.contains(e.target)) {
+    links.classList.remove("show");
+  }
+});
+
+});
+</script>
+
+</body>
+</html>

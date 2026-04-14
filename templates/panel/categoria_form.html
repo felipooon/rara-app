@@ -1,0 +1,17 @@
+{% extends "panel/base_panel.html" %}
+
+{% block content %}
+
+<h1>Crear categoría</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit" class="btn-categoria">
+        Guardar
+    </button>
+</form>
+
+{% endblock %}

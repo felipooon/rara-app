@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel</title>
+
+    {% load static %}
+
+    <!-- CSS tienda -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- CSS panel (nuevo) -->
+    <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+</head>
+
+<!-- 👇 ESTA LINEA ES LA MÁS IMPORTANTE -->
+<body class="panel-body">
+
+<div class="panel-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="panel-nav">
+    <h2>Rara Panel</h2>
+
+    <a href="/panel/">Dashboard</a>
+    <a href="/panel/productos/">Productos</a>
+    <a href="/">Ver tienda</a>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <main class="panel-main">
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+
+</body>
+</html>
