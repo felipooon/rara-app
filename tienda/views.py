@@ -4,6 +4,7 @@ from .models import Categoria, Producto
 from .forms import CategoriaForm, ProductoForm
 from django.contrib.auth.decorators import login_required
 
+
 def index(request):
     categorias = Categoria.objects.all()
     productos = Producto.objects.all()
@@ -12,6 +13,7 @@ def index(request):
         "categorias": categorias,
         "productos": productos
     })
+
 
 def categoria_detail(request, slug):
     categoria = Categoria.objects.get(slug=slug)
@@ -25,6 +27,7 @@ def categoria_detail(request, slug):
         "categoria": categoria,
         "productos": productos
     })
+
 
 @login_required
 def panel_home(request):
@@ -67,6 +70,7 @@ def crear_producto(request):
         "form": form
     })
 
+
 @login_required
 def crear_categoria(request):
     form = CategoriaForm(request.POST or None, request.FILES or None)
@@ -79,9 +83,27 @@ def crear_categoria(request):
         "form": form
     })
 
+
 def toggle_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.disponible = not producto.disponible
     producto.save()
     return redirect("panel_productos")
 
+
+from .models import Producto, Categoria
+
+def panel_home(request):
+    total_productos = Producto.objects.count()
+    total_categorias = Categoria.objects.count()
+    productos_disponibles = Producto.objects.filter(disponible=True).count()
+    productos_agotados = Producto.objects.filter(disponible=False).count()
+    ultimos_productos = Producto.objects.order_by('-id')[:5]
+
+    return render(request, 'panel/dashboard.html', {
+        'total_productos': total_productos,
+        'total_categorias': total_categorias,
+        'productos_disponibles': productos_disponibles,
+        'productos_agotados': productos_agotados,
+        'ultimos_productos': ultimos_productos,
+    })

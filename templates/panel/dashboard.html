@@ -6,13 +6,62 @@
 <div style="display:flex; gap:20px;">
 
   <a href="/panel/productos/" class="btn-categoria">
-    Administrar productos
+    📋 Ver productos
+  </a>
+
+  <a href="/panel/productos/crear/" class="btn-categoria">
+    ➕ Nuevo producto
   </a>
 
   <a href="/panel/categorias/crear/" class="btn-categoria">
-    Crear categoría
+    📂 Nueva categoría
   </a>
 
 </div>
+
+<div class="panel-body">
+
+  <h2>Métricas</h2>
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <h3>Productos</h3>
+      <p>{{ total_productos }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>Categorías</h3>
+      <p>{{ total_categorias }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>Disponibles</h3>
+      <p>{{ productos_disponibles }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>Agotados</h3>
+      <p>{{ productos_agotados }}</p>
+    </div>
+
+  </div>
+
+</div>
+
+<h3>Últimos productos</h3>
+
+<ul>
+  {% for p in ultimos_productos %}
+    <li>
+      {{ p.nombre }} -
+      {% if p.disponible %}
+        ✅ Disponible
+      {% else %}
+        ❌ Agotado
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
 
 {% endblock %}
