@@ -813,4 +813,20 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
     border: none;
     cursor: pointer;
   }
+
+   .producto-contenedor {
+    grid-template-columns: 1fr;
+  }
+
+  .producto-imagen {
+    order: 1;
+  }
+
+  .producto-info {
+    order: 2;
+  }
+
+  .producto-detalle {
+    padding-top: 90px;
+  }
 }
