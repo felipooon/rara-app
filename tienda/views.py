@@ -5,6 +5,7 @@ from .forms import CategoriaForm, ProductoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 
+#PAGINA PUBLICA
 
 def index(request):
     categorias = Categoria.objects.all()
@@ -29,6 +30,14 @@ def categoria_detail(request, slug):
         "productos": productos
     })
 
+def producto_detail(request, id):
+    producto = get_object_or_404(Producto, id=id)
+
+    return render(request, "producto_detail.html", {
+        "producto": producto
+    })
+
+#PANEL DE ADMINISTRACION
 
 @login_required
 def panel_productos(request):

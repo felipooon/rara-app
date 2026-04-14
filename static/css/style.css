@@ -29,6 +29,111 @@ main {
   flex-direction: column;
 }
 
+/*DETALLE*/
+
+.producto-detalle {
+  padding: 80px 40px 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.producto-contenedor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  max-width: 1000px;
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.producto-imagen {
+  width: 100%;
+  height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gris-suave);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.producto-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sin-imagen {
+  width: 100%;
+  height: 300px;
+  background: var(--gris-suave);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.producto-info h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.precio {
+  font-size: 22px;
+  color: var(--primario);
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.estado {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+.disponible {
+  background: #e7f7ec;
+  color: #2e7d32;
+}
+
+.agotado {
+  background: #fdecea;
+  color: #c62828;
+}
+
+.descripcion {
+  margin: 20px 0;
+  color: var(--texto);
+  line-height: 1.5;
+}
+
+.acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-principal {
+  background: var(--primario);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-secundario {
+  background: var(--gris-suave);
+  color: var(--texto);
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
 /* =========================
    VARIABLES
 ========================= */
@@ -63,6 +168,9 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   padding: 0 1rem;
 }
 
+.categoria-wrapper {
+  padding-top: 80px;
+}
 
 /* ===== NAVBAR MODERNA ===== */
 .navbar {
@@ -223,6 +331,21 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .btn-categoria:hover {
   background-color: #333;
   transform: translateY(-2px);
+}
+
+.btn-volver {
+  display: inline-block;
+  margin: 10px 0 20px 0;
+  padding: 8px 14px;
+  background: var(--gris-suave);
+  color: var(--texto);
+  text-decoration: none;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.btn-volver:hover {
+  background: var(--secundario);
 }
 
 /* =========================

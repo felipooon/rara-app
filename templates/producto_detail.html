@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="producto-detalle">
+
+  <div class="producto-contenedor">
+
+    <!-- IMAGEN -->
+    <div class="producto-imagen">
+      {% if producto.imagen %}
+        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+      {% else %}
+        <div class="sin-imagen">Sin imagen</div>
+      {% endif %}
+    </div>
+
+    <!-- INFO -->
+    <div class="producto-info">
+
+      <h1>{{ producto.nombre }}</h1>
+
+      <p class="precio">${{ producto.precio }}</p>
+
+      {% if producto.disponible %}
+        <span class="estado disponible">Disponible</span>
+      {% else %}
+        <span class="estado agotado">Agotado</span>
+      {% endif %}
+
+      <p class="descripcion">
+        {{ producto.descripcion }}
+      </p>
+
+      <div class="acciones">
+        <a href="javascript:history.back()" class="btn-secundario">
+          Volver
+        </a>
+
+        <button class="btn-principal">
+          Agregar (demo)
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,1 +1,0 @@
-web: gunicorn rara_app.wsgi:application

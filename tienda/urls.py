@@ -16,5 +16,6 @@ urlpatterns = [
     path("panel/productos/<int:id>/toggle/", views.toggle_producto, name="toggle_producto"),
     path("login/", CustomLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(next_page="/"), name="logout"),
+    path("producto/<int:id>/", views.producto_detail, name="producto_detail"),
 
 ]

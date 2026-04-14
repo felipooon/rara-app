@@ -3,6 +3,8 @@
 
 {% block content %}
 
+<div class="categoria-wrapper">
+
 <h1>{{ categoria.nombre }}</h1>
 
 <div class="catalogo2">
@@ -21,7 +23,8 @@
       <h3>{{ p.nombre }}</h3>
       <p>${{ p.precio }}</p>
 
-      <a href="#" class="btn-categoria">Ver</a>
+
+      <a href="{% url 'producto_detail' p.id %}" class="btn-categoria">Ver</a>
 
     </div>
   {% empty %}
@@ -30,4 +33,9 @@
 
 </div>
 
+<a href="{% url 'index' %}" class="btn-volver">
+    ← Volver al inicio
+  </a>
+
+</div>
 {% endblock %}
