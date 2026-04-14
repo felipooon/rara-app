@@ -1,7 +1,123 @@
-<h2>Login</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body style="
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, hsl(27, 83%, 80%), hsl(27, 83%, 67%));
+    font-family: Arial, sans-serif;
+">
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Entrar</button>
-</form>
+    <div style="
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 14px;
+        width: 340px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    ">
+
+        <h2 style="
+            text-align: center;
+            margin-bottom: 5px;
+            color: hsl(27, 83%, 67%);
+        ">
+            Rara Tienda
+        </h2>
+
+        <p style="
+            text-align: center;
+            margin-bottom: 25px;
+            color: #666;
+            font-size: 14px;
+        ">
+            Acceso al panel
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 18px;">
+    <label style="display:block; margin-bottom:6px; color:#333; font-size:14px;">
+        Usuario
+    </label>
+    <input 
+        type="text" 
+        name="username" 
+        placeholder="Ingresa tu usuario"
+        style="
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+            box-sizing: border-box;
+        "
+        onfocus="this.style.border='1px solid hsl(27, 83%, 67%)'; this.style.boxShadow='0 0 0 2px hsl(27, 83%, 80%)'"
+        onblur="this.style.border='1px solid #ddd'; this.style.boxShadow='none'"
+    >
+</div>
+
+<div style="margin-bottom: 22px;">
+    <label style="display:block; margin-bottom:6px; color:#333; font-size:14px;">
+        Contraseña
+    </label>
+    <input 
+        type="password" 
+        name="password" 
+        placeholder="Ingresa tu contraseña"
+        style="
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+            box-sizing: border-box;
+        "
+        onfocus="this.style.border='1px solid hsl(27, 83%, 67%)'; this.style.boxShadow='0 0 0 2px hsl(27, 83%, 80%)'"
+        onblur="this.style.border='1px solid #ddd'; this.style.boxShadow='none'"
+    >
+</div>
+
+            <button type="submit" style="
+                width: 100%;
+                padding: 12px;
+                background: hsl(27, 83%, 67%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                letter-spacing: 0.5px;
+                transition: 0.2s;
+            "
+            onmouseover="this.style.background='hsl(27, 83%, 60%)'"
+            onmouseout="this.style.background='hsl(27, 83%, 67%)'">
+                Entrar
+            </button>
+        </form>
+
+        {% if form.errors %}
+            <p style="
+                color: #c1121f;
+                margin-top: 15px;
+                text-align: center;
+                font-size: 14px;
+            ">
+                Usuario o contraseña incorrectos
+            </p>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>

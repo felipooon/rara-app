@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Categoria, Producto
 from .forms import CategoriaForm, ProductoForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
 
 
 def index(request):
@@ -27,11 +28,6 @@ def categoria_detail(request, slug):
         "categoria": categoria,
         "productos": productos
     })
-
-
-@login_required
-def panel_home(request):
-    return render(request, "panel/dashboard.html")
 
 
 @login_required
@@ -93,6 +89,8 @@ def toggle_producto(request, id):
 
 from .models import Producto, Categoria
 
+
+@login_required
 def panel_home(request):
     total_productos = Producto.objects.count()
     total_categorias = Categoria.objects.count()
@@ -107,3 +105,6 @@ def panel_home(request):
         'productos_agotados': productos_agotados,
         'ultimos_productos': ultimos_productos,
     })
+
+class CustomLoginView(LoginView):
+    template_name = "login.html"

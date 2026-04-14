@@ -25,6 +25,12 @@
     <a href="/panel/">Dashboard</a>
     <a href="/panel/productos/">Productos</a>
     <a href="/">Ver tienda</a>
+    {% if user.is_authenticated %}
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button class="btn-categoria" type="submit">Cerrar sesión</button>
+    </form>
+{% endif %}
   </nav>
 
   <!-- CONTENIDO -->
