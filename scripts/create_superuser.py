@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rara-app.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rara_app.settings")
 django.setup()
 
 from django.contrib.auth import get_user_model
