@@ -50,18 +50,32 @@
 </div>
 
 <h3>Últimos productos</h3>
-
-<ul>
-  {% for p in ultimos_productos %}
+<div class="lista-productos">
+  <ul>
+    {% for producto in ultimos_productos %}
     <li>
-      {{ p.nombre }} -
-      {% if p.disponible %}
-        ✅ Disponible
+      <div class="prod-info">
+        <i class="fa-solid fa-tag" style="color: var(--primario); opacity: 0.5;"></i>
+        <div>
+          <span class="prod-nombre">{{ producto.nombre }}</span>
+          <span class="prod-meta">— {{ producto.categoria.nombre }}</span>
+        </div>
+      </div>
+      
+      {% if producto.disponible %}
+        <span class="badge-status status-disponible">
+          <i class="fa-solid fa-check"></i> Disponible
+        </span>
       {% else %}
-        ❌ Agotado
+        <span class="badge-status status-agotado">
+          <i class="fa-solid fa-xmark"></i> Agotado
+        </span>
       {% endif %}
     </li>
-  {% endfor %}
-</ul>
+    {% empty %}
+    <li style="color: #999; justify-content: center;">No hay productos registrados aún.</li>
+    {% endfor %}
+  </ul>
+</div>
 
 {% endblock %}

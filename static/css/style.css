@@ -606,10 +606,15 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   }
 }
 
-/* PANEL LAYOUT */
+
+/* =========================
+   PANEL LAYOUT 
+========================= */
 
 
 .panel-nav {
+  display: flex;
+  flex-direction: column;
   width: 220px;
   height: 100vh;
   position: fixed;
@@ -620,6 +625,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   flex-direction: column;
   padding: 20px;
   gap: 15px;
+  padding-bottom: 20px; /* Espacio al final */
 }
 
 .panel-nav h2 {
@@ -663,6 +669,44 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   border-radius: 5px;
 }
 
+/* Espaciado para los iconos de la sidebar */
+.panel-nav a i, 
+.panel-nav button i,
+.panel-nav h2 i {
+  margin-right: 10px;
+  width: 20px; /* Esto asegura que todos los textos queden alineados verticalmente */
+  text-align: center;
+}
+
+/* Estilo para el contenedor del formulario de logout */
+.panel-nav form {
+  margin-top: auto; /* Esta es la "magia" que lo envía al fondo */
+  /*padding: 0 10px;*/
+  margin-bottom: 80px; 
+  width: 100%;
+}
+
+/* El nuevo estilo del botón: discreto, sin bordes toscos y elegante */
+.btn-logout-clean {
+  /* Tu estilo anterior pero asegurando que no se desborde */
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.btn-logout-clean:hover {
+  background: #fff0f0; /* Un rojo muy pálido al pasar el mouse */
+  color: #d32f2f;
+  border-color: #f8d7da;
+}
 /* ===== FORMULARIOS PANEL ===== */
 
 .panel-body .form-panel {
@@ -684,6 +728,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   margin-bottom: 6px;
   color: #555;
 }
+
 
 /* Inputs */
 .panel-body input,
@@ -738,7 +783,10 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .panel-layout {
   display: flex;
   min-height: 100vh;
+
+  background: #f4f6f8;
 }
+
 
 /* CONTENIDO */
 .panel-main {
@@ -772,6 +820,75 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   font-size: 28px;
   font-weight: bold;
   color: var(--primario);
+}
+
+/* === Lista de Últimos Productos Limpia === */
+.lista-productos {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  overflow: hidden; /* Para que los bordes redondeados corten las filas */
+  margin-top: 15px;
+}
+
+.lista-productos ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-productos li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+}
+
+.lista-productos li:last-child {
+  border-bottom: none;
+}
+
+.lista-productos li:hover {
+  background-color: #fdfdfd; /* Cambio sutil al pasar el mouse */
+}
+
+.prod-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prod-nombre {
+  font-weight: 600;
+  color: #333;
+}
+
+.prod-meta {
+  font-size: 13px;
+  color: #888;
+}
+
+/* Badge de estado profesional */
+.badge-status {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-disponible {
+  background-color: #e7f7ec;
+  color: #2e7d32;
+}
+
+.status-agotado {
+  background-color: #fdecea;
+  color: #c62828;
 }
 
 /* =========================
