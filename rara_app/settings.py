@@ -86,13 +86,28 @@ WSGI_APPLICATION = 'rara_app.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',
-        conn_max_age=600
-    )
-}
-
+#DATABASES = {
+#   'default': dj_database_url.config(
+#        default='sqlite:///db.sqlite3',
+#        conn_max_age=600
+#    )
+#}
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    # PRODUCCIÓN: Usamos la URL de Neon que configuramos en Render
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/panel/'
