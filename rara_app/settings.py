@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-c5jsasag*nn((bmld%b05orxp@be=w36(lh15!5ubmt6%@&&u+
 #DEBUG = True
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['rara-app-mgww.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['rara-app-mgww.onrender.com', 'localhost', '127.0.0.1',"raratienda.cl","www.raratienda.cl"]
 
 
 # Application definition
