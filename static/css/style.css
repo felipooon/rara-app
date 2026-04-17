@@ -3,6 +3,9 @@
 ========================= */
 
 html, body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   font-family: 'Segoe UI', 'Roboto', sans-serif;
   height: 100%;
   margin: 0;
@@ -29,12 +32,26 @@ main {
   flex-direction: column;
 }
 
+h2 {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+}
+
+
 /*DETALLE*/
 
 .producto-detalle {
   padding: 80px 40px 40px;
   display: flex;
   justify-content: center;
+  min-height: 80vh;
+
+  background-image: 
+  linear-gradient(rgba(255, 255, 255, 0.8), 
+  rgba(255, 255, 255, 0.7)),
+  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-repeat: no-repeat;
+  background-size: cover; 
 }
 
 .producto-contenedor {
@@ -46,6 +63,7 @@ main {
   border-radius: 16px;
   padding: 30px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  align-self: center;
 }
 
 .producto-imagen {
@@ -170,6 +188,14 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 
 .categoria-wrapper {
   padding-top: 80px;
+  min-height: 81vh;
+
+  background-image: 
+  linear-gradient(rgba(255, 255, 255, 0.8), 
+  rgba(255, 255, 255, 0.7)),
+  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 /* ===== NAVBAR MODERNA ===== */
@@ -386,6 +412,8 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 .intro h2 {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
   font-size: 3.2rem;
   margin-bottom: 1rem;
   color: var(--texto);
@@ -403,7 +431,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 
 .catalogo {
   padding: 2rem 1rem;
-  background-color: var(--gris-suave);
+  background-color: rgba(255, 255, 255, 0.1);
   height: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -415,7 +443,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   padding: 2rem 1rem;
   margin-top: 50px;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.65);
 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 250px));
@@ -461,12 +489,27 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   border-radius: 4px;
 }
 
+.catalogo h2 {
+  font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: #4a4a4a;
+}
+
 .catalogo .producto button:hover {
   background-color: var(--acento);
 }
 
 .catalogo-seccion {
   margin-top: 0rem;
+
+  background-image: 
+  linear-gradient(rgba(255, 255, 255, 0.9), 
+  rgba(255, 255, 255, 0.7)),
+  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .producto {
@@ -545,6 +588,8 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 .nosotros h2 {
+  font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
   font-size: 3.2rem;
   margin-bottom: 1rem;
   color: white;
@@ -562,6 +607,21 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   align-items: center;
   text-align: center;
   padding: 3rem 1rem;
+
+  background-image: 
+  linear-gradient(rgba(255, 255, 255, 0.8), 
+  rgba(255, 255, 255, 0.7)),
+  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.contacto h2 {
+  font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: #4a4a4a;
 }
 
 .contacto .btn {
@@ -584,6 +644,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 ========================= */
 
 .footer {
+
   background-color: var(--primario);
   color: var(--blanco);
   text-align: center;
@@ -801,7 +862,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 .stats-grid {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.35);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
@@ -809,7 +870,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 .stat-card {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.45);
   padding: 20px;
   border-radius: 12px;
   text-align: center;
@@ -830,7 +891,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 
 /* === Lista de Últimos Productos Limpia === */
 .lista-productos {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.75);
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
   overflow: hidden; /* Para que los bordes redondeados corten las filas */
@@ -953,5 +1014,11 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 
   .producto-detalle {
     padding-top: 90px;
+    background-image: 
+  linear-gradient(rgba(255, 255, 255, 0.8), 
+  rgba(255, 255, 255, 0.7)),
+  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-repeat: no-repeat;
+  background-size: cover; 
   }
 }
