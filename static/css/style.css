@@ -795,12 +795,13 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   background-image: 
   linear-gradient(rgba(255, 255, 255, 0.8), 
   rgba(255, 255, 255, 0.7)),
-  url('/static/img/aveschilenas.jpg');
+  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
   background-repeat: no-repeat;
   background-size: cover;
 }
 
 .stats-grid {
+  background-color: rgba(255, 255, 255, 0.85);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
