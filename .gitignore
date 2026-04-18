@@ -12,6 +12,8 @@ env/
 db.sqlite3
 media/
 
+staticfiles/
+
 # Archivos de entorno
 .env
 
