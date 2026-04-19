@@ -2,16 +2,114 @@
 
 {% block content %}
 
-<h1>Crear categoría</h1>
+<style>
+    .form-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        max-width: 500px; /* <--- Más angosto que el de productos porque tiene menos campos */
+        margin: 40px auto; 
+    }
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+    .form-header {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+        color: #333;
+    }
 
-    {{ form.as_p }}
+    .form-group {
+        margin-bottom: 20px;
+    }
 
-    <button type="submit" class="btn-categoria">
-        Guardar
-    </button>
-</form>
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ccd0d5;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-group input:focus, 
+    .form-group textarea:focus, 
+    .form-group select:focus {
+        border-color: #fca311;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(252, 163, 17, 0.2);
+    }
+
+    .file-upload-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+        border-top: 2px solid #eee;
+        padding-top: 20px;
+    }
+</style>
+
+<div class="form-card">
+    <h2 class="form-header">
+        {% if editando %}✏️ Editar Categoría{% else %}🏷️ Crear Nueva Categoría{% endif %}
+    </h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.nombre.id_for_label }}">Nombre de la Categoría</label>
+            {{ form.nombre }}
+        </div>
+
+        <div class="form-group file-upload-box">
+            <label style="display:block; margin-bottom: 15px; font-weight: 600; color: #333; font-size: 1.1rem;">
+                📷 Imagen o Ícono de la Categoría
+            </label>
+
+            {% if form.instance.imagen %}
+                <div style="margin-bottom: 15px; background: white; padding: 10px; border-radius: 8px; display: inline-block; border: 1px solid #eee;">
+                    <p style="font-size: 0.85rem; color: #888; margin: 0 0 8px 0; font-weight: bold;">Ícono actual:</p>
+                    <img src="{{ form.instance.imagen.url }}" style="height: 100px; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                </div>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
+                    <em>Selecciona un archivo nuevo solo si quieres reemplazar el ícono actual.</em>
+                </p>
+            {% endif %}
+
+            <input type="file" name="{{ form.imagen.html_name }}" id="{{ form.imagen.id_for_label }}" accept="image/*" class="custom-file-input">
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'panel_home' %}" style="padding: 10px 20px; text-decoration: none; color: #555; border: 1px solid #ccc; border-radius: 6px; font-weight: bold;">
+                Cancelar
+            </a>
+            
+            <button type="submit" class="btn-categoria" style="padding: 10px 30px; border-radius: 6px; font-size: 1.1rem;">
+                💾 Guardar
+            </button>
+        </div>
+    </form>
+</div>
 
 {% endblock %}

@@ -2,16 +2,185 @@
 
 {% block content %}
 
-<h1>Crear producto</h1>
+<style>
+    .form-card {
+        background: rgba(255, 255, 255, 0.95); /* Fondo blanco casi sólido para separar del patrón de aves */
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1); /* Sombra elegante */
+        max-width: 700px; /* Evita que los inputs se estiren al infinito */
+        margin: 20px auto; /* Centra la tarjeta en la pantalla */
+    }
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+    .form-header {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+        color: #333;
+    }
 
-    {{ form.as_p }}
+    .form-group {
+        margin-bottom: 20px;
+    }
 
-    <button type="submit" class="btn-categoria">
-        Guardar
-    </button>
-</form>
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+    }
+
+    /* Apuntamos a los inputs automáticos de Django para estilizarlos */
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ccd0d5;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    /* Efecto al hacer clic en un campo */
+    .form-group input:focus, 
+    .form-group textarea:focus, 
+    .form-group select:focus {
+        border-color: #fca311; /* Color naranjo/turquesa de tu tienda si prefieres */
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(252, 163, 17, 0.2);
+    }
+
+    .form-group textarea {
+        resize: vertical; /* Solo permite agrandar hacia abajo */
+        min-height: 120px;
+    }
+
+    /* Grilla para poner campos lado a lado */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    /* Estilo para el archivo de imagen */
+    .file-upload-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    /* Estilo para el Checkbox */
+    .checkbox-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #eef2f5;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    
+    .checkbox-inline input {
+        transform: scale(1.5); /* Hace el cuadrito más grande y fácil de presionar */
+        cursor: pointer;
+    }
+    
+    .checkbox-inline label {
+        margin-bottom: 0;
+        cursor: pointer;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+        border-top: 2px solid #eee;
+        padding-top: 20px;
+    }
+</style>
+
+<div class="form-card">
+    <h2 class="form-header">
+        {% if editando %}✏️ Editar Producto{% else %}✨ Crear Nuevo Producto{% endif %}
+    </h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.categoria.id_for_label }}">Categoría</label>
+            {{ form.categoria }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.nombre.id_for_label }}">Nombre del Producto</label>
+            {{ form.nombre }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.descripcion.id_for_label }}">Descripción detallada</label>
+            {{ form.descripcion }}
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="{{ form.precio.id_for_label }}">Precio ($)</label>
+                {{ form.precio }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.stock.id_for_label }}">Stock (Unidades)</label>
+                {{ form.stock }}
+            </div>
+        </div>
+
+        <!--<div class="form-group file-upload-box">
+            <label for="{{ form.imagen.id_for_label }}" style="margin-bottom: 10px;">📷 Subir Imagen del Producto</label>
+            {{ form.imagen }}
+        </div>-->
+        <div class="form-group file-upload-box">
+            <label style="display:block; margin-bottom: 15px; font-weight: 600; color: #333; font-size: 1.1rem;">
+                📷 Imagen del Producto
+            </label>
+
+            {% if form.instance.imagen %}
+                <div style="margin-bottom: 15px; background: white; padding: 10px; border-radius: 8px; display: inline-block; border: 1px solid #eee;">
+                    <p style="font-size: 0.85rem; color: #888; margin: 0 0 8px 0; font-weight: bold;">Imagen actual:</p>
+                    <img src="{{ form.instance.imagen.url }}" style="height: 120px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                </div>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
+                    <em>Selecciona un archivo nuevo solo si quieres reemplazar la imagen actual.</em>
+                </p>
+            {% endif %}
+
+            <input type="file" name="{{ form.imagen.html_name }}" id="{{ form.imagen.id_for_label }}" accept="image/*" class="custom-file-input">
+        </div>
+
+        <div class="form-group checkbox-inline">
+            {{ form.disponible }}
+            <label for="{{ form.disponible.id_for_label }}">
+                El producto está disponible para la venta en la tienda
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'panel_productos' %}" style="padding: 10px 20px; text-decoration: none; color: #555; border: 1px solid #ccc; border-radius: 6px; font-weight: bold;">
+                Cancelar
+            </a>
+            
+            <button type="submit" class="btn-categoria" style="padding: 10px 30px; border-radius: 6px; font-size: 1.1rem;">
+                💾 Guardar Producto
+            </button>
+        </div>
+    </form>
+</div>
 
 {% endblock %}

@@ -18,4 +18,8 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(next_page="/"), name="logout"),
     path("producto/<int:id>/", views.producto_detail, name="producto_detail"),
 
-]
+    # urls.py
+
+    path('panel/productos/editar/<int:id>/', views.editar_producto, name='editar_producto'),
+    path('panel/productos/eliminar/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
+]  

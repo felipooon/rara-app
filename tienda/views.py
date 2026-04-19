@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Categoria, Producto
@@ -41,7 +42,7 @@ def producto_detail(request, id):
 
 @login_required
 def panel_productos(request):
-    productos = Producto.objects.all()
+    productos = Producto.objects.all().order_by('-id')
 
     categoria_id = request.GET.get("categoria")
     estado = request.GET.get("estado")
@@ -57,8 +58,13 @@ def panel_productos(request):
 
     categorias = Categoria.objects.all()
 
+    paginator = Paginator(productos, 10) # <-- Cambia el 10 si quieres más o menos filas
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "panel/productos.html", {
-        "productos": productos,
+      #  "productos": productos,
+        "page_obj": page_obj,
         "categorias": categorias
     })
 
@@ -117,3 +123,29 @@ def panel_home(request):
 
 class CustomLoginView(LoginView):
     template_name = "login.html"
+
+
+@login_required
+def editar_producto(request, id):
+    # 1. Buscamos el producto específico
+    producto = get_object_or_404(Producto, id=id)
+    
+    # 2. Reutilizamos tu formulario, pero le pasamos la "instance" (los datos actuales)
+    form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
+    
+    if form.is_valid():
+        form.save()
+        return redirect('panel_productos')
+        
+    # 3. Usamos el mismo HTML que usaste para crear, ¡así te ahorras hacer otra vista!
+    return render(request, "panel/producto_form.html", {
+        "form": form,
+        "editando": True # Le pasamos esto por si quieres cambiar el título a "Editar Producto"
+    })
+
+@login_required
+def eliminar_producto(request, id):
+    # Buscamos y destruimos
+    producto = get_object_or_404(Producto, id=id)
+    producto.delete()
+    return redirect('panel_productos')

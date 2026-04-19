@@ -5,8 +5,11 @@
 <h1>Productos</h1>
 
 <a href="/panel/productos/crear/" class="btn-categoria">
-    + Crear producto
+    ➕ Nuevo producto
 </a>
+<a href="/panel/categorias/crear/" class="btn-categoria">
+    📂 Nueva categoría
+  </a>
 
 <hr>
 
@@ -29,33 +32,98 @@
 
 </form>
 
-<div class="catalogo2">
+<div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+  <table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <thead style="border-bottom: 2px solid #ddd;">
+      <tr>
+        <th style="padding: 12px;">Vista</th>
+        <th style="padding: 12px;">Nombre</th>
+        <th style="padding: 12px;">Precio</th>
+        <th style="padding: 12px;">Estado</th>
+        <th style="padding: 12px;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in page_obj %}
+      <tr style="border-bottom: 1px solid #eee;">
+        
+        <td style="padding: 12px;">
+          {% if p.imagen %}
+            <button type="button" onclick="mostrarImagen('{{ p.imagen.url }}', '{{ p.nombre }}')" style="cursor: pointer; background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px;" title="Ver foto">
+              🖼️ </button>
+          {% else %}
+            <span style="color: #aaa; font-size: 0.8em;">Sin foto</span>
+          {% endif %}
+        </td>
 
-{% for p in productos %}
-    <div class="producto">
+        <td style="padding: 12px;"><strong>{{ p.nombre }}</strong></td>
+        <td style="padding: 12px;">${{ p.precio }}</td>
 
-    {% if p.imagen %}
-        <img src="{{ p.imagen.url }}">
+        <td style="padding: 12px;">
+          {% if p.disponible %}
+            <span style="color:green; font-weight:bold;">Disponible</span><br>
+            <a href="{% url 'toggle_producto' p.id %}" style="font-size:0.8em; color:#666;">Cambiar a agotado</a>
+          {% else %}
+            <span style="color:red; font-weight:bold;">Agotado</span><br>
+            <a href="{% url 'toggle_producto' p.id %}" style="font-size:0.8em; color:#666;">Cambiar a disponible</a>
+          {% endif %}
+        </td>
+
+        <td style="padding: 12px;">
+            <a href="{% url 'editar_producto' p.id %}" style="color: #007bff; text-decoration: none; margin-right: 10px;">
+                ✏️ Editar
+            </a>
+            
+            <a href="{% url 'eliminar_producto' p.id %}" 
+            onclick="return confirm('¿Estás seguro de que quieres eliminar: {{ p.nombre }}?');" 
+            style="color: #dc3545; text-decoration: none;">
+                🗑️ Eliminar
+            </a>
+        </td>
+
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px; align-items: center;">
+    
+    {% if page_obj.has_previous %}
+        <a href="?page=1&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" style="text-decoration: none; color: #333;">&laquo; Primera</a>
+        <a href="?page={{ page_obj.previous_page_number }}&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" class="btn-categoria" style="padding: 5px 15px;">Anterior</a>
     {% endif %}
 
-    <h3>{{ p.nombre }}</h3>
-    <p>${{ p.precio }}</p>
+    <span style="font-weight: bold; color: #555;">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    </span>
 
-    {% if p.disponible %}
-        <p style="color:green;">Disponible</p>
-        <a href="{% url 'toggle_producto' p.id %}" class="btn-categoria">
-            Marcar como agotado
-        </a>
-    {% else %}
-        <p style="color:red;">Agotado</p>
-        <a href="{% url 'toggle_producto' p.id %}" class="btn-categoria">
-            Marcar como disponible
-        </a>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" class="btn-categoria" style="padding: 5px 15px;">Siguiente</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" style="text-decoration: none; color: #333;">Última &raquo;</a>
     {% endif %}
 
 </div>
-{% endfor %}
 
+<div id="modalImagen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center; position: relative;">
+        <button onclick="cerrarModal()" style="position: absolute; top: 5px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">❌</button>
+        <h3 id="nombreProductoModal" style="margin-top: 10px; margin-bottom: 15px; font-size: 1.2rem;"></h3>
+        <img id="imagenPreview" src="" style="max-width: 100%; max-height: 50vh; border-radius: 5px;">
+    </div>
 </div>
+
+<script>
+function mostrarImagen(url, nombre) {
+    document.getElementById('imagenPreview').src = url;
+    document.getElementById('nombreProductoModal').innerText = nombre;
+    document.getElementById('modalImagen').style.display = 'flex'; // Muestra la caja oscura
+}
+
+function cerrarModal() {
+    document.getElementById('modalImagen').style.display = 'none'; // Oculta la caja oscura
+    document.getElementById('imagenPreview').src = ''; // Limpia la imagen
+}
+</script>
 
 {% endblock %}
