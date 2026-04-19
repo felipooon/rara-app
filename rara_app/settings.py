@@ -30,8 +30,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-c5jsasag*nn((bmld%b05orxp@be=w36(lh15!5ubmt6%@&&u+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-#DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+#DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['rara-app-mgww.onrender.com', 'localhost', '127.0.0.1',"raratienda.cl","www.raratienda.cl"]
 
