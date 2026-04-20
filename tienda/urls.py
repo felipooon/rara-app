@@ -18,8 +18,18 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(next_page="/"), name="logout"),
     path("producto/<int:id>/", views.producto_detail, name="producto_detail"),
 
-    # urls.py
 
     path('panel/productos/editar/<int:id>/', views.editar_producto, name='editar_producto'),
     path('panel/productos/eliminar/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
+
+    path('carrito/', views.ver_carrito, name='ver_carrito'),
+    path('carrito/agregar/<int:producto_id>/', views.agregar_al_carrito, name='agregar_al_carrito'),
+    path('carrito/restar/<int:producto_id>/', views.restar_del_carrito, name='restar_del_carrito'),
+    path('carrito/quitar/<int:producto_id>/', views.quitar_del_carrito, name='quitar_del_carrito'),
+    path('carrito/limpiar/', views.limpiar_carrito, name='limpiar_carrito'),
+    path('checkout/', views.procesar_pedido, name='procesar_pedido'),
+    path('pedido-confirmado/<int:pedido_id>/', views.pedido_confirmado, name='pedido_confirmado'),
+
+    path('panel/pedidos/', views.panel_pedidos, name='panel_pedidos'),
+    path('panel/pedidos/<int:id>/', views.detalle_pedido, name='detalle_pedido'),
 ]  

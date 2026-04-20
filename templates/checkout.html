@@ -1,0 +1,61 @@
+{% extends "base.html" %} {% block content %}
+<div style="max-width: 800px; margin: 40px auto; padding: 20px;">
+    
+    <h2 style="text-align: center; color: #333;">Finalizar tu Pedido 🦉</h2>
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <h3>Resumen de tu nido</h3>
+        <ul style="list-style: none; padding: 0;">
+            {% for item in carrito %}
+                <li style="display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                    <span>{{ item.cantidad }}x <strong>{{ item.nombre }}</strong></span>
+                    <span>${{ item.precio_total }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+        <h3 style="text-align: right; color: #fca311;">Total a pagar: ${{ carrito.get_total }}</h3>
+    </div>
+
+    <form method="POST" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        {% csrf_token %}
+        
+        <h3 style="margin-bottom: 20px;">Datos de Envío</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label>Nombre Completo</label>
+                <input type="text" name="nombre_completo" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+            <div>
+                <label>RUT</label>
+                <input type="text" name="rut" placeholder="12.345.678-9" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label>Correo Electrónico</label>
+                <input type="email" name="email" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+            <div>
+                <label>Teléfono (WhatsApp)</label>
+                <input type="text" name="telefono" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Dirección exacta de envío</label>
+            <input type="text" name="direccion" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <label>Ciudad</label>
+            <input type="text" name="ciudad" value="Puerto Montt" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 15px; background: #fca311; color: white; border: none; border-radius: 5px; font-size: 1.2rem; font-weight: bold; cursor: pointer;">
+            Confirmar Pedido y Acordar Pago
+        </button>
+    </form>
+</div>
+{% endblock %}

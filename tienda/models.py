@@ -48,6 +48,7 @@ class Pedido(models.Model):
     telefono = models.CharField(max_length=20)
     direccion = models.CharField(max_length=250)
     ciudad = models.CharField(max_length=100, default="Puerto Montt")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
     
     # 2. Datos de la transacción
     creado = models.DateTimeField(auto_now_add=True)

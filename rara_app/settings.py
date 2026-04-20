@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-c5jsasag*nn((bmld%b05orxp@be=w36(lh15!5ubmt6%@&&u+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
+#DEBUG = False
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['rara-app-mgww.onrender.com', 'localhost', '127.0.0.1',"raratienda.cl","www.raratienda.cl"]
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tienda',
     'cloudinary',
+    'django.contrib.humanize',
     
 ]
 
@@ -74,6 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'tienda.context_processors.carrito_global',
             ],
         },
     },
@@ -85,13 +87,15 @@ WSGI_APPLICATION = 'rara_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+"""
+DATABASES = {
+   'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
+    )
+}
+"""
 
-#DATABASES = {
-#   'default': dj_database_url.config(
-#        default='sqlite:///db.sqlite3',
-#        conn_max_age=600
-#    )
-#}
 if DEBUG:
     DATABASES = {
         'default': {
@@ -108,6 +112,7 @@ else:
             ssl_require=True
         )
     }
+
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/panel/'
@@ -135,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'es-mx'
+LANGUAGE_CODE = 'es-co'
 
 TIME_ZONE = 'America/Santiago'
 
@@ -143,6 +148,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+USE_THOUSAND_SEPARATOR = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -172,6 +178,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
 #    },
 #}
+
+
 
 if DEBUG:
     # ==========================================
@@ -207,3 +215,18 @@ else:
             "BACKEND": "whitenoise.storage.ManifestStaticFilesStorage",
         },
     }
+
+"""
+
+STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+    # Le decimos a Django dónde crear la carpeta local
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+"""

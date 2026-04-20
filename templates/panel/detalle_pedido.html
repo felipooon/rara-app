@@ -1,0 +1,93 @@
+{% extends "panel/base_panel.html" %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Detalle del Pedido #{{ pedido.id }}</h1>
+        <a href="{% url 'panel_pedidos' %}" style="text-decoration: none; color: #666; font-weight: bold;">
+            ← Volver a la lista
+        </a>
+    </div>
+
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px;">
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">👤 Datos del Cliente</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+            <div>
+                <p><strong>Nombre:</strong> {{ pedido.nombre_completo }}</p>
+                <p><strong>RUT:</strong> {{ pedido.rut }}</p>
+                <p><strong>Email:</strong> {{ pedido.email }}</p>
+                <p><strong>Teléfono:</strong> {{ pedido.telefono }}</p>
+            </div>
+            <div>
+                <p><strong>Dirección:</strong> {{ pedido.direccion }}</p>
+                <p><strong>Ciudad:</strong> {{ pedido.ciudad }}</p>
+                <p><strong>Fecha del Pedido:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                <p><strong>Estado:</strong> 
+                    {% if pedido.pagado %}
+                        <span style="color: green; font-weight: bold;">✅ Pagado</span>
+                    {% else %}
+                        <span style="color: #e67e22; font-weight: bold;">⏳ Pendiente de Pago</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">📦 Productos en este Nido</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr style="text-align: left; color: #888; font-size: 0.9rem;">
+                    <th style="padding: 10px; border-bottom: 1px solid #eee;">Producto</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">Cantidad</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">Precio Unit.</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in pedido.items.all %}
+                <tr>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #f9f9f9;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            {% if item.producto.imagen %}
+                                <img src="{{ item.producto.imagen.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                            {% endif %}
+                            <strong>{{ item.producto.nombre }}</strong>
+                        </div>
+                    </td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #f9f9f9; text-align: center;">
+                        {{ item.cantidad }}
+                    </td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #f9f9f9; text-align: right;">
+                        ${{ item.precio }}
+                    </td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: bold;">
+                        ${{ item.get_costo }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 2px solid #eee;">
+            <h2 style="margin: 0;">Total del Pedido: <span style="color: #fca311;">${{ pedido.get_total_cost }}</span></h2>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 15px;">
+        {% if not pedido.pagado %}
+            <form action="#" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn-categoria" style="background-color: #27ae60; padding: 12px 25px;">
+                    Confirmar Pago y Descontar Stock
+                </button>
+            </form>
+        {% endif %}
+        <button onclick="window.print();" style="padding: 12px 25px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; background: white; font-weight: bold;">
+            🖨️ Imprimir para Despacho
+        </button>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "panel/base_panel.html" %}
+{% block content %}
+<h1>Gestión de Ventas</h1>
+<div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+  <table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <thead style="border-bottom: 2px solid #ddd;">
+            <tr style="border-bottom: 2px solid #eee;">
+                <th style="padding: 12px;">Orden</th>
+                <th style="padding: 12px;">Cliente</th>
+                <th style="padding: 12px;">Fecha</th>
+                <th style="padding: 12px;">Total</th>
+                <th style="padding: 12px;">Estado</th>
+                <th style="padding: 12px;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos %}
+            <tr style="border-bottom: 1px solid #f9f9f9;">
+                <td style="padding: 12px;">#{{ p.id }}</td>
+                <td style="padding: 12px;">{{ p.nombre_completo }}</td>
+                <td style="padding: 12px;">{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                <td style="padding: 12px;">${{ p.get_total_cost }}</td>
+                <td style="padding: 12px;">
+                    {% if p.pagado %}
+                        <span style="color: green;">✅ Pagado</span>
+                    {% else %}
+                        <span style="color: orange;">⏳ Pendiente</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 12px;">
+                    <a href="{% url 'detalle_pedido' p.id %}" class="btn-categoria" style="text-decoration: none; padding: 5px 10px;">Ver detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

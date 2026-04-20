@@ -5,7 +5,12 @@
 
 <div class="categoria-wrapper">
 
-<h1>{{ categoria.nombre }}</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>{{ categoria.nombre }}</h1>
+        <a href="{% url 'index' %}" class="btn-volver">
+    ← Volver al inicio
+  </a>
+    </div>
 
 <div class="catalogo2">
 
@@ -32,10 +37,6 @@
   {% endfor %}
 
 </div>
-
-<a href="{% url 'index' %}" class="btn-volver">
-    ← Volver al inicio
-  </a>
 
 </div>
 {% endblock %}
