@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from .carrito import Carrito
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 
 #----------------
 #PAGINA PUBLICA
@@ -272,3 +274,43 @@ def detalle_pedido(request, id):
     # Gracias al related_name='items' que pusiste en el modelo, 
     # podemos acceder a los productos así: pedido.items.all()
     return render(request, 'panel/detalle_pedido.html', {'pedido': pedido})
+
+
+@login_required
+def confirmar_pago_pedido(request, id):
+    if request.method == 'POST':
+        pedido = get_object_or_404(Pedido, id=id)
+        
+        # 1. Ejecutamos tu método maestro que descuenta el stock
+        pedido.confirmar_pago()
+        
+        # 2. Armamos el mensaje para el cliente
+        asunto = f'¡Pago Confirmado! Pedido #{pedido.id} en Rara Tienda 🦉'
+        mensaje = f'''Hola {pedido.nombre_completo},
+
+¡Tenemos excelentes noticias! Hemos confirmado el pago de tu pedido.
+
+Tu nido de productos ya está siendo preparado con mucho cariño para ser enviado a {pedido.direccion}, {pedido.ciudad}. 
+
+Te avisaremos por esta misma vía en cuanto el paquete inicie su vuelo.
+
+¡Gracias por apoyar el arte y la naturaleza!
+El equipo de Rara Tienda.
+'''
+        
+        # 3. Disparamos el correo
+        try:
+            send_mail(
+                asunto, 
+                mensaje, 
+                settings.EMAIL_HOST_USER, # Tu correo configurado en settings
+                [pedido.email], # El correo del cliente
+                fail_silently=False
+            )
+            messages.success(request, f'Pago confirmado, stock actualizado y correo enviado a {pedido.email}.')
+        except Exception as e:
+            # Si el correo falla (ej. problemas de red), igual confirmamos el pago en la BD
+            messages.warning(request, f'Pago confirmado y stock descontado, pero no se pudo enviar el correo automático.')
+            print(f"Error SMTP: {e}")
+            
+    return redirect('detalle_pedido', id=pedido.id)

@@ -32,4 +32,5 @@ urlpatterns = [
 
     path('panel/pedidos/', views.panel_pedidos, name='panel_pedidos'),
     path('panel/pedidos/<int:id>/', views.detalle_pedido, name='detalle_pedido'),
+    path('panel/pedidos/<int:id>/confirmar/', views.confirmar_pago_pedido, name='confirmar_pago_pedido'),
 ]  

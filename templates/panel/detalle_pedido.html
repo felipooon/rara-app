@@ -17,7 +17,12 @@
                 <p><strong>Nombre:</strong> {{ pedido.nombre_completo }}</p>
                 <p><strong>RUT:</strong> {{ pedido.rut }}</p>
                 <p><strong>Email:</strong> {{ pedido.email }}</p>
-                <p><strong>Teléfono:</strong> {{ pedido.telefono }}</p>
+                <p style="display: flex; align-items: center; gap: 10px;">
+                <strong>Teléfono:</strong> {{ pedido.telefono }}
+                    <a href="https://wa.me/56{{ pedido.telefono }}" target="_blank" style="text-decoration: none; background-color: #25D366; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(37,211,102,0.3);">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </p>
             </div>
             <div>
                 <p><strong>Dirección:</strong> {{ pedido.direccion }}</p>
@@ -77,7 +82,7 @@
 
     <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 15px;">
         {% if not pedido.pagado %}
-            <form action="#" method="POST">
+            <form action="{% url 'confirmar_pago_pedido' pedido.id %}" method="POST">
                 {% csrf_token %}
                 <button type="submit" class="btn-categoria" style="background-color: #27ae60; padding: 12px 25px;">
                     Confirmar Pago y Descontar Stock
