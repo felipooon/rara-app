@@ -2,11 +2,12 @@
    BASE
 ========================= */
 
-html, body {
+html,
+body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  font-family: "Segoe UI", "Roboto", sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -25,7 +26,6 @@ main {
   flex: 1;
 }
 
-
 .wrapper {
   min-height: 100%;
   display: flex;
@@ -33,10 +33,9 @@ main {
 }
 
 h2 {
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
 }
-
 
 /*DETALLE*/
 
@@ -46,12 +45,11 @@ h2 {
   justify-content: center;
   min-height: 80vh;
 
-  background-image: 
-  linear-gradient(rgba(255, 255, 255, 0.8), 
-  rgba(255, 255, 255, 0.7)),
-  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.7)),
+    url("https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg");
   background-repeat: no-repeat;
-  background-size: cover; 
+  background-size: cover;
 }
 
 .producto-contenedor {
@@ -62,7 +60,7 @@ h2 {
   background: var(--blanco);
   border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   align-self: center;
 }
 
@@ -176,9 +174,15 @@ section {
   animation: fadeInUp 1s ease-out forwards;
 }
 
-section:nth-of-type(2) { animation-delay: 0.3s; }
-section:nth-of-type(3) { animation-delay: 0.6s; }
-section:nth-of-type(4) { animation-delay: 0.9s; }
+section:nth-of-type(2) {
+  animation-delay: 0.3s;
+}
+section:nth-of-type(3) {
+  animation-delay: 0.6s;
+}
+section:nth-of-type(4) {
+  animation-delay: 0.9s;
+}
 
 .container {
   max-width: 960px;
@@ -190,10 +194,9 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   padding-top: 80px;
   min-height: 81vh;
 
-  background-image: 
-  linear-gradient(rgba(255, 255, 255, 0.8), 
-  rgba(255, 255, 255, 0.7)),
-  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.7)),
+    url("https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg");
   background-repeat: no-repeat;
   background-size: cover;
 }
@@ -214,7 +217,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 
   z-index: 1000;
   transition: all 0.3s ease;
@@ -223,7 +226,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 /* efecto al hacer scroll */
 .navbar.scrolled {
   background: hsla(27, 83%, 67%, 0.95);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 /* CONTENEDOR IZQUIERDO */
@@ -311,21 +314,25 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 /* BOTÓN CERRAR */
 .close-button {
   display: none;
-  Color: white;
+  color: white;
 }
 
 /* =========================
    BOTONES
 ========================= */
 
-.button, .btn, .producto button {
+.button,
+.btn,
+.producto button {
   cursor: pointer;
   transform: scale(1);
 }
 
-.button:hover, .btn:hover, .producto button:hover {
+.button:hover,
+.btn:hover,
+.producto button:hover {
   transform: scale(1.05);
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: #fff;
 }
 
@@ -375,33 +382,33 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 /* Estilos para el input de archivo */
-    .custom-file-input {
-        width: 100%;
-        color: #555;
-        background: #fff;
-        border: 1px solid #ccd0d5;
-        border-radius: 8px;
-        padding: 8px;
-        cursor: pointer;
-        font-family: inherit;
-    }
+.custom-file-input {
+  width: 100%;
+  color: #555;
+  background: #fff;
+  border: 1px solid #ccd0d5;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
 
-    /* Magia CSS: Apuntamos solo al botón gris feo del navegador */
-    .custom-file-input::file-selector-button {
-        background: #6c757d; /* Un gris elegante, puedes cambiarlo al color de tus botones */
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        margin-right: 15px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
+/* Magia CSS: Apuntamos solo al botón gris feo del navegador */
+.custom-file-input::file-selector-button {
+  background: #6c757d; /* Un gris elegante, puedes cambiarlo al color de tus botones */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  margin-right: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
 
-    .custom-file-input::file-selector-button:hover {
-        background: #5a6268;
-    }
+.custom-file-input::file-selector-button:hover {
+  background: #5a6268;
+}
 
 /* =========================
    HERO / INTRO
@@ -418,7 +425,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   text-align: center;
   padding: 3rem 1rem;
 
-  background-image: url('../img/heroig.png');
+  background-image: url("../img/heroig.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -429,7 +436,10 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .intro::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(255, 255, 255, 0.3);
   z-index: 0;
 }
@@ -441,7 +451,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 .intro h2 {
-  font-family: 'Quicksand', sans-serif;
+  font-family: "Quicksand", sans-serif;
   font-weight: 600;
   font-size: 3.2rem;
   margin-bottom: 1rem;
@@ -484,7 +494,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .catalogo .producto {
   background-color: var(--blanco);
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   width: 250px;
   text-align: center;
@@ -520,8 +530,8 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 .catalogo h2 {
-  font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
   font-size: 2.2rem;
   margin-bottom: 1rem;
   color: #4a4a4a;
@@ -534,10 +544,9 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .catalogo-seccion {
   margin-top: 0rem;
 
-  background-image: 
-  linear-gradient(rgba(255, 255, 255, 0.9), 
-  rgba(255, 255, 255, 0.7)),
-  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)),
+    url("https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg");
   background-repeat: no-repeat;
   background-size: cover;
 }
@@ -545,7 +554,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .producto {
   background-color: var(--blanco);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   overflow: hidden;
   text-align: center;
@@ -560,8 +569,8 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 
 .producto img {
   width: 100%;
-  height: 180px;           /* 👈 controla tamaño */
-  object-fit: cover;       /* 👈 evita deformaciones */
+  height: 180px; /* 👈 controla tamaño */
+  object-fit: cover; /* 👈 evita deformaciones */
 }
 
 .producto h3 {
@@ -619,8 +628,8 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 .nosotros h2 {
-  font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
   font-size: 3.2rem;
   margin-bottom: 1rem;
   color: white;
@@ -639,17 +648,16 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   text-align: center;
   padding: 3rem 1rem;
 
-  background-image: 
-  linear-gradient(rgba(255, 255, 255, 0.8), 
-  rgba(255, 255, 255, 0.7)),
-  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.7)),
+    url("https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg");
   background-repeat: no-repeat;
   background-size: cover;
 }
 
 .contacto h2 {
-  font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
   font-size: 2.2rem;
   margin-bottom: 1rem;
   color: #4a4a4a;
@@ -675,7 +683,6 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 ========================= */
 
 .footer {
-
   background-color: var(--primario);
   color: var(--blanco);
   text-align: center;
@@ -698,11 +705,9 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   }
 }
 
-
 /* =========================
    PANEL LAYOUT 
 ========================= */
-
 
 .panel-nav {
   display: flex;
@@ -762,7 +767,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 }
 
 /* Espaciado para los iconos de la sidebar */
-.panel-nav a i, 
+.panel-nav a i,
 .panel-nav button i,
 .panel-nav h2 i {
   margin-right: 10px;
@@ -774,7 +779,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .panel-nav form {
   margin-top: auto; /* Esta es la "magia" que lo envía al fondo */
   /*padding: 0 10px;*/
-  margin-bottom: 80px; 
+  margin-bottom: 80px;
   width: 100%;
 }
 
@@ -806,7 +811,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   padding: 25px;
   border-radius: 12px;
   max-width: 600px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .panel-body .form-group {
@@ -820,7 +825,6 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   margin-bottom: 6px;
   color: #555;
 }
-
 
 /* Inputs */
 .panel-body input,
@@ -879,15 +883,13 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   background: #f4f6f8;
 }
 
-
 /* CONTENIDO */
 .panel-main {
   flex: 1;
   padding: 40px; /* 👈 aquí está la separación real */
-  background-image: 
-  linear-gradient(rgba(255, 255, 255, 0.8), 
-  rgba(255, 255, 255, 0.7)),
-  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.7)),
+    url("https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg");
   background-repeat: no-repeat;
   background-size: cover;
 }
@@ -905,7 +907,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
   padding: 20px;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .stat-card h3 {
@@ -924,7 +926,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 .lista-productos {
   background-color: rgba(255, 255, 255, 0.75);
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden; /* Para que los bordes redondeados corten las filas */
   margin-top: 15px;
 }
@@ -994,7 +996,6 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 ========================= */
 
 @media (max-width: 768px) {
-
   .menu-toggle {
     display: block;
   }
@@ -1031,7 +1032,7 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
     cursor: pointer;
   }
 
-   .producto-contenedor {
+  .producto-contenedor {
     grid-template-columns: 1fr;
   }
 
@@ -1045,11 +1046,10 @@ section:nth-of-type(4) { animation-delay: 0.9s; }
 
   .producto-detalle {
     padding-top: 90px;
-    background-image: 
-  linear-gradient(rgba(255, 255, 255, 0.8), 
-  rgba(255, 255, 255, 0.7)),
-  url('https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg');
-  background-repeat: no-repeat;
-  background-size: cover; 
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.7)),
+      url("https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 }
