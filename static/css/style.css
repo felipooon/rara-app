@@ -383,7 +383,7 @@ section:nth-of-type(4) {
 
 /* Estilos para el input de archivo */
 .custom-file-input {
-  width: 100%;
+  width: 95%;
   color: #555;
   background: #fff;
   border: 1px solid #ccd0d5;
