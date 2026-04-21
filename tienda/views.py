@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from django.contrib.admin.views.decorators import staff_member_required
 
 #----------------
@@ -314,30 +315,70 @@ El equipo de Rara Tienda.
 
 @staff_member_required
 def exportar_stock_excel(request):
-    # 1. Creamos el libro de Excel y la hoja activa
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Stock Rara Tienda"
 
-    # 2. Definimos los encabezados
+    # --- 1. DEFINIR NUESTROS ESTILOS ---
+    # Fondo naranja (el color de tu tienda) y letra blanca para el encabezado
+    fill_header = PatternFill(start_color="FCA311", end_color="FCA311", fill_type="solid")
+    font_header = Font(name='Calibri', size=12, bold=True, color="FFFFFF")
+    align_center = Alignment(horizontal="center", vertical="center")
+    
+    # Bordes sutiles para todas las celdas
+    thin_border = Border(left=Side(style='thin', color='DDDDDD'),
+                         right=Side(style='thin', color='DDDDDD'),
+                         top=Side(style='thin', color='DDDDDD'),
+                         bottom=Side(style='thin', color='DDDDDD'))
+
+    # Colores dinámicos para el estado
+    font_agotado = Font(color="E74C3C", bold=True)  # Rojo alerta
+    font_disponible = Font(color="27AE60", bold=True) # Verde éxito
+
+    # --- 2. CREAR Y PINTAR EL ENCABEZADO ---
     headers = ['ID', 'Producto', 'Stock Actual', 'Precio', 'Estado']
     ws.append(headers)
+    
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.fill = fill_header
+        cell.font = font_header
+        cell.alignment = align_center
+        cell.border = thin_border
 
-    # 3. Traemos los datos de la base de datos
+    # --- 3. AJUSTAR ANCHOS DE COLUMNA (Para que no se corte el texto) ---
+    ws.column_dimensions['A'].width = 10  # ID
+    ws.column_dimensions['B'].width = 35  # Nombre del Producto
+    ws.column_dimensions['C'].width = 15  # Stock
+    ws.column_dimensions['D'].width = 15  # Precio
+    ws.column_dimensions['E'].width = 18  # Estado
+
+    # --- 4. POBLAR DATOS CON FORMATO INTELIGENTE ---
     productos = Producto.objects.all().order_by('nombre')
     
-    for p in productos:
-        # Definimos el estado visualmente
+    # start=2 porque la fila 1 ya la ocupó el encabezado
+    for row_num, p in enumerate(productos, start=2): 
         estado = "Disponible" if p.stock > 0 else "Agotado"
-        ws.append([p.id, p.nombre, p.stock, p.precio, estado])
+        
+        # Insertar la fila de datos (agregamos el signo $ al precio para que se vea mejor)
+        ws.append([p.id, p.nombre, p.stock, f"${p.precio}", estado])
+        
+        # Aplicar diseño a esta nueva fila
+        for col_num in range(1, 6):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.border = thin_border
+            
+            # Centrar ID, Stock, Precio y Estado
+            if col_num in [1, 3, 4, 5]: 
+                cell.alignment = align_center
+                
+            # Pintar la palabra "Agotado" de rojo y "Disponible" de verde
+            if col_num == 5:
+                cell.font = font_agotado if estado == "Agotado" else font_disponible
 
-    # 4. Preparamos la respuesta del navegador
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    )
-    response['Content-Disposition'] = 'attachment; filename="Stock_Rara_Tienda.xlsx"'
-
-    # 5. Guardamos el libro en la respuesta
+    # --- 5. ENVIAR EL ARCHIVO HERMOSEADO ---
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Inventario_Rara_Tienda.xlsx"'
     wb.save(response)
     return response
 
