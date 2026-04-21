@@ -163,22 +163,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#CLOUDINARY_STORAGE = {
-#    'CLOUD_NAME': os.environ.get("CLOUDINARY_CLOUD_NAME"),
-#    'API_KEY': os.environ.get("CLOUDINARY_API_KEY"),
-#    'API_SECRET': os.environ.get("CLOUDINARY_API_SECRET"),
-#}
-
-#STORAGES = {
-#    "default": {
-#        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-#    },
-#    "staticfiles": {
-#        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-#    },
-#}
-
-
+#---------------------
+#  STORAGES
+#---------------------
 
 if DEBUG:
     # ==========================================
@@ -229,3 +216,24 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 """
+
+#---------------
+#  EMAIL
+#---------------
+
+if DEBUG:
+    # Entorno Local (Tu PC): Imprime el correo en la terminal de texto
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    # Producción (Render): Envía el correo real usando Gmail
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    
+    # Aquí lee las contraseñas secretas desde el servidor de Render
+    EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+    
+    # El nombre que verá el cliente cuando reciba el correo
+    DEFAULT_FROM_EMAIL = f"Rara Tienda <{EMAIL_HOST_USER}>"
