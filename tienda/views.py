@@ -114,7 +114,7 @@ def procesar_pedido(request):
 
 Cliente: {pedido.nombre_completo}
 Ciudad: {pedido.ciudad}
-Total a transferir: ${pedido.total}
+Total a transferir: ${carrito.get_total()}
 Teléfono: +56{pedido.telefono}
 
 Revisa el panel de administración para ver el detalle completo y coordinar el pago.
