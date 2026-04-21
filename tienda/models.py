@@ -49,6 +49,14 @@ class Pedido(models.Model):
     direccion = models.CharField(max_length=250)
     ciudad = models.CharField(max_length=100, default="Puerto Montt")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def codigo_orden(self):
+        """
+        Suma 1100 al ID real. Si el ID en base de datos es 7, 
+        para el cliente será el pedido 1107.
+        """        
+        return str(self.id + 1100)
     
     # 2. Datos de la transacción
     creado = models.DateTimeField(auto_now_add=True)

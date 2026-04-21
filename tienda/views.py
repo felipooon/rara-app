@@ -9,6 +9,8 @@ from .carrito import Carrito
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+import openpyxl
+from django.contrib.admin.views.decorators import staff_member_required
 
 #----------------
 #PAGINA PUBLICA
@@ -285,7 +287,7 @@ def confirmar_pago_pedido(request, id):
         pedido.confirmar_pago()
         
         # 2. Armamos el mensaje para el cliente
-        asunto = f'¡Pago Confirmado! Pedido #{pedido.id} en Rara Tienda 🦉'
+        asunto = f'¡Pago Confirmado! Pedido #{pedido.codigo_orden} en Rara Tienda 🦉'
         mensaje = f'''Hola {pedido.nombre_completo},
 
 ¡Tenemos excelentes noticias! Hemos confirmado el pago de tu pedido.
@@ -314,3 +316,33 @@ El equipo de Rara Tienda.
             print(f"Error SMTP: {e}")
             
     return redirect('detalle_pedido', id=pedido.id)
+
+
+@staff_member_required
+def exportar_stock_excel(request):
+    # 1. Creamos el libro de Excel y la hoja activa
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Stock Rara Tienda"
+
+    # 2. Definimos los encabezados
+    headers = ['ID', 'Producto', 'Stock Actual', 'Precio', 'Estado']
+    ws.append(headers)
+
+    # 3. Traemos los datos de la base de datos
+    productos = Producto.objects.all().order_by('nombre')
+    
+    for p in productos:
+        # Definimos el estado visualmente
+        estado = "Disponible" if p.stock > 0 else "Agotado"
+        ws.append([p.id, p.nombre, p.stock, p.precio, estado])
+
+    # 4. Preparamos la respuesta del navegador
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename="Stock_Rara_Tienda.xlsx"'
+
+    # 5. Guardamos el libro en la respuesta
+    wb.save(response)
+    return response
