@@ -3,4 +3,4 @@ python manage.py collectstatic --noinput
 python manage.py migrate --run-syncdb
 python manage.py migrate
 
-python scripts/create_superuser.py
+#python scripts/create_superuser.py

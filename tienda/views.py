@@ -220,19 +220,13 @@ from .models import Producto, Categoria
 
 @login_required
 def panel_home(request):
-    total_productos = Producto.objects.count()
-    total_categorias = Categoria.objects.count()
-    productos_disponibles = Producto.objects.filter(disponible=True).count()
-    productos_agotados = Producto.objects.filter(disponible=False).count()
-    ultimos_productos = Producto.objects.order_by('-id')[:5]
-
-    return render(request, 'panel/dashboard.html', {
-        'total_productos': total_productos,
-        'total_categorias': total_categorias,
-        'productos_disponibles': productos_disponibles,
-        'productos_agotados': productos_agotados,
-        'ultimos_productos': ultimos_productos,
-    })
+    context = {
+        'pedidos_pendientes': Pedido.objects.filter(pagado=False).count(),
+        'pedidos_pagados': Pedido.objects.filter(pagado=True).count(),
+        'productos_agotados': Producto.objects.filter(stock=0).count(),
+        'ultimos_pedidos': Pedido.objects.all().order_by('-fecha_creacion')[:5], # Los 5 más recientes
+    }
+    return render(request, 'panel/dashboard.html', context)
 
 class CustomLoginView(LoginView):
     template_name = "login.html"
@@ -347,14 +341,3 @@ def exportar_stock_excel(request):
     wb.save(response)
     return response
 
-
-@staff_member_required
-def panel_principal(request):
-    # La nueva inteligencia de negocios
-    context = {
-        'pedidos_pendientes': Pedido.objects.filter(pagado=False).count(),
-        'pedidos_pagados': Pedido.objects.filter(pagado=True).count(),
-        'productos_agotados': Producto.objects.filter(stock=0).count(),
-        'ultimos_pedidos': Pedido.objects.all().order_by('-fecha_creacion')[:5], # Los 5 más recientes
-    }
-    return render(request, 'panel/principal.html', context)
