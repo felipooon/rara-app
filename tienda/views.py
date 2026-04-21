@@ -99,10 +99,40 @@ def procesar_pedido(request):
         for item in carrito:
             ItemPedido.objects.create(
                 pedido=pedido,
-                producto=item['producto_real'], # ¡Gracias al iterador, ya tenemos el objeto de la BD!
+                producto=item['producto_real'],
                 precio=item['precio'],
                 cantidad=item['cantidad']
             )
+
+
+        # ========================================================
+        # BLOQUE DE CORREO: SÓLO ALERTA PARA ADMINISTRADORES
+        # ========================================================
+        try:
+            asunto_admin = f"🚨 NUEVO PEDIDO RARATIENDA#{pedido.codigo_orden} - {pedido.nombre_completo}"
+            mensaje_admin = f"""¡Atención! Acaba de entrar un nuevo pedido.
+
+Cliente: {pedido.nombre_completo}
+Ciudad: {pedido.ciudad}
+Total a transferir: ${pedido.total}
+Teléfono: +56{pedido.telefono}
+
+Revisa el panel de administración para ver el detalle completo y coordinar el pago.
+
+www.raratienda.cl/panel
+"""
+            send_mail(
+                asunto_admin,
+                mensaje_admin,
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.EMAIL_HOST_USER], # Se envía al correo de la tienda (el tuyo)
+                fail_silently=False,
+            )
+
+        except Exception as e:
+            # Si hay un problema temporal con Gmail, la venta no se cae
+            print(f"Error silencioso al enviar alerta de pedido: {e}")
+        # ========================================================
         
         # 3. ¡Venta lista! Limpiamos la sesión usando el método
         carrito.limpiar()
