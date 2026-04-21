@@ -12,6 +12,7 @@ from django.conf import settings
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from django.contrib.admin.views.decorators import staff_member_required
+import re
 
 #----------------
 #PAGINA PUBLICA
@@ -85,10 +86,21 @@ def procesar_pedido(request):
         return redirect('index')
 
     if request.method == 'POST':
+        rut_ingresado = request.POST.get('rut', '')
+
+        if not validar_rut_chileno(rut_ingresado):
+            context = {
+                'carrito': carrito,
+                'error_rut': "El RUT ingresado no es válido. Por favor, revísalo y escríbelo correctamente.",
+                'datos_previos': request.POST
+            }
+            return render(request, 'checkout.html', context)
+
+
         # 1. Capturamos los datos del cliente desde el formulario
         pedido = Pedido.objects.create(
             nombre_completo=request.POST.get('nombre_completo'),
-            rut=request.POST.get('rut'),
+            rut=rut_ingresado,
             email=request.POST.get('email'),
             telefono=request.POST.get('telefono'),
             direccion=request.POST.get('direccion'),
@@ -179,6 +191,42 @@ def pedido_confirmado(request, pedido_id):
     # Buscamos el pedido recién creado para mostrarle sus datos
     pedido = get_object_or_404(Pedido, id=pedido_id)
     return render(request, 'pedido_confirmado.html', {'pedido': pedido})
+
+
+def validar_rut_chileno(rut):
+    """Limpia y valida un RUT chileno usando el algoritmo de Módulo 11."""
+    # 1. Quitar puntos, guiones y espacios, dejar en mayúscula
+    rut_limpio = rut.replace(".", "").replace("-", "").replace(" ", "").upper()
+    
+    # 2. Validar que tenga el largo correcto y solo números + K
+    if not re.match(r'^\d{7,8}[0-9K]$', rut_limpio):
+        return False
+        
+    # 3. Separar cuerpo del dígito verificador
+    cuerpo = rut_limpio[:-1]
+    dv_ingresado = rut_limpio[-1]
+    
+    # 4. Cálculo matemático (Módulo 11)
+    suma = 0
+    multiplo = 2
+    for c in reversed(cuerpo):
+        suma += int(c) * multiplo
+        multiplo += 1
+        if multiplo == 8:
+            multiplo = 2
+            
+    resto = suma % 11
+    dv_esperado = 11 - resto
+    
+    if dv_esperado == 11:
+        dv_esperado = "0"
+    elif dv_esperado == 10:
+        dv_esperado = "K"
+    else:
+        dv_esperado = str(dv_esperado)
+        
+    # 5. Comparar si el cálculo coincide con el del cliente
+    return dv_ingresado == dv_esperado
 
 #-----------------------
 #PANEL DE ADMINISTRACION
