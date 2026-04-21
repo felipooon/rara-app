@@ -346,3 +346,15 @@ def exportar_stock_excel(request):
     # 5. Guardamos el libro en la respuesta
     wb.save(response)
     return response
+
+
+@staff_member_required
+def panel_principal(request):
+    # La nueva inteligencia de negocios
+    context = {
+        'pedidos_pendientes': Pedido.objects.filter(pagado=False).count(),
+        'pedidos_pagados': Pedido.objects.filter(pagado=True).count(),
+        'productos_agotados': Producto.objects.filter(stock=0).count(),
+        'ultimos_pedidos': Pedido.objects.all().order_by('-fecha_creacion')[:5], # Los 5 más recientes
+    }
+    return render(request, 'panel/principal.html', context)

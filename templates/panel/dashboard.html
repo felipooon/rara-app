@@ -1,81 +1,74 @@
 {% extends "panel/base_panel.html" %}
 
 {% block content %}
-<h1>Panel de administración</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>Panel de Control 🦉</h1>
+    <span style="color: #666; font-size: 0.9rem;">Resumen en tiempo real</span>
+</div>
 
-<div style="display:flex; gap:20px;">
-
-  <a href="/panel/productos/" class="btn-categoria">
-    📋 Ver productos
+<div style="display:flex; gap:15px; margin-bottom: 30px; flex-wrap: wrap;">
+  <a href="{% url 'panel_pedidos' %}" class="btn-categoria" style="background-color: #fca311; color: white;">
+    🛒 Ver Ventas
   </a>
-
+  <a href="{% url 'exportar_stock_excel' %}" class="btn-categoria" style="background-color: #1D6F42; color: white;">
+    📊 Descargar Excel
+  </a>
   <a href="/panel/productos/crear/" class="btn-categoria">
     ➕ Nuevo producto
   </a>
-
-  <a href="/panel/categorias/crear/" class="btn-categoria">
-    📂 Nueva categoría
-  </a>
-
 </div>
 
 <div class="panel-body">
-
-  <h2>Métricas</h2>
+  <h2>Métricas del Negocio</h2>
 
   <div class="stats-grid">
-
-    <div class="stat-card">
-      <h3>Productos</h3>
-      <p>{{ total_productos }}</p>
+    <div class="stat-card" style="border-bottom: 4px solid #e74c3c;">
+      <h3>Por Cobrar (Pendientes)</h3>
+      <p style="color: #e74c3c; font-size: 2.5rem; margin: 10px 0;">{{ pedidos_pendientes }}</p>
     </div>
 
-    <div class="stat-card">
-      <h3>Categorías</h3>
-      <p>{{ total_categorias }}</p>
+    <div class="stat-card" style="border-bottom: 4px solid #27ae60;">
+      <h3>Ventas Concretadas</h3>
+      <p style="color: #27ae60; font-size: 2.5rem; margin: 10px 0;">{{ pedidos_pagados }}</p>
     </div>
 
-    <div class="stat-card">
-      <h3>Disponibles</h3>
-      <p>{{ productos_disponibles }}</p>
+    <div class="stat-card" style="border-bottom: 4px solid #f39c12;">
+      <h3>Nidos Vacíos (Agotados)</h3>
+      <p style="font-size: 2.5rem; margin: 10px 0;">{{ productos_agotados }}</p>
     </div>
-
-    <div class="stat-card">
-      <h3>Agotados</h3>
-      <p>{{ productos_agotados }}</p>
-    </div>
-
   </div>
-
 </div>
 
-<h3>Últimos productos</h3>
+<h3>Últimos Movimientos (Top 5)</h3>
 <div class="lista-productos">
   <ul>
-    {% for producto in ultimos_productos %}
-    <li>
+    {% for pedido in ultimos_pedidos %}
+    <li style="display: flex; justify-content: space-between; align-items: center;">
       <div class="prod-info">
-        <i class="fa-solid fa-tag" style="color: var(--primario); opacity: 0.5;"></i>
+        <i class="fa-solid fa-receipt" style="color: #fca311; opacity: 0.8; margin-right: 15px;"></i>
         <div>
-          <span class="prod-nombre">{{ producto.nombre }}</span>
-          <span class="prod-meta">— {{ producto.categoria.nombre }}</span>
+          <span class="prod-nombre">Pedido #{{ pedido.codigo_orden }}</span>
+          <span class="prod-meta">— {{ pedido.nombre_completo }}</span>
         </div>
       </div>
       
-      {% if producto.disponible %}
-        <span class="badge-status status-disponible">
-          <i class="fa-solid fa-check"></i> Disponible
-        </span>
-      {% else %}
-        <span class="badge-status status-agotado">
-          <i class="fa-solid fa-xmark"></i> Agotado
-        </span>
-      {% endif %}
+      <div style="display: flex; align-items: center; gap: 15px;">
+          {% if pedido.pagado %}
+            <span class="badge-status status-disponible" style="background: #e8f8f5; color: #27ae60; padding: 5px 10px; border-radius: 15px; font-size: 0.85rem;">
+              <i class="fa-solid fa-check"></i> Pagado
+            </span>
+          {% else %}
+            <span class="badge-status status-agotado" style="background: #fdf2e9; color: #e67e22; padding: 5px 10px; border-radius: 15px; font-size: 0.85rem;">
+              <i class="fa-solid fa-clock"></i> Pendiente
+            </span>
+          {% endif %}
+          
+          <a href="{% url 'detalle_pedido' pedido.id %}" style="text-decoration: none; font-size: 1.2rem;" title="Ver Detalle">👁️</a>
+      </div>
     </li>
     {% empty %}
-    <li style="color: #999; justify-content: center;">No hay productos registrados aún.</li>
+    <li style="color: #999; justify-content: center; padding: 20px;">Aún no hay cantos en el nido (Cero pedidos).</li>
     {% endfor %}
   </ul>
 </div>
-
 {% endblock %}
