@@ -10,15 +10,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-N7WNM6XN');</script>
 <!-- End Google Tag Manager -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="{% block meta_desc %}Equipamiento, guías y accesorios para amantes de la naturaleza y el pajareo. Todo para tus salidas a terreno.{% endblock %}">
+<meta property="og:title" content="{% block og_title %}Rara Tienda{% endblock %}">
+<meta property="og:description" content="{% block og_desc %}Equipamiento para amantes de la naturaleza.{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{% static 'img/logo-og.png' %}{% endblock %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
 
-  <title>{% block title %}Rara Tienda{% endblock %}</title>
+<title>{% block title %}Rara Tienda{% endblock %}</title>
 
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link rel="icon" href="{% static 'img/favicon.ico' %}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="icon" href="{% static 'img/favicon.ico' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
 
@@ -28,67 +34,67 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <header>
-  <nav class="navbar">
+<nav class="navbar">
     <div class="nav-left">
-      <button class="menu-toggle" id="menu-toggle">☰</button>
+    <button class="menu-toggle" id="menu-toggle">☰</button>
 
-      <a href="/" class="logo">
+    <a href="/" class="logo">
         <i class="fa-solid fa-crow"></i> Rara Tienda
-      </a>
+    </a>
 
-      <ul class="nav-links" id="nav-links">
-  <button id="close-menu" class="close-button">&times;</button>
+    <ul class="nav-links" id="nav-links">
+<button id="close-menu" class="close-button">&times;</button>
 
-  <li><a href="/#inicio">Inicio</a></li>
-  <li><a href="/#catalogo">Catálogo</a></li>
-  <li><a href="/#acerca">Acerca</a></li>
-  <li><a href="/#contacto">Contacto</a></li>
+<li><a href="/#inicio">Inicio</a></li>
+<li><a href="/#catalogo">Catálogo</a></li>
+<li><a href="/#acerca">Acerca</a></li>
+<li><a href="/#contacto">Contacto</a></li>
 </ul>
     </div>
-  </nav>
+</nav>
 </header>
 
 <main>
-  {% block content %}
-  {% endblock %}
+{% block content %}
+{% endblock %}
 </main>
 
 <footer class="footer">
-  <p>&copy; 2026 Rara Tienda</p>
+<p>&copy; 2026 Rara Tienda</p>
 </footer>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  const toggle = document.getElementById("menu-toggle");
-  const links = document.getElementById("nav-links");
-  const close = document.getElementById("close-menu");
+const toggle = document.getElementById("menu-toggle");
+const links = document.getElementById("nav-links");
+const close = document.getElementById("close-menu");
 
-  toggle.addEventListener("click", () => {
+toggle.addEventListener("click", () => {
     links.classList.add("show");
-  });
+});
 
-  close.addEventListener("click", () => {
+close.addEventListener("click", () => {
     links.classList.remove("show");
-  });
+});
 
   // cerrar al hacer click en un link (UX pro)
-  document.querySelectorAll(".nav-links a").forEach(link => {
+document.querySelectorAll(".nav-links a").forEach(link => {
     link.addEventListener("click", () => {
-      links.classList.remove("show");
+    links.classList.remove("show");
     });
-  });
+});
 
   // efecto scroll navbar
-  window.addEventListener("scroll", () => {
+window.addEventListener("scroll", () => {
     document.querySelector(".navbar")
-      .classList.toggle("scrolled", window.scrollY > 10);
-  });
+    .classList.toggle("scrolled", window.scrollY > 10);
+});
 
-  document.addEventListener("click", (e) => {
-  if (!links.contains(e.target) && !toggle.contains(e.target)) {
+document.addEventListener("click", (e) => {
+if (!links.contains(e.target) && !toggle.contains(e.target)) {
     links.classList.remove("show");
-  }
+}
 });
 
 });
@@ -128,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <div id="sidebar-carrito" class="sidebar-carrito">
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee; flex-shrink: 0;">
-        <h2 style="margin: 0;">Tu Nido 🪺</h2>
+        <span style="margin: 0;">Tu Nido 🪺</span>
         <button onclick="cerrarCarrito()" style="border: none; background: none; font-size: 1.5rem; cursor: pointer;">❌</button>
     </div>
     
@@ -140,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div style="display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0;">
                     
                     {% if item.imagen %}
-                        <img src="{{ item.imagen }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                        <img src="{{ item.imagen }}" alt="Imagen de {{ item.nombre }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                     {% endif %}
                     
                     <div style="flex-grow: 1;">

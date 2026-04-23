@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}{{ categoria.nombre }}{% endblock %}
+
+{% block meta_desc %}Descubre nuestra colección de {{ categoria.nombre|lower }} en Rara Tienda. Equipamiento y accesorios para tus salidas a la naturaleza.{% endblock %}
+
+{% block og_title %}{{ categoria.nombre }} | Rara Tienda{% endblock %}
+{% block og_desc %}Explora todos nuestros productos de la categoría {{ categoria.nombre|lower }}.{% endblock %}
+
 {% block content %}
 
 <div class="categoria-wrapper">
