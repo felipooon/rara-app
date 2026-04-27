@@ -34,4 +34,11 @@ urlpatterns = [
     path('panel/pedidos/<int:id>/', views.detalle_pedido, name='detalle_pedido'),
     path('panel/pedidos/<int:id>/confirmar/', views.confirmar_pago_pedido, name='confirmar_pago_pedido'),
     path('panel/productos/exportar/', views.exportar_stock_excel, name='exportar_stock_excel'),
+
+    # Ruta pública para acceder al radar
+    path('radar-bigday/', views.render_radar, name='radar_bigday'),
+    
+    # Ruta interna para que el JavaScript consulte a eBird
+    path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),
+
 ]  

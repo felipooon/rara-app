@@ -1,5 +1,6 @@
+import requests
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Categoria, Producto, Pedido, ItemPedido
 from .forms import CategoriaForm, ProductoForm
@@ -9,6 +10,7 @@ from .carrito import Carrito
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from django.views.decorators.http import require_GET
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from django.contrib.admin.views.decorators import staff_member_required
@@ -460,3 +462,36 @@ def exportar_stock_excel(request):
     wb.save(response)
     return response
 
+#---------------------
+# RADAR BIG DAY
+#---------------------
+
+def render_radar(request):
+    """Renderiza la vista principal del radar en raratienda.cl/radar-bigday"""
+    return render(request, 'radar.html')
+
+@require_GET
+def ebird_proxy(request, ebird_path):
+    """Proxy para eBird que inyecta la API Key en secreto y bloquea robos de código"""
+    
+    # 1. Protección de origen (CORS casero)
+    # Bloquea peticiones que no vengan de raratienda.cl o de tu entorno local
+    origen = request.META.get('HTTP_ORIGIN') or request.META.get('HTTP_REFERER', '')
+    if not settings.DEBUG and "raratienda.cl" not in origen:
+        return HttpResponseForbidden("Acceso denegado.")
+
+    # 2. Construir la URL hacia eBird
+    url = f"https://api.ebird.org/v2/{ebird_path}"
+    
+    # 3. Inyectar la API Key desde las variables de entorno de Render
+    headers = {"X-eBirdApiToken": settings.EBIRD_API_KEY}
+    
+    # 4. Pasar los parámetros originales (como locale=es_CL)
+    params = request.GET.dict()
+    
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        return JsonResponse(response.json(), safe=False)
+    except requests.RequestException as e:
+        return JsonResponse({"error": str(e)}, status=500)
