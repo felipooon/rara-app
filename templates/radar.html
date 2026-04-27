@@ -55,7 +55,7 @@
 
         /* PUBLICIDAD */
         .ads-floating { position: absolute; bottom: 36%; right: 10px; z-index: 1001; display: flex; gap: 8px; }
-        .ad-logo { height: 25px; background: white; padding: 4px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .ad-logo { height: 25px; background: rgba(255, 255, 255, 0.5);backdrop-filter: blur(2px); padding: 4px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
         /* ESTILO POPUP */
         .popup-card { min-width: 160px; font-family: sans-serif; }
@@ -64,7 +64,7 @@
         .btn-ver { 
             display: block; background: var(--accent); color: white !important; 
             text-align: center; padding: 8px; border-radius: 6px; 
-            text-decoration: none; margin-top: 10px; font-weight: bold; font-size: 11px;
+            text-decoration: none; margin-top: 10px; font-weight: bold; font-size: 10px;
         }
 
         @media (min-width: 1024px) {
@@ -107,9 +107,10 @@
         </select>
     </div>
 
-    <!--<div class="ads-floating">
+    <div class="ads-floating">
         <a href="https://raratienda.cl" target="_blank"><img src="https://res.cloudinary.com/dfyj3s6bi/image/upload/v1777296097/logo-og_pjdz0w.png" class="ad-logo" alt="Rara Tienda"></a>
-    </div>-->
+        <a href="https://ebird.org" target="_blank"><img src="https://clo-brand-static-prod.s3.amazonaws.com/logos/ebird/clo_ebird_solo_web.svg" class="ad-logo" alt="ebird"></a>
+    </div>
 
     <div class="main-view">
         <div id="map"></div>
@@ -144,7 +145,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script>
         let REGION = "CL-LL";
-        /*const API_KEY = "dnbm87a73dmo";*/
         let rawListas = [], diaH = "";
 
         const coordsRegiones = {
