@@ -146,6 +146,7 @@
     <script>
         let REGION = "CL-LL";
         let rawListas = [], diaH = "";
+        let diccEspecies = {};
 
         const coordsRegiones = {
             "CL-AP": [-18.47, -70.30], "CL-TA": [-20.21, -70.14], "CL-AN": [-23.65, -70.40],
@@ -169,33 +170,50 @@
             await update();
         }
 
-        window.onload = () => {
+        window.onload = async () => {
             diaH = new Intl.DateTimeFormat('es-CL', { day: '2-digit' }).format(new Date());
-            update();
+            
+            try {
+                const resDicc = await fetch('/static/js/species.json'); 
+                diccEspecies = await resDicc.json();
+            } catch(e) {
+                console.warn("No se pudo cargar el diccionario de especies local", e);
+            }
+            
+           await update();
         };
 
         async function update() {
             const h = new Date();
             const y = h.getFullYear(), m = h.getMonth() + 1, d = h.getDate();
             try {
-                /*const resObs = await fetch(`https://api.ebird.org/v2/data/obs/${REGION}/historic/${y}/${m}/${d}?locale=es_CL`, { headers: {"X-eBirdApiToken": API_KEY} });*/
                 const resObs = await fetch(`/api/ebird/data/obs/${REGION}/historic/${y}/${m}/${d}?locale=es_CL`);
                 const obsData = await resObs.json();
                 document.getElementById('s-sp').innerText = obsData.length;
-                document.getElementById('tbody-especies').innerHTML = obsData.map(o => `
-                    <tr>
-                        <td><b>${o.comName}</b></td>
-                        <td>${o.locName.substring(0,12)}..</td>
-                        <td>${o.obsDt.split(' ')[1] || '--'}</td>
-                        <td style="text-align:center"><a href="https://ebird.org/checklist/${o.subId}" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link-alt"></i></a></td>
-                    </tr>
-                `).join('');
+                document.getElementById('tbody-especies').innerHTML = obsData.map(o => {
+    
+    // Buscamos el código en tu diccionario. Si existe, sacamos el ".es". 
+    // Si por algún motivo es un pájaro raro que no está en tu JSON, 
+    // usamos el nombre que mandó eBird por defecto (o.comName) como respaldo.
+    const nombreLocal = diccEspecies[o.speciesCode] ? diccEspecies[o.speciesCode].es : o.comName;
+
+    return `
+        <tr>
+            <td><b>${nombreLocal}</b></td>
+            <td>${o.locName.substring(0,12)}..</td>
+            <td>${o.obsDt.split(' ')[1] || '--'}</td>
+            <td style="text-align:center">
+                <a href="https://ebird.org/checklist/${o.subId}" target="_blank" style="color:var(--accent)">
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+            </td>
+        </tr>
+    `;
+}).join('');
             } catch(e) {}
             try {
-                /*const resList = await fetch(`https://api.ebird.org/v2/product/lists/${REGION}?maxResults=80`, { headers: {"X-eBirdApiToken": API_KEY} });*/
                 const resList = await fetch(`/api/ebird/product/lists/${REGION}?maxResults=80`);
                 rawListas = await resList.json();
-                /*const resStats = await fetch(`https://api.ebird.org/v2/product/stats/${REGION}/${y}/${m}/${d}`, { headers: {"X-eBirdApiToken": API_KEY} });*/
                 const resStats = await fetch(`/api/ebird/product/stats/${REGION}/${y}/${m}/${d}`);
                 if(resStats.ok) {
                     const sd = await resStats.json();
