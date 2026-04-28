@@ -501,7 +501,7 @@ def ebird_proxy(request, ebird_path):
 def get_species_dict(request):
     """Lee el diccionario local y lo devuelve como JSON puro, esquivando collectstatic"""
     # Construimos la ruta absoluta al archivo dentro de tu app 'core'
-    file_path = os.path.join(settings.BASE_DIR, 'core', 'species.json')
+    file_path = os.path.join(settings.BASE_DIR, 'tienda', 'species.json')
     
     try:
         # Es vital el encoding='utf-8' para que no se rompan las tildes y las 'ñ'
