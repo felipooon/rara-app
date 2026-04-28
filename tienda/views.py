@@ -483,7 +483,7 @@ def ebird_proxy(request, ebird_path):
 
     dominios_permitidos = [
         "raratienda.cl", 
-        "https://tu-usuario.github.io" 
+        "https://felipooon.github.io" 
     ]
     
     # Verificamos si el origen está en nuestra lista permitida
