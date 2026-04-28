@@ -174,54 +174,81 @@
             diaH = new Intl.DateTimeFormat('es-CL', { day: '2-digit' }).format(new Date());
             
             try {
+                // Asegúrate de que esta ruta sea la correcta en tu servidor
                 const resDicc = await fetch('/static/js/species.json'); 
-                diccEspecies = await resDicc.json();
-            } catch(e) {
-                console.warn("No se pudo cargar el diccionario de especies local", e);
+                if (resDicc.ok) {
+                    diccEspecies = await resDicc.json();
+                    console.log("Diccionario cargado. Total especies:", Object.keys(diccEspecies).length);
+                } else {
+                    console.error("Error al buscar el archivo JSON");
+                }
+            } catch (e) {
+                console.error("Fallo de red al cargar el diccionario:", e);
             }
             
-           await update();
+            await update();
         };
 
         async function update() {
             const h = new Date();
             const y = h.getFullYear(), m = h.getMonth() + 1, d = h.getDate();
+            
+            // 1. CARGAR ESPECIES
             try {
                 const resObs = await fetch(`/api/ebird/data/obs/${REGION}/historic/${y}/${m}/${d}?locale=es_CL`);
                 const obsData = await resObs.json();
+                
+                // Actualizamos el contador flotante
                 document.getElementById('s-sp').innerText = obsData.length;
-                document.getElementById('tbody-especies').innerHTML = obsData.map(o => {
-    
-    // Buscamos el código en tu diccionario. Si existe, sacamos el ".es". 
-    // Si por algún motivo es un pájaro raro que no está en tu JSON, 
-    // usamos el nombre que mandó eBird por defecto (o.comName) como respaldo.
-    const nombreLocal = diccEspecies[o.speciesCode] ? diccEspecies[o.speciesCode].es : o.comName;
+                
+                // Generamos el HTML de la tabla mapeando y traduciendo
+                const htmlEspecies = obsData.map(o => {
+                    const codigo = o.speciesCode; 
+                    let nombreFinal = o.comName; // Nombre original de eBird por defecto
+                    
+                    // Si el código está en tu diccionario, usamos tu nombre en español
+                    if (diccEspecies && diccEspecies[codigo]) {
+                        nombreFinal = diccEspecies[codigo].es; 
+                    }
 
-    return `
-        <tr>
-            <td><b>${nombreLocal}</b></td>
-            <td>${o.locName.substring(0,12)}..</td>
-            <td>${o.obsDt.split(' ')[1] || '--'}</td>
-            <td style="text-align:center">
-                <a href="https://ebird.org/checklist/${o.subId}" target="_blank" style="color:var(--accent)">
-                    <i class="fas fa-external-link-alt"></i>
-                </a>
-            </td>
-        </tr>
-    `;
-}).join('');
-            } catch(e) {}
+                    return `
+                        <tr>
+                            <td><b>${nombreFinal}</b></td>
+                            <td>${o.locName.substring(0,12)}..</td>
+                            <td>${o.obsDt.split(' ')[1] || '--'}</td>
+                            <td style="text-align:center">
+                                <a href="https://ebird.org/checklist/${o.subId}" target="_blank" style="color:var(--accent)">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                // Inyectamos el HTML en la tabla
+                document.getElementById('tbody-especies').innerHTML = htmlEspecies;
+
+            } catch(e) {
+                console.error("Error cargando especies en vivo:", e);
+            }
+            
+            // 2. CARGAR LISTAS Y STATS
             try {
                 const resList = await fetch(`/api/ebird/product/lists/${REGION}?maxResults=80`);
                 rawListas = await resList.json();
+                
                 const resStats = await fetch(`/api/ebird/product/stats/${REGION}/${y}/${m}/${d}`);
                 if(resStats.ok) {
                     const sd = await resStats.json();
                     document.getElementById('s-list').innerText = sd.numChecklists;
                     document.getElementById('s-user').innerText = sd.numContributors;
                 }
-                render();
-            } catch(e) {}
+                
+                render(); // Dibujar los puntos en el mapa
+
+            } catch(e) {
+                console.error("Error cargando listas o stats:", e);
+            }
         }
 
         function formatName(n) { const p = n.split(' '); return p.length > 1 ? `${p[0]} ${p[1][0]}.` : p[0]; }
