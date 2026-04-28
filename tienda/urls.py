@@ -37,8 +37,7 @@ urlpatterns = [
 
     # Ruta pública para acceder al radar
     path('radar-bigday/', views.render_radar, name='radar_bigday'),
-    
-    # Ruta interna para que el JavaScript consulte a eBird
     path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),
+    path('api/diccionario-especies/', views.get_species_dict, name='species_dict'),
 
 ]  

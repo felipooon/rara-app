@@ -1,3 +1,5 @@
+import os
+import json
 import requests
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
@@ -495,3 +497,16 @@ def ebird_proxy(request, ebird_path):
         return JsonResponse(response.json(), safe=False)
     except requests.RequestException as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+def get_species_dict(request):
+    """Lee el diccionario local y lo devuelve como JSON puro, esquivando collectstatic"""
+    # Construimos la ruta absoluta al archivo dentro de tu app 'core'
+    file_path = os.path.join(settings.BASE_DIR, 'core', 'species.json')
+    
+    try:
+        # Es vital el encoding='utf-8' para que no se rompan las tildes y las 'ñ'
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return JsonResponse(data, safe=False)
+    except FileNotFoundError:
+        return JsonResponse({"error": "Archivo no encontrado"}, status=404)

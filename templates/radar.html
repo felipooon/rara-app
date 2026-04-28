@@ -174,16 +174,17 @@
             diaH = new Intl.DateTimeFormat('es-CL', { day: '2-digit' }).format(new Date());
             
             try {
-                // Asegúrate de que esta ruta sea la correcta en tu servidor
-                const resDicc = await fetch('/static/js/species.json'); 
+                // Ahora llamamos a la vista de Django que acabamos de crear
+                const resDicc = await fetch('/api/diccionario-especies/'); 
+                
                 if (resDicc.ok) {
                     diccEspecies = await resDicc.json();
                     console.log("Diccionario cargado. Total especies:", Object.keys(diccEspecies).length);
                 } else {
-                    console.error("Error al buscar el archivo JSON");
+                    console.error("No se pudo cargar el JSON desde la API local");
                 }
             } catch (e) {
-                console.error("Fallo de red al cargar el diccionario:", e);
+                console.error("Error de red cargando diccionario:", e);
             }
             
             await update();
