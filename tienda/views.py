@@ -480,6 +480,19 @@ def ebird_proxy(request, ebird_path):
     # 1. Protección de origen (CORS casero)
     # Bloquea peticiones que no vengan de raratienda.cl o de tu entorno local
     origen = request.META.get('HTTP_ORIGIN') or request.META.get('HTTP_REFERER', '')
+
+    dominios_permitidos = [
+        "raratienda.cl", 
+        "https://tu-usuario.github.io" 
+    ]
+    
+    # Verificamos si el origen está en nuestra lista permitida
+    origen_valido = any(d in origen for d in dominios_permitidos) if origen else False
+
+    if not settings.DEBUG and not origen_valido:
+        return HttpResponseForbidden("Acceso denegado. Origen no autorizado.")
+
+
     if not settings.DEBUG and "raratienda.cl" not in origen:
         return HttpResponseForbidden("Acceso denegado.")
 
@@ -503,29 +516,39 @@ def ebird_proxy(request, ebird_path):
     params = request.GET.dict()
     
     try:
-        response = requests.get(url, headers=headers, params=params)
-        response.raise_for_status()
+        response_ebird = requests.get(url, headers=headers, params=params)
+        response_ebird.raise_for_status()
         
-        datos_nuevos = response.json()
-        
-        # 5. LÓGICA DE CACHÉ: Guardar los datos nuevos por 5 minutos (300 segundos)
+        datos_nuevos = response_ebird.json()
         cache.set(cache_key, datos_nuevos, 300)
         
-        return JsonResponse(datos_nuevos, safe=False)
+        # 2. Le decimos al navegador que confiamos en este origen
+        response = JsonResponse(datos_nuevos, safe=False)
+        if origen_valido:
+            response["Access-Control-Allow-Origin"] = origen
+            
+        return response
         
     except requests.RequestException as e:
         return JsonResponse({"error": str(e)}, status=500)
     
 
 def get_species_dict(request):
-    """Lee el diccionario local y lo devuelve como JSON puro, esquivando collectstatic"""
-    # Construimos la ruta absoluta al archivo dentro de tu app 'tienda'
+    """Lee el diccionario local y lo devuelve como JSON puro con CORS público"""
     file_path = os.path.join(settings.BASE_DIR, 'tienda', 'species.json')
     
     try:
-        # Es vital el encoding='utf-8' para que no se rompan las tildes y las 'ñ'
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        return JsonResponse(data, safe=False)
+            
+        # 1. Guardamos la respuesta en una variable en vez de retornarla de inmediato
+        response = JsonResponse(data, safe=False)
+        
+        # 2. Le pegamos la cabecera CORS universal
+        response["Access-Control-Allow-Origin"] = "*"
+        
+        # 3. Ahora sí, devolvemos la respuesta
+        return response
+        
     except FileNotFoundError:
         return JsonResponse({"error": "Archivo no encontrado"}, status=404)
