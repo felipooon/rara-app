@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.views.decorators.http import require_GET
+from django.core.cache import cache
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from django.contrib.admin.views.decorators import staff_member_required
@@ -474,7 +475,7 @@ def render_radar(request):
 
 @require_GET
 def ebird_proxy(request, ebird_path):
-    """Proxy para eBird que inyecta la API Key en secreto y bloquea robos de código"""
+    """Proxy para eBird que inyecta la API Key en secreto, bloquea robos de código y cachea respuestas"""
     
     # 1. Protección de origen (CORS casero)
     # Bloquea peticiones que no vengan de raratienda.cl o de tu entorno local
@@ -482,25 +483,43 @@ def ebird_proxy(request, ebird_path):
     if not settings.DEBUG and "raratienda.cl" not in origen:
         return HttpResponseForbidden("Acceso denegado.")
 
-    # 2. Construir la URL hacia eBird
+    # 2. LÓGICA DE CACHÉ: Crear una llave única para esta consulta
+    # Esto asegura que si se piden datos distintos (ej. otra región), se guarden por separado
+    cache_key = f"ebird_{ebird_path}_{request.GET.urlencode()}"
+    
+    # 3. Revisar si la respuesta ya está en memoria
+    datos_cacheados = cache.get(cache_key)
+    if datos_cacheados:
+        # Si está en caché, devolvemos el dato inmediatamente sin consultar a eBird
+        return JsonResponse(datos_cacheados, safe=False)
+
+    # 4. Si no hay caché, construimos la URL hacia eBird
     url = f"https://api.ebird.org/v2/{ebird_path}"
     
-    # 3. Inyectar la API Key desde las variables de entorno de Render
+    # Inyectar la API Key desde las variables de entorno de Render
     headers = {"X-eBirdApiToken": settings.EBIRD_API_KEY}
     
-    # 4. Pasar los parámetros originales (como locale=es_CL)
+    # Pasar los parámetros originales (como locale=es_CL)
     params = request.GET.dict()
     
     try:
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        return JsonResponse(response.json(), safe=False)
+        
+        datos_nuevos = response.json()
+        
+        # 5. LÓGICA DE CACHÉ: Guardar los datos nuevos por 5 minutos (300 segundos)
+        cache.set(cache_key, datos_nuevos, 300)
+        
+        return JsonResponse(datos_nuevos, safe=False)
+        
     except requests.RequestException as e:
         return JsonResponse({"error": str(e)}, status=500)
     
+
 def get_species_dict(request):
     """Lee el diccionario local y lo devuelve como JSON puro, esquivando collectstatic"""
-    # Construimos la ruta absoluta al archivo dentro de tu app 'core'
+    # Construimos la ruta absoluta al archivo dentro de tu app 'tienda'
     file_path = os.path.join(settings.BASE_DIR, 'tienda', 'species.json')
     
     try:
