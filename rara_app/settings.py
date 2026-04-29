@@ -50,13 +50,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tienda',
     'cloudinary',
-    
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
      'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -239,3 +240,8 @@ else:
     
     # El nombre que verá el cliente cuando reciba el correo
     DEFAULT_FROM_EMAIL = f"Rara Tienda <{EMAIL_HOST_USER}>"
+
+CORS_ALLOWED_ORIGINS = [
+    "https://tu-usuario-real.github.io", 
+    "https://raratienda.cl",
+]

@@ -477,24 +477,7 @@ def render_radar(request):
 def ebird_proxy(request, ebird_path):
     """Proxy para eBird que inyecta la API Key en secreto, bloquea robos de código y cachea respuestas"""
     
-    # 1. Protección de origen (CORS casero)
-    # Bloquea peticiones que no vengan de raratienda.cl o de tu entorno local
-    origen = request.META.get('HTTP_ORIGIN') or request.META.get('HTTP_REFERER', '')
 
-    dominios_permitidos = [
-        "raratienda.cl", 
-        "https://felipooon.github.io" 
-    ]
-    
-    # Verificamos si el origen está en nuestra lista permitida
-    origen_valido = any(d in origen for d in dominios_permitidos) if origen else False
-
-    if not settings.DEBUG and not origen_valido:
-        return HttpResponseForbidden("Acceso denegado. Origen no autorizado.")
-
-
-    if not settings.DEBUG and "raratienda.cl" not in origen:
-        return HttpResponseForbidden("Acceso denegado.")
 
     # 2. LÓGICA DE CACHÉ: Crear una llave única para esta consulta
     # Esto asegura que si se piden datos distintos (ej. otra región), se guarden por separado
