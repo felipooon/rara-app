@@ -507,8 +507,6 @@ def ebird_proxy(request, ebird_path):
         
         # 2. Le decimos al navegador que confiamos en este origen
         response = JsonResponse(datos_nuevos, safe=False)
-        if origen_valido:
-            response["Access-Control-Allow-Origin"] = origen
             
         return response
         
