@@ -242,6 +242,6 @@ else:
     DEFAULT_FROM_EMAIL = f"Rara Tienda <{EMAIL_HOST_USER}>"
 
 CORS_ALLOWED_ORIGINS = [
-    "https://tu-usuario-real.github.io", 
+    "https://felipooon.github.io", 
     "https://raratienda.cl",
 ]
