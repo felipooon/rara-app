@@ -41,8 +41,8 @@ class Producto(models.Model):
         
         # 2. Si el stock es mayor a 0 y estaba marcado como agotado (False),
         # lo volvemos a poner como disponible (True) automáticamente.
-        elif self.stock > 0 and self.disponible == False:
-            self.disponible = True
+        #elif self.stock > 0 and self.disponible == False:
+            #self.disponible = True
             
         # Llamamos al método save original para que guarde en la BD
         super().save(*args, **kwargs)
