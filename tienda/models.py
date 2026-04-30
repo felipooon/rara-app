@@ -24,7 +24,6 @@ class Producto(models.Model):
 
     # Nuevo campo para el control de inventario
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en inventario")
-
     disponible = models.BooleanField(default=True) 
 
     def __str__(self):
@@ -33,6 +32,20 @@ class Producto(models.Model):
     # Opcional: un método rápido para saber si hay stock
     def hay_stock(self):
         return self.stock > 0 and self.disponible
+
+    # --- LÓGICA DE AUTOMATIZACIÓN AL GUARDAR ---
+    def save(self, *args, **kwargs):
+        # 1. Si el stock es 0, forzamos 'disponible' a False (Agotado)
+        if self.stock == 0:
+            self.disponible = False
+        
+        # 2. Si el stock es mayor a 0 y estaba marcado como agotado (False),
+        # lo volvemos a poner como disponible (True) automáticamente.
+        elif self.stock > 0 and self.disponible == False:
+            self.disponible = True
+            
+        # Llamamos al método save original para que guarde en la BD
+        super().save(*args, **kwargs)
     
 
     
