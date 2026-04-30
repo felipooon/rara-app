@@ -2,124 +2,198 @@
 
 {% block content %}
 
-
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h1>Gestión de Productos</h1>
     
-    <a href="{% url 'exportar_stock_excel' %}" style="background-color: #1D6F42; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-        📊 Descargar Excel
-    </a>
+    <div style="display: flex; gap: 10px;">
+        <a href="/panel/categorias/crear/" class="btn-categoria" style="background-color: #6c757d; color: white;">
+            📂 Nueva categoría
+        </a>
+        <a href="/panel/productos/crear/" class="btn-categoria">
+            ➕ Nuevo producto
+        </a>
+        <a href="{% url 'exportar_stock_excel' %}" style="background-color: #1D6F42; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+            📊 Descargar Excel
+        </a>
+    </div>
 </div>
 
-<a href="/panel/productos/crear/" class="btn-categoria">
-    ➕ Nuevo producto
-</a>
-<a href="/panel/categorias/crear/" class="btn-categoria">
-    📂 Nueva categoría
-  </a>
+<hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">
 
+<div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    
+    <form method="GET" id="filtroForm" style="display:flex; gap:10px; align-items: center; margin: 0;">
+      
+      <input type="hidden" name="per_page" value="{{ per_page }}">
 
-<hr>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+          <label style="font-size: 0.8em; color: #666; font-weight: bold;">Categoría</label>
+          <select name="categoria" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; min-width: 150px;">
+            <option value="">Todas las categorías</option>
+            {% for c in categorias %}
+              <option value="{{ c.id }}" {% if categoria_actual == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>
+            {% endfor %}
+          </select>
+      </div>
 
-<form method="GET" style="margin-bottom:20px; display:flex; gap:10px;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+          <label style="font-size: 0.8em; color: #666; font-weight: bold;">Estado</label>
+          <select name="estado" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="">Todos</option>
+            <option value="disponible" {% if estado_actual == 'disponible' %}selected{% endif %}>Disponibles</option>
+            <option value="agotado" {% if estado_actual == 'agotado' %}selected{% endif %}>Agotados</option>
+          </select>
+      </div>
 
-  <select name="categoria">
-    <option value="">Todas las categorías</option>
-    {% for c in categorias %}
-      <option value="{{ c.id }}">{{ c.nombre }}</option>
-    {% endfor %}
-  </select>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+          <label style="font-size: 0.8em; visibility: hidden;">Fantasma</label>
+          <button type="submit" class="btn-categoria" style="height: 35px; margin: 0; padding: 0 15px; display: flex; align-items: center;">Aplicar Filtros</button>
+      </div>
+    </form>
 
-  <select name="estado">
-    <option value="">Todos</option>
-    <option value="disponible">Disponibles</option>
-    <option value="agotado">Agotados</option>
-  </select>
-
-  <button type="submit" class="btn-categoria">Filtrar</button>
-
-</form>
+    <form method="GET" style="display: flex; align-items: center; gap: 10px; margin: 0;">
+        <input type="hidden" name="categoria" value="{{ categoria_actual }}">
+        <input type="hidden" name="estado" value="{{ estado_actual }}">
+        
+        <label for="per_page" style="font-size: 0.9em; color: #555; font-weight: bold;">Mostrar:</label>
+        <select name="per_page" id="per_page" onchange="this.form.submit()" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="10" {% if per_page == '10' %}selected{% endif %}>10 por página</option>
+            <option value="20" {% if per_page == '20' %}selected{% endif %}>20 por página</option>
+            <option value="50" {% if per_page == '50' %}selected{% endif %}>50 por página</option>
+            <option value="100" {% if per_page == '100' %}selected{% endif %}>100 por página</option>
+        </select>
+    </form>
+</div>
 
 <div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
   <table style="width: 100%; border-collapse: collapse; text-align: left;">
-    <thead style="border-bottom: 2px solid #ddd;">
+    <thead style="border-bottom: 2px solid #ddd; background-color: #f8f9fa;">
       <tr>
-        <th style="padding: 12px;">Vista</th>
-        <th style="padding: 12px;">Nombre</th>
-        <th style="padding: 12px;">Stock</th>
-        <th style="padding: 12px;">Precio</th>
-        <th style="padding: 12px;">Estado</th>
-        <th style="padding: 12px;">Acciones</th>
+        <th style="padding: 12px; color: #333;">Vista</th>
+        <th style="padding: 12px; color: #333;">Nombre</th>
+        <th style="padding: 12px; color: #333;">Stock</th>
+        <th style="padding: 12px; color: #333;">Precio</th>
+        <th style="padding: 12px; color: #333;">Estado</th>
+        <th style="padding: 12px; color: #333; text-align: right;">Acciones</th>
       </tr>
     </thead>
     <tbody>
       {% for p in page_obj %}
-      <tr style="border-bottom: 1px solid #eee;">
+      <tr style="border-bottom: 1px solid #eee; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#fdfdfd'" onmouseout="this.style.backgroundColor='transparent'">
         
         <td style="padding: 12px;">
           {% if p.imagen %}
-            <button type="button" onclick="mostrarImagen('{{ p.imagen.url }}', '{{ p.nombre }}')" style="cursor: pointer; background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px;" title="Ver foto">
-              🖼️ </button>
+            <button type="button" onclick="mostrarImagen('{{ p.imagen.url }}', '{{ p.nombre }}')" style="cursor: pointer; background: none; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; transition: all 0.2s;" title="Ver foto" onmouseover="this.style.borderColor='#999'" onmouseout="this.style.borderColor='#ddd'">
+              🖼️
+            </button>
           {% else %}
-            <span style="color: #aaa; font-size: 0.8em;">Sin foto</span>
+            <span style="color: #aaa; font-size: 0.8em; background: #f5f5f5; padding: 4px 8px; border-radius: 4px;">Sin foto</span>
           {% endif %}
         </td>
 
-        <td style="padding: 12px;"><strong>{{ p.nombre }}</strong></td>
-        <td style="padding: 12px;">{{ p.stock }} uds.</td>
-        <td style="padding: 12px;">${{ p.precio }}</td>
-
+        <td style="padding: 12px; font-weight: 500; color: #2c3e50;">{{ p.nombre }}</td>
+        
         <td style="padding: 12px;">
-          {% if p.disponible %}
-            <span style="color:green; font-weight:bold;">Disponible</span><br>
-            <a href="{% url 'toggle_producto' p.id %}" style="font-size:0.8em; color:#666;">Cambiar a agotado</a>
-          {% else %}
-            <span style="color:red; font-weight:bold;">Agotado</span><br>
-            <a href="{% url 'toggle_producto' p.id %}" style="font-size:0.8em; color:#666;">Cambiar a disponible</a>
-          {% endif %}
+            {% if p.stock == 0 %}
+                <span style="color: #dc3545; font-weight: 500;">
+                    {{ p.stock }} uds.
+                </span>
+            {% elif p.stock > 0 and p.stock < 5 %}
+                <span style="color: #f39c12; font-weight: 500;">
+                    {{ p.stock }} uds.
+                </span>
+            {% else %}
+                <span style="color: #666; font-weight: 500;">
+                    {{ p.stock }} uds.
+                </span>
+            {% endif %}
+        </td>
+        
+        <td style="padding: 12px; color: #444;">${{ p.precio }}</td>
+
+        <td style="padding: 12px; vertical-align: middle;">
+          <a href="{% url 'toggle_producto' p.id %}?next={{ request.get_full_path|urlencode }}" 
+             style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer;">
+             
+             {% if p.disponible %}
+                 <div style="width: 40px; height: 22px; border-radius: 20px; position: relative; background-color: #28a745;">
+                    <div style="width: 18px; height: 18px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                    </div>
+                 </div>
+                 <span style="font-size: 0.85em; font-weight: bold; color: #28a745;">
+                    Disponible
+                 </span>
+                 
+             {% else %}
+                 <div style="width: 40px; height: 22px; border-radius: 20px; position: relative; background-color: #ccc;">
+                    <div style="width: 18px; height: 18px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                    </div>
+                 </div>
+                 <span style="font-size: 0.85em; font-weight: bold; color: #888;">
+                    Agotado
+                 </span>
+             {% endif %}
+
+          </a>
         </td>
 
-        <td style="padding: 12px;">
-            <a href="{% url 'editar_producto' p.id %}" style="color: #007bff; text-decoration: none; margin-right: 10px;">
+        <td style="padding: 12px; text-align: right;">
+            <a href="{% url 'editar_producto' p.id %}?next={{ request.get_full_path|urlencode }}" style="color: #007bff; text-decoration: none; margin-right: 15px; font-weight: 500;">
                 ✏️ Editar
             </a>
             
             <a href="{% url 'eliminar_producto' p.id %}" 
             onclick="return confirm('¿Estás seguro de que quieres eliminar: {{ p.nombre }}?');" 
-            style="color: #dc3545; text-decoration: none;">
+            style="color: #dc3545; text-decoration: none; font-weight: 500;">
                 🗑️ Eliminar
             </a>
         </td>
 
+      </tr>
+      {% empty %}
+      <tr>
+          <td colspan="6" style="padding: 30px; text-align: center; color: #888;">
+              No se encontraron productos con estos filtros.
+          </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 
-<div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px; align-items: center;">
+{% if page_obj.paginator.num_pages > 1 %}
+<div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px; align-items: center; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: max-content; margin-left: auto; margin-right: auto;">
     
     {% if page_obj.has_previous %}
-        <a href="?page=1&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" style="text-decoration: none; color: #333;">&laquo; Primera</a>
-        <a href="?page={{ page_obj.previous_page_number }}&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" class="btn-categoria" style="padding: 5px 15px;">Anterior</a>
+        <a href="?page=1&categoria={{ categoria_actual }}&estado={{ estado_actual }}&per_page={{ per_page }}" style="text-decoration: none; color: #666; font-size: 0.9em;">&laquo; Primera</a>
+        <a href="?page={{ page_obj.previous_page_number }}&categoria={{ categoria_actual }}&estado={{ estado_actual }}&per_page={{ per_page }}" class="btn-categoria" style="padding: 6px 12px; font-size: 0.9em;">Anterior</a>
+    {% else %}
+        <span style="color: #ccc; font-size: 0.9em;">&laquo; Primera</span>
+        <span class="btn-categoria" style="padding: 6px 12px; font-size: 0.9em; background-color: #eee; color: #aaa; cursor: not-allowed;">Anterior</span>
     {% endif %}
 
-    <span style="font-weight: bold; color: #555;">
+    <span style="font-weight: bold; color: #444; padding: 0 10px;">
         Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
     </span>
 
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" class="btn-categoria" style="padding: 5px 15px;">Siguiente</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}&categoria={{ request.GET.categoria }}&estado={{ request.GET.estado }}" style="text-decoration: none; color: #333;">Última &raquo;</a>
+        <a href="?page={{ page_obj.next_page_number }}&categoria={{ categoria_actual }}&estado={{ estado_actual }}&per_page={{ per_page }}" class="btn-categoria" style="padding: 6px 12px; font-size: 0.9em;">Siguiente</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}&categoria={{ categoria_actual }}&estado={{ estado_actual }}&per_page={{ per_page }}" style="text-decoration: none; color: #666; font-size: 0.9em;">Última &raquo;</a>
+    {% else %}
+        <span class="btn-categoria" style="padding: 6px 12px; font-size: 0.9em; background-color: #eee; color: #aaa; cursor: not-allowed;">Siguiente</span>
+        <span style="color: #ccc; font-size: 0.9em;">Última &raquo;</span>
     {% endif %}
 
 </div>
+{% endif %}
 
-<div id="modalImagen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center; position: relative;">
-        <button onclick="cerrarModal()" style="position: absolute; top: 5px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">❌</button>
-        <h3 id="nombreProductoModal" style="margin-top: 10px; margin-bottom: 15px; font-size: 1.2rem;"></h3>
-        <img id="imagenPreview" src="" style="max-width: 100%; max-height: 50vh; border-radius: 5px;">
+<div id="modalImagen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px);">
+    <div style="background: white; padding: 20px; border-radius: 12px; max-width: 450px; width: 90%; text-align: center; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <button onclick="cerrarModal()" style="position: absolute; top: 10px; right: 15px; background: #f1f1f1; border: none; font-size: 16px; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: background 0.2s;" onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f1f1f1'">❌</button>
+        <h3 id="nombreProductoModal" style="margin-top: 15px; margin-bottom: 20px; font-size: 1.3rem; color: #333; font-weight: 600;"></h3>
+        <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
+            <img id="imagenPreview" src="" style="max-width: 100%; max-height: 60vh; border-radius: 4px; object-fit: contain;">
+        </div>
     </div>
 </div>
 
@@ -127,13 +201,20 @@
 function mostrarImagen(url, nombre) {
     document.getElementById('imagenPreview').src = url;
     document.getElementById('nombreProductoModal').innerText = nombre;
-    document.getElementById('modalImagen').style.display = 'flex'; // Muestra la caja oscura
+    document.getElementById('modalImagen').style.display = 'flex';
 }
 
 function cerrarModal() {
-    document.getElementById('modalImagen').style.display = 'none'; // Oculta la caja oscura
-    document.getElementById('imagenPreview').src = ''; // Limpia la imagen
+    document.getElementById('modalImagen').style.display = 'none';
+    document.getElementById('imagenPreview').src = '';
 }
+
+// Cerrar modal al hacer clic fuera de la caja blanca
+document.getElementById('modalImagen').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModal();
+    }
+});
 </script>
 
 {% endblock %}

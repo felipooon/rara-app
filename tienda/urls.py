@@ -36,7 +36,6 @@ urlpatterns = [
     path('panel/productos/exportar/', views.exportar_stock_excel, name='exportar_stock_excel'),
 
     # Ruta pública para acceder al radar
-    path('radar-bigday/', views.render_radar, name='radar_bigday'),
     path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),
     path('api/diccionario-especies/', views.get_species_dict, name='species_dict'),
 

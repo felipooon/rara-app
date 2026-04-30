@@ -239,30 +239,36 @@ def validar_rut_chileno(rut):
 
 @login_required
 def panel_productos(request):
-    productos = Producto.objects.all().order_by('-id')
+    productos_list = Producto.objects.all().order_by('-id')
 
-    categoria_id = request.GET.get("categoria")
-    estado = request.GET.get("estado")
+    # Capturamos los filtros actuales
+    categoria_id = request.GET.get("categoria", "")
+    estado = request.GET.get("estado", "")
+    per_page = request.GET.get('per_page', '10') # Nuevo: cantidad por página
 
+    # Aplicamos filtros
     if categoria_id:
-        productos = productos.filter(categoria_id=categoria_id)
+        productos_list = productos_list.filter(categoria_id=categoria_id)
 
     if estado == "disponible":
-        productos = productos.filter(disponible=True)
-
+        productos_list = productos_list.filter(disponible=True)
     elif estado == "agotado":
-        productos = productos.filter(disponible=False)
+        productos_list = productos_list.filter(disponible=False)
 
     categorias = Categoria.objects.all()
 
-    paginator = Paginator(productos, 10) # <-- Cambia el 10 si quieres más o menos filas
+    # Paginación usando la variable dinámica per_page
+    paginator = Paginator(productos_list, int(per_page))
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, "panel/productos.html", {
-      #  "productos": productos,
         "page_obj": page_obj,
-        "categorias": categorias
+        "categorias": categorias,
+        # Devolvemos estas variables para que el HTML sepa qué hay filtrado
+        "categoria_actual": categoria_id,
+        "estado_actual": estado,
+        "per_page": per_page
     })
 
 
@@ -292,14 +298,19 @@ def crear_categoria(request):
     })
 
 
+@staff_member_required
 def toggle_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
+    # Cambiamos el estado (si es True pasa a False, y viceversa)
     producto.disponible = not producto.disponible
     producto.save()
-    return redirect("panel_productos")
-
-
-from .models import Producto, Categoria
+    
+    # Buscamos si hay una dirección de retorno
+    next_url = request.GET.get('next')
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect('panel_productos')
 
 
 @login_required
@@ -321,17 +332,24 @@ def editar_producto(request, id):
     # 1. Buscamos el producto específico
     producto = get_object_or_404(Producto, id=id)
     
-    # 2. Reutilizamos tu formulario, pero le pasamos la "instance" (los datos actuales)
+    # 2. Capturamos la URL de retorno 
+    # Lo buscamos en GET al entrar, o en POST al enviar el formulario.
+    next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
+    
+    # 3. Reutilizamos tu formulario
     form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
     
-    if form.is_valid():
+    if request.method == 'POST' and form.is_valid():
         form.save()
-        return redirect('panel_productos')
+        messages.success(request, f"Producto '{producto.nombre}' actualizado.")
+        # Redirigimos a la URL completa guardada (con sus filtros y página)
+        return redirect(next_url)
         
-    # 3. Usamos el mismo HTML que usaste para crear, ¡así te ahorras hacer otra vista!
+    # 4. Usamos el mismo HTML que usaste para crear
     return render(request, "panel/producto_form.html", {
         "form": form,
-        "editando": True # Le pasamos esto por si quieres cambiar el título a "Editar Producto"
+        "editando": True,
+        "next": next_url # Mandamos la URL al template
     })
 
 @login_required
@@ -468,10 +486,6 @@ def exportar_stock_excel(request):
 #---------------------
 # RADAR BIG DAY
 #---------------------
-
-def render_radar(request):
-    """Renderiza la vista principal del radar en raratienda.cl/radar-bigday"""
-    return render(request, 'radar.html')
 
 @require_GET
 def ebird_proxy(request, ebird_path):
