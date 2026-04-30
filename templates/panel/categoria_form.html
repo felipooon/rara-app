@@ -101,7 +101,7 @@
         </div>
 
         <div class="form-actions">
-            <a href="{% url 'panel_productos' %}" style="padding: 10px 20px; text-decoration: none; color: #555; border: 1px solid #ccc; border-radius: 6px; font-weight: bold;">
+            <a href="{% if next %}{{ next }}{% else %}{% url 'panel_productos' %}{% endif %}" style="padding: 10px 20px; text-decoration: none; color: #555; border: 1px solid #ccc; border-radius: 6px; font-weight: bold;">
                 Cancelar
             </a>
             

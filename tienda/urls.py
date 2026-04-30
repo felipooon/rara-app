@@ -1,5 +1,4 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from . import views
 from .views import CustomLoginView
 from django.contrib.auth.views import LogoutView
@@ -22,6 +21,11 @@ urlpatterns = [
     path('panel/productos/editar/<int:id>/', views.editar_producto, name='editar_producto'),
     path('panel/productos/eliminar/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
 
+    path('panel/pedidos/', views.panel_pedidos, name='panel_pedidos'),
+    path('panel/pedidos/<int:id>/', views.detalle_pedido, name='detalle_pedido'),
+    path('panel/pedidos/<int:id>/confirmar/', views.confirmar_pago_pedido, name='confirmar_pago_pedido'),
+    path('panel/productos/exportar/', views.exportar_stock_excel, name='exportar_stock_excel'),
+
     path('carrito/', views.ver_carrito, name='ver_carrito'),
     path('carrito/agregar/<int:producto_id>/', views.agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/restar/<int:producto_id>/', views.restar_del_carrito, name='restar_del_carrito'),
@@ -30,10 +34,7 @@ urlpatterns = [
     path('checkout/', views.procesar_pedido, name='procesar_pedido'),
     path('pedido-confirmado/<int:pedido_id>/', views.pedido_confirmado, name='pedido_confirmado'),
 
-    path('panel/pedidos/', views.panel_pedidos, name='panel_pedidos'),
-    path('panel/pedidos/<int:id>/', views.detalle_pedido, name='detalle_pedido'),
-    path('panel/pedidos/<int:id>/confirmar/', views.confirmar_pago_pedido, name='confirmar_pago_pedido'),
-    path('panel/productos/exportar/', views.exportar_stock_excel, name='exportar_stock_excel'),
+    
 
     # Ruta pública para acceder al radar
     path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),

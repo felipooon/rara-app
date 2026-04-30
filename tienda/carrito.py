@@ -17,24 +17,45 @@ class Carrito:
         self.carrito = carrito
 
     def agregar(self, producto, cantidad=1):
-        """
-        Agrega un producto al carrito o actualiza su cantidad.
-        """
-        # Las claves en las sesiones de Django deben ser strings
-        producto_id = str(producto.id)
+        id = str(producto.id)
+        cantidad = int(cantidad)
 
-        if producto_id not in self.carrito:
-            self.carrito[producto_id] = {
-                'producto_id': producto.id,
-                'nombre': producto.nombre,
-                'precio': producto.precio, # Recuerda que en tu modelo es un IntegerField
-                'cantidad': 0,
-                # Guardamos la URL de la imagen para mostrarla en el resumen del carrito
-                'imagen': producto.imagen.url if producto.imagen else '' 
-            }
-        
-        self.carrito[producto_id]['cantidad'] += cantidad
-        self.guardar()
+        if id not in self.carrito:
+            # El producto no está en el carrito, evaluamos si pide más del stock
+            if cantidad > producto.stock:
+                self.carrito[id] = {
+                    "producto_id": producto.id,
+                    "nombre": producto.nombre,
+                    "precio": str(producto.precio),
+                    "cantidad": producto.stock, # Lo limitamos al stock máximo
+                    "imagen": producto.imagen.url if producto.imagen else ""
+                }
+                self.guardar()
+                return False # Retornamos False para indicar que se limitó por stock
+            else:
+                self.carrito[id] = {
+                    "producto_id": producto.id,
+                    "nombre": producto.nombre,
+                    "precio": str(producto.precio),
+                    "cantidad": cantidad,
+                    "imagen": producto.imagen.url if producto.imagen else ""
+                }
+                self.guardar()
+                return True
+        else:
+            # El producto ya está en el carrito, evaluamos la suma
+            cantidad_actual = self.carrito[id]["cantidad"]
+            cantidad_total_deseada = cantidad_actual + cantidad
+
+            if cantidad_total_deseada > producto.stock:
+                # Si la suma supera el stock, lo topamos al máximo
+                self.carrito[id]["cantidad"] = producto.stock
+                self.guardar()
+                return False # Retornamos False para indicar límite
+            else:
+                self.carrito[id]["cantidad"] += cantidad
+                self.guardar()
+                return True
 
     def restar(self, producto):
         """

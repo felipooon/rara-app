@@ -59,16 +59,36 @@ def agregar_al_carrito(request, producto_id):
     # 1. Inicializamos clase
     carrito = Carrito(request)
     producto = get_object_or_404(Producto, id=producto_id)
+
+    try:
+        cantidad = int(request.POST.get('cantidad', 1))
+        if cantidad <= 0:
+            messages.error(request, "La cantidad debe ser un número positivo.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+    except ValueError:
+        messages.error(request, "Cantidad no válida.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     
-    # 2. Usamos método personalizado para validar el stock
+    # Opcional: si en el futuro agregas un input para elegir cantidad, lo lee aquí. Si no, usa 1.
+    cantidad = int(request.POST.get('cantidad', 1) if request.method == 'POST' else 1)
+
+    # 2. Verificamos si el producto tiene stock en absoluto (tu validación original)
     if producto.hay_stock():
-        carrito.agregar(producto)
-        messages.success(request, f'¡{producto.nombre} agregado a tu nido! 🪹')
+        
+        # 3. Intentamos agregar al carrito. Esto nos devolverá True (éxito) o False (pasó el límite)
+        agregado_exitosamente = carrito.agregar(producto, cantidad)
+        
+        if agregado_exitosamente:
+            messages.success(request, f'¡{producto.nombre} agregado a tu nido! 🪹')
+        else:
+            # Si devuelve False, es porque el cliente intentó agregar más de lo que tienes
+            messages.warning(request, f'¡Límite alcanzado! Solo nos quedan {producto.stock} unidades de {producto.nombre} y ya están en tu nido. 🪹')
+            
     else:
+        # Si el stock en la base de datos es 0
         messages.error(request, f'Lo sentimos, {producto.nombre} está agotado por ahora.')
         
-    # Redirigimos al catálogo o donde estaba el usuario
-    #return redirect('ver_carrito')
+    # Redirigimos al catálogo o donde estaba el usuario y abrimos el carrito
     url_anterior = request.META.get('HTTP_REFERER', '/')
     if '?' in url_anterior:
         return redirect(url_anterior + '&cart=open')
@@ -77,9 +97,8 @@ def agregar_al_carrito(request, producto_id):
 
 
 def ver_carrito(request):
-    # Simplemente iniciamos el carro y se lo mandamos al HTML
-    carrito = Carrito(request)
-    return render(request, 'carrito.html', {'carrito': carrito})
+    
+    return redirect('/?cart=open')
 
 
 def procesar_pedido(request):
@@ -89,6 +108,28 @@ def procesar_pedido(request):
     if len(carrito.carrito) == 0:
         messages.warning(request, "Tu carrito está vacío. ¡Ve a pajarear al catálogo!")
         return redirect('index')
+    
+    # --- 🛡️ LA ADUANA FINAL (Pre-Checkout) 🛡️ ---
+    
+    for item_id, item_data in carrito.carrito.items():
+        # Buscamos el producto real en la base de datos para ver su stock actual
+        producto = Producto.objects.filter(id=item_data['producto_id']).first()
+        cantidad_pedida = item_data['cantidad']
+        
+        # 1. Validar que el producto siga existiendo
+        if not producto:
+            messages.error(request, "Un producto de tu carrito ya no está disponible.")
+            return redirect('ver_carrito') # Cambia a la url de tu carrito
+            
+        # 2. Validar el hackeo de números negativos o cero
+        if cantidad_pedida <= 0:
+            messages.error(request, "Se detectó una cantidad inválida en tu carrito. Por favor, revisa tus productos.")
+            return redirect('ver_carrito')
+            
+        # 3. Validar el "Efecto Black Friday" (El stock bajó antes de que pagara)
+        if cantidad_pedida > producto.stock:
+            messages.warning(request, f"¡Atención! Mientras pensabas, el stock de '{producto.nombre}' bajó a {producto.stock} unidades. Por favor ajusta tu carrito.")
+            return redirect('ver_carrito')
 
     if request.method == 'POST':
         rut_ingresado = request.POST.get('rut', '')
@@ -162,7 +203,6 @@ www.raratienda.cl/panel
     return render(request, 'checkout.html', {'carrito': carrito})
 
 
-# views.py
 
 def restar_del_carrito(request, producto_id):
     carrito = Carrito(request)
@@ -274,27 +314,43 @@ def panel_productos(request):
 
 @login_required
 def crear_producto(request):
-    form = ProductoForm(request.POST or None, request.FILES or None)
-
-    if form.is_valid():
-        form.save()
-        return redirect("panel_productos")
+    # 1. Capturamos la URL de retorno
+    next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
+    
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Producto creado exitosamente.")
+            # 2. Redirigimos al estado anterior
+            return redirect(next_url)
+    else:
+        form = ProductoForm()
 
     return render(request, "panel/producto_form.html", {
-        "form": form
+        "form": form,
+        "next": next_url  # 3. Lo mandamos al template
     })
 
 
 @login_required
 def crear_categoria(request):
-    form = CategoriaForm(request.POST or None, request.FILES or None)
 
-    if form.is_valid():
-        form.save()
-        return redirect("panel_home")
+    next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
+    
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoria creada exitosamente.")
+            return redirect(next_url)
+    
+    else:
+        form = CategoriaForm()
 
     return render(request, "panel/categoria_form.html", {
-        "form": form
+        "form": form,
+        "next": next_url
     })
 
 

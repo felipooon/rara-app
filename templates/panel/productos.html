@@ -6,10 +6,10 @@
     <h1>Gestión de Productos</h1>
     
     <div style="display: flex; gap: 10px;">
-        <a href="/panel/categorias/crear/" class="btn-categoria" style="background-color: #6c757d; color: white;">
+        <a href="/panel/categorias/crear/?next={{ request.get_full_path|urlencode }}" class="btn-categoria" style="background-color: #6c757d; color: white;">
             📂 Nueva categoría
         </a>
-        <a href="/panel/productos/crear/" class="btn-categoria">
+        <a href="/panel/productos/crear/?next={{ request.get_full_path|urlencode }}" class="btn-categoria">
             ➕ Nuevo producto
         </a>
         <a href="{% url 'exportar_stock_excel' %}" style="background-color: #1D6F42; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
@@ -113,8 +113,7 @@
 
         <td style="padding: 12px; vertical-align: middle;">
           <a href="{% url 'toggle_producto' p.id %}?next={{ request.get_full_path|urlencode }}" 
-             style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer;">
-             
+            style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer;"> 
              {% if p.disponible %}
                  <div style="width: 40px; height: 22px; border-radius: 20px; position: relative; background-color: #28a745;">
                     <div style="width: 18px; height: 18px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
@@ -135,7 +134,7 @@
              {% endif %}
 
           </a>
-        </td>
+        </td> 
 
         <td style="padding: 12px; text-align: right;">
             <a href="{% url 'editar_producto' p.id %}?next={{ request.get_full_path|urlencode }}" style="color: #007bff; text-decoration: none; margin-right: 15px; font-weight: 500;">
