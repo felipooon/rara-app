@@ -106,7 +106,7 @@ def procesar_pedido(request):
     
     # Seguridad: Si el carro está vacío, no los dejamos pasar
     if len(carrito.carrito) == 0:
-        messages.warning(request, "Tu carrito está vacío. ¡Ve a pajarear al catálogo!")
+        messages.warning(request, "Tu nido está vacío. ¡Ve a pajarear al catálogo!")
         return redirect('index')
     
     # --- 🛡️ LA ADUANA FINAL (Pre-Checkout) 🛡️ ---
@@ -118,12 +118,12 @@ def procesar_pedido(request):
         
         # 1. Validar que el producto siga existiendo
         if not producto:
-            messages.error(request, "Un producto de tu carrito ya no está disponible.")
+            messages.error(request, "Un producto de tu nido ya no está disponible.")
             return redirect('ver_carrito') # Cambia a la url de tu carrito
             
         # 2. Validar el hackeo de números negativos o cero
         if cantidad_pedida <= 0:
-            messages.error(request, "Se detectó una cantidad inválida en tu carrito. Por favor, revisa tus productos.")
+            messages.error(request, "Se detectó una cantidad inválida en tu nido. Por favor, revisa tus productos.")
             return redirect('ver_carrito')
             
         # 3. Validar el "Efecto Black Friday" (El stock bajó antes de que pagara)
