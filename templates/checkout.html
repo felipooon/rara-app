@@ -69,9 +69,20 @@
                 <input type="text" name="ciudad" value="{{ datos_previos.ciudad|default:'Puerto Montt' }}" required class="input-checkout">
             </div>
 
-            <button type="submit" style="width: 100%; padding: 16px; background: #fca311; color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: background 0.3s, transform 0.1s;" onmouseover="this.style.backgroundColor='#e08e0b'" onmouseout="this.style.backgroundColor='#fca311'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+            <!--<button type="submit" style="width: 100%; padding: 16px; background: #fca311; color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: background 0.3s, transform 0.1s;" onmouseover="this.style.backgroundColor='#e08e0b'" onmouseout="this.style.backgroundColor='#fca311'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
                 Confirmar Pedido y Acordar Pago ➔
+            </button>-->
+
+            <button type="submit" style="width: 100%; padding: 16px; background: #009EE3; color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: background 0.3s, transform 0.1s; display: flex; justify-content: center; align-items: center; gap: 10px;" onmouseover="this.style.backgroundColor='#0085C0'" onmouseout="this.style.backgroundColor='#009EE3'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                Ir a pagar con Mercado Pago
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1H2zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7z"/>
+                    <path d="M2 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                </svg>
             </button>
+            <p style="text-align: center; color: #888; font-size: 0.85rem; margin-top: 15px;">
+                Serás redirigido a la plataforma segura de Mercado Pago. Puedes pagar con tarjetas o dinero en cuenta. 🔒
+            </p>
         </form>
     </div>
 </div>

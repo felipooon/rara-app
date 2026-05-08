@@ -34,6 +34,8 @@ urlpatterns = [
     path('checkout/', views.procesar_pedido, name='procesar_pedido'),
     path('pedido-confirmado/<int:pedido_id>/', views.pedido_confirmado, name='pedido_confirmado'),
 
+    path('webhook/mercadopago/', views.webhook_mercadopago, name='webhook_mercadopago'),
+
     
 
     # Ruta pública para acceder al radar

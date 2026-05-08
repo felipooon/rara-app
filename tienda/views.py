@@ -3,6 +3,7 @@ import json
 import requests
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Categoria, Producto, Pedido, ItemPedido
 from .forms import CategoriaForm, ProductoForm
@@ -11,7 +12,9 @@ from django.contrib.auth.views import LoginView
 from .carrito import Carrito
 from django.contrib import messages
 from django.core.mail import send_mail
+import mercadopago
 from django.conf import settings
+from django.urls import reverse
 from django.views.decorators.http import require_GET
 from django.core.cache import cache
 import openpyxl
@@ -162,6 +165,62 @@ def procesar_pedido(request):
                 cantidad=item['cantidad']
             )
 
+    # ========================================================
+        # 🚀 INICIO INTEGRACIÓN MERCADO PAGO
+        # ========================================================
+        sdk = mercadopago.SDK(settings.MP_ACCESS_TOKEN)
+
+        # Armamos la lista de productos tal como los pide Mercado Pago
+        items_mp = []
+        for item in carrito:
+            items_mp.append({
+                "title": item['producto_real'].nombre,
+                "quantity": int(item['cantidad']),
+                "unit_price": int(item['precio']),
+                "currency_id": "CLP"
+            })
+
+        # Construimos la URL completa para que Mercado Pago sepa a dónde devolver al cliente
+        # request.build_absolute_uri crea algo como "https://raratienda.cl/pedido/confirmado/5/"
+        # 🚨 FORZAMOS HTTPS: Los tokens de producción exigen URLs reales
+        url_exito = f"https://raratienda.cl/pedido/confirmado/{pedido.id}/"
+        url_fallo = "https://raratienda.cl/?cart=open"  # <--- Lo devuelve al home y le abre el carrito automáticamente
+        
+        url_webhook = "https://raratienda.cl/webhook/mercadopago/"
+
+        preference_data = {
+            "items": items_mp,
+            "payer": {
+                "name": pedido.nombre_completo,
+                "email": pedido.email,
+            },
+            "back_urls": {
+                "success": url_exito,
+                "failure": url_fallo,
+                "pending": url_exito,
+            },
+            "auto_return": "approved", # Si paga bien, lo devuelve automáticamente a tu tienda
+            "external_reference": str(pedido.id), # 🔑 CLAVE: Guardamos el ID de tu pedido en MP
+            "notification_url": url_webhook,
+        }
+
+        preference_response = sdk.preference().create(preference_data)
+
+        print("\n=== RESPUESTA DE MERCADO PAGO ===")
+        print(preference_response)
+        print("=================================\n")
+
+        # Verificamos si Mercado Pago nos dio el init_point
+        if "init_point" not in preference_response.get("response", {}):
+            # Si no está, devolvemos al cliente al carrito y le avisamos
+            messages.error(request, "Hubo un problema al contactar a la pasarela de pago. Por favor intenta de nuevo.")
+            return redirect('ver_carrito') # Asegúrate de que este sea el nombre correcto de tu url de carrito
+        
+        init_point = preference_response["response"]["init_point"] # ¡Este es el link de pago!
+        # ========================================================
+        # FIN INTEGRACIÓN MERCADO PAGO
+        # ========================================================
+
 
         # ========================================================
         # BLOQUE DE CORREO: SÓLO ALERTA PARA ADMINISTRADORES
@@ -195,10 +254,8 @@ www.raratienda.cl/panel
         # 3. ¡Venta lista! Limpiamos la sesión usando el método
         carrito.limpiar()
         
-        # Opcional: Aquí podrías llamar a una función para enviar un correo de confirmación
-        
-        #return redirect('index')
-        return redirect('pedido_confirmado', pedido_id=pedido.id)
+        #return redirect('pedido_confirmado', pedido_id=pedido.id)
+        return redirect(init_point)
 
     return render(request, 'checkout.html', {'carrito': carrito})
 
@@ -603,3 +660,55 @@ def get_species_dict(request):
         
     except FileNotFoundError:
         return JsonResponse({"error": "Archivo no encontrado"}, status=404)
+    
+@csrf_exempt
+def webhook_mercadopago(request):
+    """
+    Esta es la ruta secreta que Mercado Pago visitará por detrás 
+    cuando un cliente pague con éxito.
+    """
+    if request.method == 'POST':
+        try:
+            # 1. Leemos el mensaje en formato JSON que envía MP
+            data = json.loads(request.body)
+            
+            # 2. Verificamos si nos están avisando de un "pago"
+            if data.get("type") == "payment" or data.get("action") == "payment.created":
+                # Capturamos el ID del pago
+                payment_id = data.get("data", {}).get("id")
+                
+                if payment_id:
+                    # 3. Consultamos directamente a MP para confirmar que no sea un aviso falso (Seguridad)
+                    sdk = mercadopago.SDK(settings.MP_ACCESS_TOKEN)
+                    payment_info = sdk.payment().get(payment_id)
+                    payment = payment_info.get("response")
+                    
+                    # 4. Si MP nos confirma que el pago está APROBADO 🟢
+                    if payment and payment.get("status") == "approved":
+                        # Rescatamos el ID de tu pedido (el que enviamos al crear la preferencia)
+                        pedido_id = payment.get("external_reference")
+                        
+                        if pedido_id:
+                            # 5. Buscamos el pedido en tu base de datos
+                            pedido = Pedido.objects.filter(id=pedido_id).first()
+                            
+                            # Si el pedido existe y aún no estaba pagado...
+                            if pedido and not pedido.pagado:
+                                # ¡MAGIA! Ejecutamos tu súper función que descuenta stock
+                                pedido.confirmar_pago()
+                                
+                                # Guardamos el ID de transacción de MP por si hay devoluciones a futuro
+                                pedido.id_transaccion = str(payment_id)
+                                pedido.save()
+                                
+                                print(f"✅ ¡ÉXITO! Pedido #{pedido.id} pagado y stock descontado.")
+
+            # SIEMPRE debemos responder 200 OK, sino MP pensará que falló y enviará el aviso de nuevo
+            return JsonResponse({"status": "ok"}, status=200)
+
+        except Exception as e:
+            print(f"❌ Error en Webhook: {e}")
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
+    # Si alguien intenta entrar por la URL normal (GET), lo rechazamos
+    return JsonResponse({"status": "method not allowed"}, status=405)

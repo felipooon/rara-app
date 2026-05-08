@@ -38,6 +38,8 @@ EBIRD_API_KEY = os.environ.get('EBIRD_API_KEY')
 ALLOWED_HOSTS = ['rara-app-mgww.onrender.com', 'localhost', '127.0.0.1',"raratienda.cl","www.raratienda.cl"]
 
 
+MP_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
+
 # Application definition
 
 INSTALLED_APPS = [
