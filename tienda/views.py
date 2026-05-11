@@ -183,7 +183,7 @@ def procesar_pedido(request):
         # Construimos la URL completa para que Mercado Pago sepa a dónde devolver al cliente
         # request.build_absolute_uri crea algo como "https://raratienda.cl/pedido/confirmado/5/"
         # 🚨 FORZAMOS HTTPS: Los tokens de producción exigen URLs reales
-        url_exito = f"https://raratienda.cl/pedido/confirmado/{pedido.id}/"
+        url_exito = f"https://raratienda.cl/pedido-confirmado/{pedido.id}/"
         url_fallo = "https://raratienda.cl/?cart=open"  # <--- Lo devuelve al home y le abre el carrito automáticamente
         
         url_webhook = "https://raratienda.cl/webhook/mercadopago/"
@@ -702,6 +702,37 @@ def webhook_mercadopago(request):
                                 pedido.save()
                                 
                                 print(f"✅ ¡ÉXITO! Pedido #{pedido.id} pagado y stock descontado.")
+
+                                asunto = f'¡Pago Recibido! Tu pedido #{pedido.codigo_orden} está en camino 🦉'
+                                mensaje = f'''¡Hola {pedido.nombre_completo}!
+
+Te escribimos de Rara Tienda para contarte que hemos recibido el pago de tu pedido #{pedido.codigo_orden} con éxito a través de Mercado Pago. ✨
+
+¿Qué viene ahora?
+Estamos preparando tu paquete con mucho cuidado para que llegue perfecto a tu casa. 
+
+📍 Destino: {pedido.direccion}, {pedido.ciudad}.
+
+En cuanto realicemos el envío, te contactaremos por WhatsApp al +56{pedido.telefono} para enviarte el comprobante y el número de seguimiento.
+
+¡Gracias por confiar en Rara Tienda y apoyar el arte local!
+
+Un gran abrazo,
+El equipo de Rara Tienda.
+www.raratienda.cl
+'''
+                                try:
+                                    send_mail(
+                                        asunto,
+                                        mensaje,
+                                        settings.DEFAULT_FROM_EMAIL,
+                                        [pedido.email],
+                                        fail_silently=False,
+                                    )
+                                    print(f"✅ Webhook: Pago procesado y correo enviado a {pedido.email}")
+                                except Exception as mail_error:
+                                    # Si el correo falla, igual el pago ya quedó registrado
+                                    print(f"⚠️ Webhook: Pago OK pero falló el correo: {mail_error}")
 
             # SIEMPRE debemos responder 200 OK, sino MP pensará que falló y enviará el aviso de nuevo
             return JsonResponse({"status": "ok"}, status=200)

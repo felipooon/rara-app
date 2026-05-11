@@ -7,25 +7,25 @@
         🎉🦉
     </div>
     
-    <h1 style="color: #27ae60; margin-bottom: 10px;">¡Pedido Confirmado!</h1>
+    <h1 style="color: #27ae60; margin-bottom: 10px;">¡Pago Exitoso!</h1>
     <h2 style="color: #333; margin-top: 0;">Orden #{{ pedido.codigo_orden }}</h2>
     
     <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; margin: 30px 0;">
         <p style="font-size: 1.1rem; color: #555; line-height: 1.6;">
-            Hola <strong>{{ pedido.nombre_completo }}</strong>, hemos recibido tu pedido correctamente.
+            Hola <strong>{{ pedido.nombre_completo }}</strong>, hemos recibido tu pago correctamente y tu pedido ya está confirmado. ¡Gracias por tu compra!
         </p>
         
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #fca311;">
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #27ae60;">
             <h4 style="margin-top: 0; color: #333;">Próximos pasos:</h4>
             <ul style="margin-bottom: 0; padding-left: 20px; color: #555; line-height: 1.5;">
-                <li>Tu pedido está en estado <strong>Pendiente de Pago</strong>.</li>
-                <li>Te contactaremos a la brevedad a tu WhatsApp (<strong>{{ pedido.telefono }}</strong>) para enviarte los datos de transferencia.</li>
-                <li>Una vez confirmado el pago, prepararemos tu paquete para enviarlo a <strong>{{ pedido.direccion }}, {{ pedido.ciudad }}</strong>.</li>
+                <li>Estamos preparando tu paquete con mucho cuidado. 📦</li>
+                <li>Haremos el envío directamente a <strong>{{ pedido.direccion }}, {{ pedido.ciudad }}</strong>.</li>
+                <li>Te escribiremos a tu WhatsApp (<strong>{{ pedido.telefono }}</strong>) para enviarte el comprobante de envío y los datos de seguimiento.</li>
             </ul>
         </div>
         
         <p style="text-align: center; color: #888; margin-top: 30px; font-size: 0.9rem;">
-            Total a transferir: <strong style="font-size: 1.2rem; color: #fca311;">${{ pedido.get_total_cost }}</strong>
+            Total pagado: <strong style="font-size: 1.2rem; color: #27ae60;">${{ pedido.get_total_cost }}</strong>
         </p>
     </div>
 
