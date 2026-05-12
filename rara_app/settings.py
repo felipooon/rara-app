@@ -252,3 +252,5 @@ CORS_ALLOWED_ORIGINS = [
     "https://felipooon.github.io", 
     "https://raratienda.cl",
 ]
+
+LOGIN_URL = 'login'
