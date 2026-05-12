@@ -26,12 +26,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c5jsasag*nn((bmld%b05orxp@be=w36(lh15!5ubmt6%@&&u+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = False
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-local-dev-key'
+    else:
+        raise ValueError("Missing DJANGO_SECRET_KEY with DEBUG=False")
 
 EBIRD_API_KEY = os.environ.get('EBIRD_API_KEY')
 

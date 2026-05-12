@@ -7,7 +7,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Categoria, Producto, Pedido, ItemPedido
 from .forms import CategoriaForm, ProductoForm
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from .carrito import Carrito
 from django.contrib import messages
@@ -20,6 +19,7 @@ from django.core.cache import cache
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from django.contrib.admin.views.decorators import staff_member_required
+from django.db import transaction
 import re
 
 #----------------
@@ -37,7 +37,7 @@ def index(request):
 
 
 def categoria_detail(request, slug):
-    categoria = Categoria.objects.get(slug=slug)
+    categoria = get_object_or_404(Categoria, slug=slug)
 
     productos = Producto.objects.filter(
         categoria=categoria,
@@ -334,7 +334,7 @@ def validar_rut_chileno(rut):
 #PANEL DE ADMINISTRACION
 #-----------------------
 
-@login_required
+@staff_member_required
 def panel_productos(request):
     productos_list = Producto.objects.all().order_by('-id')
 
@@ -369,7 +369,7 @@ def panel_productos(request):
     })
 
 
-@login_required
+@staff_member_required
 def crear_producto(request):
     # 1. Capturamos la URL de retorno
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
@@ -390,7 +390,7 @@ def crear_producto(request):
     })
 
 
-@login_required
+@staff_member_required
 def crear_categoria(request):
 
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
@@ -426,7 +426,7 @@ def toggle_producto(request, id):
         return redirect('panel_productos')
 
 
-@login_required
+@staff_member_required
 def panel_home(request):
     context = {
         'pedidos_pendientes': Pedido.objects.filter(pagado=False).count(),
@@ -440,7 +440,7 @@ class CustomLoginView(LoginView):
     template_name = "login.html"
 
 
-@login_required
+@staff_member_required
 def editar_producto(request, id):
     # 1. Buscamos el producto específico
     producto = get_object_or_404(Producto, id=id)
@@ -465,20 +465,20 @@ def editar_producto(request, id):
         "next": next_url # Mandamos la URL al template
     })
 
-@login_required
+@staff_member_required
 def eliminar_producto(request, id):
     # Buscamos y destruimos
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
     return redirect('panel_productos')
 
-@login_required
+@staff_member_required
 def panel_pedidos(request):
     # Traemos todos los pedidos, los más nuevos primero
     pedidos = Pedido.objects.all().order_by('-id')
     return render(request, 'panel/pedidos.html', {'pedidos': pedidos})
 
-@login_required
+@staff_member_required
 def detalle_pedido(request, id):
     # Buscamos el pedido y sus items relacionados
     pedido = get_object_or_404(Pedido, id=id)
@@ -487,13 +487,17 @@ def detalle_pedido(request, id):
     return render(request, 'panel/detalle_pedido.html', {'pedido': pedido})
 
 
-@login_required
+@staff_member_required
 def confirmar_pago_pedido(request, id):
+    pedido = get_object_or_404(Pedido, id=id)
     if request.method == 'POST':
-        pedido = get_object_or_404(Pedido, id=id)
-        
-        # 1. Ejecutamos tu método maestro que descuenta el stock
-        pedido.confirmar_pago()
+        with transaction.atomic():
+            pedido = Pedido.objects.select_for_update().get(id=id)
+            if pedido.pagado:
+                messages.info(request, f'El pedido #{pedido.codigo_orden} ya estaba pagado.')
+                return redirect('detalle_pedido', id=pedido.id)
+            # 1. Ejecutamos tu método maestro que descuenta el stock
+            pedido.confirmar_pago()
         
         # 2. Armamos el mensaje para el cliente
         asunto = f'¡Pago Confirmado! Pedido #{pedido.codigo_orden} en Rara Tienda 🦉'
@@ -689,18 +693,22 @@ def webhook_mercadopago(request):
                         pedido_id = payment.get("external_reference")
                         
                         if pedido_id:
-                            # 5. Buscamos el pedido en tu base de datos
-                            pedido = Pedido.objects.filter(id=pedido_id).first()
+                            pago_procesado = False
+                            pedido = None
+                            with transaction.atomic():
+                                # 5. Buscamos el pedido en tu base de datos y bloqueamos fila para evitar doble proceso
+                                pedido = Pedido.objects.select_for_update().filter(id=pedido_id).first()
+                                # Si el pedido existe y aún no estaba pagado...
+                                if pedido and not pedido.pagado:
+                                    # ¡MAGIA! Ejecutamos tu súper función que descuenta stock
+                                    pedido.confirmar_pago()
+                                    
+                                    # Guardamos el ID de transacción de MP por si hay devoluciones a futuro
+                                    pedido.id_transaccion = str(payment_id)
+                                    pedido.save()
+                                    pago_procesado = True
                             
-                            # Si el pedido existe y aún no estaba pagado...
-                            if pedido and not pedido.pagado:
-                                # ¡MAGIA! Ejecutamos tu súper función que descuenta stock
-                                pedido.confirmar_pago()
-                                
-                                # Guardamos el ID de transacción de MP por si hay devoluciones a futuro
-                                pedido.id_transaccion = str(payment_id)
-                                pedido.save()
-                                
+                            if pago_procesado and pedido:
                                 print(f"✅ ¡ÉXITO! Pedido #{pedido.id} pagado y stock descontado.")
 
                                 asunto = f'¡Pago Recibido! Tu pedido #{pedido.codigo_orden} está en camino 🦉'
@@ -733,6 +741,8 @@ www.raratienda.cl
                                 except Exception as mail_error:
                                     # Si el correo falla, igual el pago ya quedó registrado
                                     print(f"⚠️ Webhook: Pago OK pero falló el correo: {mail_error}")
+                            elif pedido and pedido.pagado:
+                                print(f"ℹ️ Webhook duplicado ignorado para pedido #{pedido.id}.")
 
             # SIEMPRE debemos responder 200 OK, sino MP pensará que falló y enviará el aviso de nuevo
             return JsonResponse({"status": "ok"}, status=200)
