@@ -336,7 +336,7 @@ def validar_rut_chileno(rut):
 #PANEL DE ADMINISTRACION
 #-----------------------
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def panel_productos(request):
     productos_list = Producto.objects.all().order_by('-id')
 
@@ -371,7 +371,7 @@ def panel_productos(request):
     })
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def crear_producto(request):
     # 1. Capturamos la URL de retorno
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
@@ -392,7 +392,7 @@ def crear_producto(request):
     })
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def crear_categoria(request):
 
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
@@ -413,7 +413,7 @@ def crear_categoria(request):
     })
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def toggle_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     # Cambiamos el estado (si es True pasa a False, y viceversa)
@@ -428,7 +428,7 @@ def toggle_producto(request, id):
         return redirect('panel_productos')
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def panel_home(request):
     context = {
         'pedidos_pendientes': Pedido.objects.filter(pagado=False).count(),
@@ -442,7 +442,7 @@ class CustomLoginView(LoginView):
     template_name = "login.html"
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def editar_producto(request, id):
     # 1. Buscamos el producto específico
     producto = get_object_or_404(Producto, id=id)
@@ -467,20 +467,20 @@ def editar_producto(request, id):
         "next": next_url # Mandamos la URL al template
     })
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def eliminar_producto(request, id):
     # Buscamos y destruimos
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
     return redirect('panel_productos')
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def panel_pedidos(request):
     # Traemos todos los pedidos, los más nuevos primero
     pedidos = Pedido.objects.all().order_by('-id')
     return render(request, 'panel/pedidos.html', {'pedidos': pedidos})
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def detalle_pedido(request, id):
     # Buscamos el pedido y sus items relacionados
     pedido = get_object_or_404(Pedido, id=id)
@@ -489,7 +489,7 @@ def detalle_pedido(request, id):
     return render(request, 'panel/detalle_pedido.html', {'pedido': pedido})
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def confirmar_pago_pedido(request, id):
     pedido = get_object_or_404(Pedido, id=id)
     if request.method == 'POST':
@@ -533,7 +533,7 @@ El equipo de Rara Tienda.
     return redirect('detalle_pedido', id=pedido.id)
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def exportar_stock_excel(request):
     wb = openpyxl.Workbook()
     ws = wb.active
