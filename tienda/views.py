@@ -252,7 +252,7 @@ www.raratienda.cl/panel
         # ========================================================
         
         # 3. ¡Venta lista! Limpiamos la sesión usando el método
-        carrito.limpiar()
+        #carrito.limpiar()
         
         #return redirect('pedido_confirmado', pedido_id=pedido.id)
         return redirect(init_point)
@@ -292,6 +292,8 @@ def limpiar_carrito(request):
 def pedido_confirmado(request, pedido_id):
     # Buscamos el pedido recién creado para mostrarle sus datos
     pedido = get_object_or_404(Pedido, id=pedido_id)
+    carrito = Carrito(request)
+    carrito.limpiar()
     return render(request, 'pedido_confirmado.html', {'pedido': pedido})
 
 
