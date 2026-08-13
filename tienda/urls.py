@@ -41,5 +41,12 @@ urlpatterns = [
     # Ruta pública para acceder al radar
     path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),
     path('api/diccionario-especies/', views.get_species_dict, name='species_dict'),
+    
+    # Juegos
+    path('juegos/', views.menu_juegos, name='menu_juegos'),
+    path('juegos/quien-es-esta-ave/', views.quien_es_esta_ave, name='quien_es_esta_ave'),
+    path('juegos/memorice/', views.memorice, name='memorice'),
+    path('juegos/letras-locas/', views.letras_locas, name='letras_locas'),
+    path('juegos/trivia-cientifica/', views.minijuego, name='minijuego'),
 
 ]  

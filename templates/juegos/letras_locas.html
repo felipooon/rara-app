@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letras Locas: Aves</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --primary: #ef9d71;
+            --primary-hover: #e2895a;
+            --success: #65C18C;
+            --danger: #FF7BA9;
+            --tile: #a7f3d0;
+            --tile-shadow: #6ee7b7;
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            font-family: 'Nunito', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            max-width: 500px; width: 100%;
+            padding: 2rem;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            margin: 1rem;
+        }
+        h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+        }
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .stats {
+            display: flex; justify-content: space-between;
+            margin-bottom: 2rem;
+            background: rgba(0,0,0,0.03); padding: 0.75rem 1.5rem; border-radius: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .image-container {
+            width: 100%;
+            height: 220px;
+            background: rgba(0,0,0,0.02);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid #e5e7eb;
+        }
+        img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 15px; width: 100%; height: 100%;}
+        .sci-name { font-style: italic; font-size: 1.3rem; color: var(--text-main); margin-bottom: 2.5rem; font-weight: 700;}
+        
+        /* The word slots */
+        .slots-container {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2.5rem;
+            min-height: 50px;
+        }
+        .slot {
+            width: 40px; height: 50px;
+            border-bottom: 3px solid #d1d5db;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; font-weight: 800; text-transform: uppercase;
+            cursor: pointer;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+        .slot:hover {
+            background: #f9fafb;
+            border-radius: 8px 8px 0 0;
+            border-bottom-color: var(--primary);
+        }
+        
+        .space-slot {
+            width: 25px; height: 50px; display: inline-block; border: none;
+        }
+        
+        /* Available letters */
+        .letters-container {
+            display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center;
+        }
+        .letter {
+            width: 45px; height: 50px;
+            background: var(--tile);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: 800; text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--tile-shadow);
+            transition: transform 0.1s, box-shadow 0.1s, opacity 0.2s;
+            user-select: none;
+            color: #064e3b;
+        }
+        .letter:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--tile-shadow);
+        }
+        .letter.hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
+        
+        .action-btn {
+            margin-top: 2rem; background: var(--primary); color: white; border: none;
+            padding: 1rem 2.5rem; font-size: 1.2rem; font-weight: 800; border-radius: 30px;
+            cursor: pointer; box-shadow: 0 4px 0 var(--primary-hover); transition: all 0.2s;
+            display: none;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--primary-hover); }
+        .action-btn.show { display: inline-block; animation: bounceIn 0.5s; }
+
+        .victory { color: var(--success); font-size: 1.5rem; font-weight: bold; margin-top: 1.5rem; display:none; animation: pop 0.5s; text-shadow: 0 2px 4px rgba(0,0,0,0.3);}
+        
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0;}
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1;}
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        
+        .shake { animation: shake 0.4s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px) rotate(-2deg); }
+            75% { transform: translateX(6px) rotate(2deg); }
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-nav {
+            padding: 0.5rem 1rem;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--text-muted);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Letras Locas</h1>
+        <div class="subtitle" style="margin-bottom: 0.5rem;">Ordena las letras para descubrir la especie</div>
+        <div class="nav-buttons">
+            <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
+            <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+        </div>
+        
+        <div class="stats">
+            <span>Nivel: <span id="levelDisplay" style="color: var(--primary)">1</span></span>
+            <span>Puntos: <span id="scoreDisplay" style="color: var(--success)">0</span></span>
+        </div>
+        
+        <div class="image-container" id="imgContainer">
+            <span id="loadingText" style="color: var(--text-muted); font-weight: 700;">Buscando foto...</span>
+            <img id="birdImage" src="" style="display:none;" />
+        </div>
+        
+        <div class="sci-name" id="sciName">Cargando...</div>
+        
+        <div class="slots-container" id="slotsContainer"></div>
+        <div class="letters-container" id="lettersContainer"></div>
+        
+        <div class="victory" id="victoryMsg">¡Excelente! +50 pts ✨</div>
+        <button class="action-btn" id="nextBtn" onclick="nextRound()">Siguiente Ave ➔</button>
+    </div>
+
+    <script>
+        let speciesArray = [];
+        
+        let level = 1;
+        let score = 0;
+        let currentSpecies = null;
+        let targetWord = "";
+        
+        // Elementos DOM
+        const sciNameEl = document.getElementById('sciName');
+        const imgEl = document.getElementById('birdImage');
+        const loadTxt = document.getElementById('loadingText');
+        const slotsCont = document.getElementById('slotsContainer');
+        const lettersCont = document.getElementById('lettersContainer');
+        const victoryMsg = document.getElementById('victoryMsg');
+        const nextBtn = document.getElementById('nextBtn');
+        const lvlDisp = document.getElementById('levelDisplay');
+        const scoreDisp = document.getElementById('scoreDisplay');
+        
+        function normalizeWord(str) {
+            // Elimina acentos y caracteres raros, pone en mayúsculas
+            return str.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
+        }
+
+        function initRound() {
+            victoryMsg.style.display = 'none';
+            nextBtn.classList.remove('show');
+            slotsCont.innerHTML = '';
+            lettersCont.innerHTML = '';
+            
+            // Elegir especie (preferir nombres no exageradamente largos para que quepan en pantalla)
+            let validSpecies = speciesArray.filter(s => s.es && s.es.length <= 16 && s.es.length >= 4);
+            currentSpecies = validSpecies[Math.floor(Math.random() * validSpecies.length)];
+            
+            targetWord = normalizeWord(currentSpecies.es);
+            sciNameEl.textContent = currentSpecies.sci;
+            
+            // Imagen
+            imgEl.style.display = 'none';
+            loadTxt.style.display = 'block';
+            loadTxt.textContent = "Buscando foto...";
+            
+            // Buscamos primero en español y luego en ingles
+            fetch("https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(currentSpecies.sci))
+                .then(res => res.json())
+                .then(data => {
+                    if(data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                        imgEl.src = data.thumbnail.source;
+                        imgEl.onload = () => { imgEl.style.display = 'block'; loadTxt.style.display = 'none'; }
+                    } else {
+                        // Fallback EN
+                        fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(currentSpecies.sci))
+                        .then(r => r.json())
+                        .then(d => {
+                            if(d.thumbnail && d.thumbnail.source) {
+                                imgEl.src = d.thumbnail.source;
+                                imgEl.onload = () => { imgEl.style.display = 'block'; loadTxt.style.display = 'none'; }
+                            } else {
+                                loadTxt.textContent = "Sin foto disponible";
+                            }
+                        }).catch(() => loadTxt.textContent = "Sin foto");
+                    }
+                }).catch(() => loadTxt.textContent = "Sin foto");
+                
+            // Crear slots (espacios para las letras). Mantenemos los espacios visuales.
+            const characters = targetWord.replace(/[^A-Z ]/g, "").split(""); 
+            
+            for(let i=0; i<characters.length; i++) {
+                if (characters[i] === ' ') {
+                    let space = document.createElement('div');
+                    space.className = 'space-slot';
+                    slotsCont.appendChild(space);
+                } else {
+                    let slot = document.createElement('div');
+                    slot.className = 'slot';
+                    slot.onclick = () => removeLetterFromSlot(slot);
+                    slotsCont.appendChild(slot);
+                }
+            }
+            
+            const lettersOnly = targetWord.replace(/[^A-Z]/g, "");
+            
+            // Mezclar letras
+            let shuffled = lettersOnly.split("").sort(() => Math.random() - 0.5);
+            
+            shuffled.forEach((char, idx) => {
+                let btn = document.createElement('div');
+                btn.className = 'letter';
+                btn.textContent = char;
+                btn.dataset.id = idx; // id unico
+                btn.onclick = () => addLetterToSlot(char, btn);
+                lettersCont.appendChild(btn);
+            });
+        }
+        
+        function addLetterToSlot(char, btnEl) {
+            const slots = Array.from(slotsCont.querySelectorAll('.slot'));
+            const emptySlot = slots.find(s => !s.textContent);
+            if(emptySlot) {
+                emptySlot.textContent = char;
+                emptySlot.dataset.originId = btnEl.dataset.id;
+                btnEl.classList.add('hidden');
+                
+                checkWin();
+            }
+        }
+        
+        function removeLetterFromSlot(slot) {
+            if(slot.textContent) {
+                const originId = slot.dataset.originId;
+                const originBtn = lettersCont.querySelector(`.letter[data-id="${originId}"]`);
+                if(originBtn) originBtn.classList.remove('hidden');
+                
+                slot.textContent = "";
+                delete slot.dataset.originId;
+            }
+        }
+        
+        function checkWin() {
+            const slots = Array.from(slotsCont.querySelectorAll('.slot'));
+            const currentWord = slots.map(s => s.textContent).join("");
+            const lettersOnlyTarget = targetWord.replace(/[^A-Z]/g, "");
+            
+            if(currentWord.length === lettersOnlyTarget.length) {
+                if(currentWord === lettersOnlyTarget) {
+                    // Win
+                    victoryMsg.style.display = 'block';
+                    nextBtn.classList.add('show');
+                    score += 50 * level;
+                    scoreDisp.textContent = score;
+                    
+                    // Deshabilitar slots para no quitarlos accidentalmente luego de ganar
+                    slots.forEach(s => s.onclick = null);
+                } else {
+                    // Error - shake
+                    slotsCont.classList.add('shake');
+                    setTimeout(() => slotsCont.classList.remove('shake'), 400);
+                }
+            }
+        }
+        
+        function nextRound() {
+            level++;
+            lvlDisp.textContent = level;
+            initRound();
+        }
+        
+        async function initGame() {
+            try {
+                const res = await fetch('https://raratienda.cl/api/diccionario-especies/');
+                const rawData = await res.json();
+                speciesArray = Object.values(rawData);
+                initRound();
+            } catch(err) {
+                console.error("Error al cargar diccionario", err);
+                sciNameEl.textContent = "Error cargando datos";
+            }
+        }
+        
+        initGame();
+    </script>
+</body>
+</html>

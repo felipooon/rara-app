@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --primary: #ef9d71;
+            --primary-hover: #e2895a;
+            --success: #65C18C;
+            --danger: #FF7BA9;
+            --accent: #c2ebd3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--accent) 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            margin: 1rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.03);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            color: var(--text-muted);
+        }
+
+        .loading {
+            display: none;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin: 3rem 0;
+            animation: pulse 1.5s infinite;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .card {
+            aspect-ratio: 3/4;
+            cursor: pointer;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched .card-inner {
+            transform: rotateY(180deg) scale(0.95);
+        }
+
+        .card.matched {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid #e5e7eb;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .card-front {
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            border: none;
+        }
+
+        .card-front:hover {
+            background: var(--primary-hover);
+        }
+
+        .card-back {
+            background: #fff;
+            transform: rotateY(180deg);
+        }
+
+        .card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bird-name-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .card.matched .bird-name-overlay {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 9999px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+            margin: 0 auto;
+            box-shadow: 0 4px 0 var(--primary-hover);
+        }
+
+        .action-btn.show {
+            display: block;
+            animation: bounceIn 0.5s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--primary-hover);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-nav {
+            padding: 0.5rem 1rem;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--text-muted);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Memorice Pajarero</h1>
+        <div class="subtitle" style="margin-bottom: 0.5rem;">Encuentra los pares de imágenes</div>
+        <div class="nav-buttons">
+            <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
+            <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+        </div>
+
+        <div class="stats">
+            <div>Movimientos: <span id="movesDisplay" style="color: var(--primary)">0</span></div>
+            <div>Pares: <span id="pairsDisplay" style="color: var(--primary)">0/10</span></div>
+        </div>
+
+        <div class="loading" id="loadingEl">Cargando imágenes...</div>
+
+        <div class="grid" id="gridContainer"></div>
+
+        <button class="action-btn" id="nextBtn" onclick="initRound()">Jugar otra vez ➔</button>
+    </div>
+
+    <script>
+        let speciesArray = [];
+        let moves = 0;
+        let pairsMatched = 0;
+
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+
+        const gridContainer = document.getElementById('gridContainer');
+        const movesDisplay = document.getElementById('movesDisplay');
+        const pairsDisplay = document.getElementById('pairsDisplay');
+        const nextBtn = document.getElementById('nextBtn');
+        const loadingEl = document.getElementById('loadingEl');
+
+        async function fetchImage(bird) {
+            try {
+                let res = await fetch("https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(bird.sci));
+                let data = await res.json();
+                if (data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) return data.thumbnail.source;
+
+                res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(bird.sci));
+                data = await res.json();
+                if (data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) return data.thumbnail.source;
+            } catch (e) { }
+            return null;
+        }
+
+        async function get10ValidBirds() {
+            let validBirds = [];
+            while (validBirds.length < 10) {
+                let batch = [];
+                for (let i = 0; i < 15; i++) {
+                    batch.push(speciesArray[Math.floor(Math.random() * speciesArray.length)]);
+                }
+
+                const results = await Promise.all(batch.map(async (b) => {
+                    const img = await fetchImage(b);
+                    return img ? { ...b, img } : null;
+                }));
+
+                for (let res of results) {
+                    if (res && !validBirds.find(v => v.sci === res.sci)) {
+                        validBirds.push(res);
+                        if (validBirds.length === 10) break;
+                    }
+                }
+            }
+            return validBirds;
+        }
+
+        async function initRound() {
+            moves = 0;
+            pairsMatched = 0;
+            movesDisplay.textContent = moves;
+            pairsDisplay.textContent = "0/10";
+            nextBtn.classList.remove('show');
+            gridContainer.innerHTML = '';
+
+            gridContainer.style.display = 'none';
+            loadingEl.style.display = 'block';
+
+            // 1. Obtener 10 aves con imagen
+            const selectedBirds = await get10ValidBirds();
+
+            // 2. Duplicar para crear pares
+            let cardsData = [...selectedBirds, ...selectedBirds];
+
+            // 3. Mezclar cartas
+            cardsData.sort(() => Math.random() - 0.5);
+
+            // 4. Crear elementos en DOM
+            cardsData.forEach((bird, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.sci = bird.sci;
+
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-face card-front">?</div>
+                        <div class="card-face card-back">
+                            <img src="${bird.img}" alt="Ave">
+                            <div class="bird-name-overlay">${bird.es}</div>
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('click', flipCard);
+                gridContainer.appendChild(card);
+            });
+
+            loadingEl.style.display = 'none';
+            gridContainer.style.display = 'grid';
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flipped');
+
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            moves++;
+            movesDisplay.textContent = moves;
+
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.sci === secondCard.dataset.sci;
+
+            if (isMatch) {
+                disableCards();
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+
+            let c1 = firstCard;
+            let c2 = secondCard;
+            c1.style.pointerEvents = 'none';
+            c2.style.pointerEvents = 'none';
+
+            pairsMatched++;
+            pairsDisplay.textContent = `${pairsMatched}/10`;
+            if (pairsMatched === 10) {
+                setTimeout(() => nextBtn.classList.add('show'), 1000);
+            }
+
+            setTimeout(() => {
+                c1.classList.add('matched');
+                c2.classList.add('matched');
+            }, 500);
+
+            resetBoard();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [firstCard, secondCard, lockBoard] = [null, null, false];
+        }
+
+        async function initGame() {
+            try {
+                const res = await fetch('https://raratienda.cl/api/diccionario-especies/');
+                const rawData = await res.json();
+                speciesArray = Object.values(rawData);
+                initRound();
+            } catch (err) {
+                console.error("Error al cargar diccionario", err);
+                loadingEl.textContent = "Error conectando con la API de especies.";
+                loadingEl.style.display = 'block';
+            }
+        }
+
+        // Arrancar
+        initGame();
+    </script>
+</body>
+
+</html>

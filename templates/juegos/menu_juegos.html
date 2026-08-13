@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú de Minijuegos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --primary: #ef9d71;
+            --primary-hover: #e2895a;
+            --success: #65C18C;
+            --danger: #FF7BA9;
+            --accent: #c2ebd3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--accent) 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid transparent;
+        }
+
+        .game-card:nth-child(1) { animation-delay: 0.1s; }
+        .game-card:nth-child(2) { animation-delay: 0.2s; }
+        .game-card:nth-child(3) { animation-delay: 0.3s; }
+        .game-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(239, 157, 113, 0.2);
+            border-color: var(--primary);
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover .icon-container {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .game-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+        }
+
+        .game-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .play-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .game-card:hover .play-btn {
+            background-color: var(--primary-hover);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-nav {
+            padding: 0.6rem 1.2rem;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--text-muted);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .grid-container { grid-template-columns: 1fr; max-width: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Minijuegos</h1>
+        <p class="subtitle">Selecciona un juego para comenzar</p>
+        <div class="nav-buttons">
+            <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+        </div>
+    </header>
+
+    <div class="grid-container">
+        <!-- Card 1 -->
+        <a href="{% url 'quien_es_esta_ave' %}" class="game-card">
+            <div class="icon-container">🦜</div>
+            <h2 class="game-title">¿Quién es esta ave?</h2>
+            <p class="game-desc">Descubre las aves más fascinantes del mundo.</p>
+            <div class="play-btn">Jugar</div>
+        </a>
+
+        <!-- Card 2 -->
+        <a href="{% url 'memorice' %}" class="game-card">
+            <div class="icon-container">🧠</div>
+            <h2 class="game-title">Memorice</h2>
+            <p class="game-desc">Encuentra todas las parejas ocultas en el tablero.</p>
+            <div class="play-btn">Jugar</div>
+        </a>
+
+        <!-- Card 3 -->
+        <a href="{% url 'letras_locas' %}" class="game-card">
+            <div class="icon-container">🔠</div>
+            <h2 class="game-title">Letras Locas</h2>
+            <p class="game-desc">Ordena las letras para descubrir la palabra secreta.</p>
+            <div class="play-btn">Jugar</div>
+        </a>
+
+        <!-- Card 4 -->
+        <a href="{% url 'minijuego' %}" class="game-card">
+            <div class="icon-container">🧪</div>
+            <h2 class="game-title">Trivia Científica</h2>
+            <p class="game-desc">Pon a prueba tus conocimientos científicos.</p>
+            <div class="play-btn">Jugar</div>
+        </a>
+    </div>
+
+</body>
+</html>

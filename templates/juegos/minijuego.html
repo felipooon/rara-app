@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minijuego de Aves</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --primary: #ef9d71;
+            --primary-hover: #e2895a;
+            --success: #65C18C;
+            --danger: #FF7BA9;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-container {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-weight: 600;
+            background: rgba(0,0,0,0.03);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .question-box {
+            margin-bottom: 2.5rem;
+        }
+
+        .question-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sci-name {
+            font-size: 2rem;
+            font-weight: 600;
+            font-style: italic;
+            color: var(--text-main);
+            word-wrap: break-word;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            color: var(--text-main);
+            padding: 1.25rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            background: #f9fafb;
+            transform: translateY(-2px);
+            border-color: #d1d5db;
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        .option-btn.correct {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+            box-shadow: 0 4px 15px rgba(101, 193, 140, 0.3);
+        }
+
+        .option-btn.wrong {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 123, 169, 0.3);
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .next-btn {
+            margin-top: 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+        }
+
+        .next-btn.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .next-btn:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 15px rgba(239, 157, 113, 0.4);
+        }
+        
+        /* Language Toggle */
+        .lang-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .lang-toggle:hover {
+            background: #f9fafb;
+        }
+        
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-nav {
+            padding: 0.5rem 1rem;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--text-muted);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <button class="lang-toggle" id="langToggle">Adivinar: Español</button>
+    <div class="game-container" id="gameContainer">
+        <div class="header" style="margin-bottom: 1rem;">
+            <h1>OrnitoQuiz</h1>
+            <p style="color: var(--text-muted)">Adivina la especie por su nombre científico</p>
+            <div class="nav-buttons">
+                <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
+                <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div>Puntuación: <span id="scoreDisplay">0</span></div>
+            <div>Racha: <span id="streakDisplay">0</span> 🔥</div>
+        </div>
+
+        <div class="question-box">
+            <div class="question-label">Nombre Científico</div>
+            <div class="sci-name" id="questionName">Cargando...</div>
+            <div class="image-container">
+                <img id="birdImage" src="" alt="Ave" style="display:none; max-width:100%; border-radius:12px; margin: 1rem auto; max-height: 250px; object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"/>
+            </div>
+        </div>
+
+        <div class="options-grid" id="optionsGrid">
+            <!-- Botones generados por JS -->
+        </div>
+
+        <button class="next-btn" id="nextBtn" onclick="initRound()">Siguiente Especie ➔</button>
+    </div>
+
+    <script>
+        let speciesArray = [];
+        
+        let score = 0;
+        let streak = 0;
+        let currentSpecies = null;
+        let targetLang = 'es'; // 'es' or 'en'
+        
+        const questionNameEl = document.getElementById('questionName');
+        const optionsGridEl = document.getElementById('optionsGrid');
+        const nextBtn = document.getElementById('nextBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const streakDisplay = document.getElementById('streakDisplay');
+        const gameContainer = document.getElementById('gameContainer');
+        const langToggle = document.getElementById('langToggle');
+        
+        langToggle.addEventListener('click', () => {
+            targetLang = targetLang === 'es' ? 'en' : 'es';
+            langToggle.textContent = targetLang === 'es' ? 'Adivinar: Español' : 'Guess: English';
+            initRound();
+        });
+        
+        function getRandomSpecies(exclude = []) {
+            let options = speciesArray.filter(s => !exclude.includes(s.sci));
+            return options[Math.floor(Math.random() * options.length)];
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initRound() {
+            nextBtn.classList.remove('show');
+            optionsGridEl.innerHTML = '';
+            
+            // Elegir especie correcta
+            currentSpecies = getRandomSpecies();
+            questionNameEl.textContent = currentSpecies.sci;
+            
+            const birdImage = document.getElementById('birdImage');
+            birdImage.style.display = 'none';
+            birdImage.src = '';
+            
+            // Fetch image from Wikipedia API
+            fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(currentSpecies.sci))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                        birdImage.src = data.thumbnail.source;
+                        birdImage.style.display = 'block';
+                    } else {
+                        // Fallback to Spanish Wikipedia if not found on English
+                        return fetch("https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(currentSpecies.sci))
+                            .then(res => res.json())
+                            .then(esData => {
+                                if (esData.thumbnail && esData.thumbnail.source) {
+                                    birdImage.src = esData.thumbnail.source;
+                                    birdImage.style.display = 'block';
+                                }
+                            });
+                    }
+                })
+                .catch(err => console.error("Error loading image", err));
+            
+            // Elegir 3 incorrectas
+            let wrongOptions = [];
+            while(wrongOptions.length < 3) {
+                let s = getRandomSpecies([currentSpecies.sci, ...wrongOptions.map(w => w.sci)]);
+                wrongOptions.push(s);
+            }
+            
+            let allOptions = [currentSpecies, ...wrongOptions];
+            allOptions = shuffleArray(allOptions);
+            
+            allOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt[targetLang];
+                btn.onclick = () => handleGuess(btn, opt);
+                optionsGridEl.appendChild(btn);
+            });
+        }
+        
+        function handleGuess(btn, selectedOpt) {
+            // Deshabilitar todos
+            const buttons = optionsGridEl.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            
+            const isCorrect = selectedOpt.sci === currentSpecies.sci;
+            
+            if(isCorrect) {
+                btn.classList.add('correct');
+                score += 10;
+                streak += 1;
+            } else {
+                btn.classList.add('wrong');
+                streak = 0;
+                gameContainer.classList.add('shake');
+                setTimeout(() => gameContainer.classList.remove('shake'), 500);
+                
+                // Mostrar la correcta
+                buttons.forEach(b => {
+                    if(b.textContent === currentSpecies[targetLang]) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            scoreDisplay.textContent = score;
+            streakDisplay.textContent = streak;
+            
+            nextBtn.classList.add('show');
+        }
+
+        // Iniciar
+        async function initGame() {
+            try {
+                const res = await fetch('https://raratienda.cl/api/diccionario-especies/');
+                const rawData = await res.json();
+                speciesArray = Object.values(rawData);
+                initRound();
+            } catch(err) {
+                console.error("Error al cargar el diccionario", err);
+                questionNameEl.textContent = "Error de conexión";
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Quién es esta ave?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --primary: #ef9d71;
+            --primary-hover: #e2895a;
+            --success: #65C18C;
+            --danger: #FF7BA9;
+            --accent: #c2ebd3;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--accent) 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-container {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            background: rgba(0,0,0,0.03);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .image-container {
+            background: rgba(0,0,0,0.02);
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #birdImage {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            display: none;
+            transition: filter 1s ease, transform 1s ease;
+            pointer-events: none; /* Evita que la arrastren para hacer trampa */
+            user-select: none;
+        }
+
+        /* Efecto de foto oculta (ya que no tienen fondo transparente) */
+        .silhouette {
+            filter: blur(16px) saturate(1.5) !important;
+            transform: scale(0.95);
+        }
+        
+        .revealed {
+            filter: blur(0px) saturate(1) drop-shadow(0 4px 15px rgba(0,0,0,0.15)) !important;
+            transform: scale(1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            color: var(--text-main);
+            padding: 1.2rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            background: #f9fafb;
+            transform: translateY(-2px);
+            border-color: #d1d5db;
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        .option-btn.correct {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+            box-shadow: 0 4px 15px rgba(101, 193, 140, 0.3);
+        }
+
+        .option-btn.wrong {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 123, 169, 0.3);
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+            transform: none !important;
+        }
+
+        .next-btn {
+            margin-top: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 9999px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: none;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 0 var(--primary-hover);
+        }
+
+        .next-btn.show {
+            display: block;
+            animation: bounceIn 0.5s;
+        }
+
+        .next-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-hover);
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-nav {
+            padding: 0.5rem 1rem;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--text-muted);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <h1>¿Quién es esta ave?</h1>
+        <div class="subtitle">Adivina la especie por su silueta</div>
+        <div class="nav-buttons">
+            <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
+            <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+        </div>
+
+        <div class="stats">
+            <div>Puntos: <span id="scoreDisplay" style="color: var(--primary)">0</span></div>
+            <div>Racha: <span id="streakDisplay" style="color: var(--accent)">0</span> 🔥</div>
+        </div>
+
+        <div class="image-container">
+            <span class="loading-text" id="loadingText">Buscando un ave misteriosa...</span>
+            <img id="birdImage" class="silhouette" src="" alt="Ave Misteriosa"/>
+        </div>
+
+        <div class="options-grid" id="optionsGrid">
+            <!-- Botones generados por JS -->
+        </div>
+
+        <button class="next-btn" id="nextBtn" onclick="initRound()">Siguiente Especie ➔</button>
+    </div>
+
+    <script>
+        let speciesArray = [];
+        let score = 0;
+        let streak = 0;
+        let currentBird = null;
+        
+        const optionsGridEl = document.getElementById('optionsGrid');
+        const nextBtn = document.getElementById('nextBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const streakDisplay = document.getElementById('streakDisplay');
+        const gameContainer = document.getElementById('gameContainer');
+        const loadingText = document.getElementById('loadingText');
+        const birdImage = document.getElementById('birdImage');
+        
+        function getRandomSpecies(exclude = []) {
+            let options = speciesArray.filter(s => !exclude.includes(s.sci));
+            return options[Math.floor(Math.random() * options.length)];
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        async function fetchImageWithRetry() {
+            let attempts = 0;
+            while(attempts < 10) {
+                let candidate = getRandomSpecies();
+                try {
+                    let res = await fetch("https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(candidate.sci));
+                    let data = await res.json();
+                    if(data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                        return { bird: candidate, img: data.thumbnail.source };
+                    }
+                    
+                    res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(candidate.sci));
+                    data = await res.json();
+                    if(data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                        return { bird: candidate, img: data.thumbnail.source };
+                    }
+                } catch(e) {}
+                attempts++;
+            }
+            return null;
+        }
+
+        async function initRound() {
+            nextBtn.classList.remove('show');
+            optionsGridEl.innerHTML = '';
+            
+            birdImage.style.display = 'none';
+            birdImage.className = 'silhouette'; // Set it back to silhouette
+            loadingText.style.display = 'block';
+            loadingText.textContent = "Buscando un ave misteriosa...";
+            
+            // 1. Fetch valid bird image
+            const result = await fetchImageWithRetry();
+            if(!result) {
+                loadingText.textContent = "Error al cargar imágenes. Intenta de nuevo.";
+                return;
+            }
+            
+            currentBird = result.bird;
+            
+            // Wait for image to load to display it smoothly
+            birdImage.onload = () => {
+                loadingText.style.display = 'none';
+                birdImage.style.display = 'block';
+            };
+            birdImage.src = result.img;
+            
+            // 2. Elegir 3 opciones incorrectas
+            let wrongOptions = [];
+            while(wrongOptions.length < 3) {
+                let s = getRandomSpecies([currentBird.sci, ...wrongOptions.map(w => w.sci)]);
+                wrongOptions.push(s);
+            }
+            
+            let allOptions = [currentBird, ...wrongOptions];
+            allOptions = shuffleArray(allOptions);
+            
+            allOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt.es; // Always show Spanish common name
+                btn.onclick = () => handleGuess(btn, opt);
+                optionsGridEl.appendChild(btn);
+            });
+        }
+        
+        function handleGuess(btn, selectedOpt) {
+            // Deshabilitar todos
+            const buttons = optionsGridEl.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            
+            const isCorrect = selectedOpt.sci === currentBird.sci;
+            
+            // Reveal the pokemon!
+            birdImage.className = 'revealed';
+            
+            if(isCorrect) {
+                btn.classList.add('correct');
+                score += 10 + (streak * 2); // bonus for streak
+                streak += 1;
+            } else {
+                btn.classList.add('wrong');
+                streak = 0;
+                gameContainer.classList.add('shake');
+                setTimeout(() => gameContainer.classList.remove('shake'), 500);
+                
+                // Highlight the correct one
+                buttons.forEach(b => {
+                    if(b.textContent === currentBird.es) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            scoreDisplay.textContent = score;
+            streakDisplay.textContent = streak;
+            
+            setTimeout(() => nextBtn.classList.add('show'), 800);
+        }
+
+        // Iniciar
+        async function initGame() {
+            try {
+                const res = await fetch('https://raratienda.cl/api/diccionario-especies/');
+                const rawData = await res.json();
+                speciesArray = Object.values(rawData);
+                initRound();
+            } catch(err) {
+                console.error("Error al cargar el diccionario", err);
+                loadingText.textContent = "Error de conexión con el diccionario.";
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

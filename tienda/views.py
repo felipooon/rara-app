@@ -755,3 +755,22 @@ www.raratienda.cl
 
     # Si alguien intenta entrar por la URL normal (GET), lo rechazamos
     return JsonResponse({"status": "method not allowed"}, status=405)
+
+#----------------
+# JUEGOS
+#----------------
+
+def menu_juegos(request):
+    return render(request, "juegos/menu_juegos.html")
+
+def quien_es_esta_ave(request):
+    return render(request, "juegos/quien_es_esta_ave.html")
+
+def memorice(request):
+    return render(request, "juegos/memorice.html")
+
+def letras_locas(request):
+    return render(request, "juegos/letras_locas.html")
+
+def minijuego(request):
+    return render(request, "juegos/minijuego.html")
