@@ -41,12 +41,14 @@
         {{ producto.descripcion }}
       </p>
 
-      <div class="acciones">
-        <a href="javascript:history.back()" class="btn-secundario">
-          Volver
+      <div class="acciones" style="display: flex; gap: 10px;">
+        <a href="javascript:history.back()" class="btn-secundario" style="margin: 0;">
+          <i class="fa-solid fa-arrow-left"></i> Volver
         </a>
 
-        <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn-categoria">Agregar</a>
+        <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn-categoria" style="margin: 0; background-color: var(--acento);">
+          <i class="fa-solid fa-cart-plus"></i> Agregar
+        </a>
 
         <!--<button class="btn-principal">
           Agregar (demo)

@@ -8,7 +8,69 @@
  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
 
 <section id="inicio" class="intro">
-  <div class="container"></div>
+  <div class="container hero-text">
+  </div>
+</section><!-- Beneficios -->
+<section class="beneficios-seccion">
+  <div class="beneficio-item">
+    <i class="fa-solid fa-palette"></i>
+    <div>
+      <h4>Diseños Exclusivos</h4>
+      <p>Inspirados en aves nativas</p>
+    </div>
+  </div>
+  <div class="beneficio-item">
+    <i class="fa-solid fa-truck-fast"></i>
+    <div>
+      <h4>Envíos a todo Chile</h4>
+      <p>Llevamos la naturaleza a tu puerta</p>
+    </div>
+  </div>
+  <div class="beneficio-item">
+    <i class="fa-solid fa-lock"></i>
+    <div>
+      <h4>Compra Segura</h4>
+      <p>Pagos 100% protegidos</p>
+    </div>
+  </div>
+  <div class="beneficio-item">
+    <i class="fa-solid fa-heart"></i>
+    <div>
+      <h4>Hecho con Amor</h4>
+      <p>Creados con dedicación</p>
+    </div>
+  </div>
+</section>
+
+<!-- Destacados -->
+<section id="destacados" class="catalogo-seccion" style="background: none; padding-top: 1rem;">
+  <div class="catalogo">
+    <h2>Novedades Destacadas</h2>
+  </div>
+  <div class="catalogo">
+    {% for p in productos_destacados %}
+      <div class="producto">
+        {% if p.imagen %}
+          <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+        {% endif %}
+        {% if not p.disponible %}
+          <span class="agotado">Agotado</span>
+        {% endif %}
+        <h3>{{ p.nombre }}</h3>
+        <p>${{ p.precio }}</p>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 10px 10px 20px 10px;">
+          <a href="{% url 'producto_detail' p.id %}" class="btn-categoria" style="margin: 0; padding: 8px 14px; font-size: 14px;">
+            <i class="fa-solid fa-eye"></i> Ver
+          </a>
+          <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria" style="margin: 0; padding: 8px 14px; font-size: 14px; background-color: var(--acento);">
+            <i class="fa-solid fa-cart-plus"></i> Añadir
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <p>No hay productos destacados aún.</p>
+    {% endfor %}
+  </div>
 </section>
 
 <!-- Catálogo -->
@@ -34,7 +96,7 @@
         <h3>{{ c.nombre }}</h3>
 
         <a href="{% url 'categoria' c.slug %}" class="btn-categoria">
-          Ir a Colección
+          <i class="fa-solid fa-layer-group"></i> Ir a Colección
         </a>
 
       </div>
@@ -47,6 +109,8 @@
 
   </div>
 </section>
+
+
 
 <!-- Nosotros -->
 <section id="acerca" class="nosotros">

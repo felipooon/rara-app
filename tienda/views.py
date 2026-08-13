@@ -29,10 +29,12 @@ import re
 def index(request):
     categorias = Categoria.objects.all()
     productos = Producto.objects.all()
+    productos_destacados = Producto.objects.filter(disponible=True).order_by('-id')[:4]
 
     return render(request, "index.html", {
         "categorias": categorias,
-        "productos": productos
+        "productos": productos,
+        "productos_destacados": productos_destacados
     })
 
 
