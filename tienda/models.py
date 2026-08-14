@@ -101,8 +101,8 @@ class Pedido(models.Model):
         self.pagado = True
         self.save()
 
-        # 2. Recorremos cada item comprado en este pedido
-        for item in self.items.all():
+        # 2. Recorremos cada item comprado optimizando la consulta
+        for item in self.items.select_related('producto').all():
             producto = item.producto
             
             # Restamos la cantidad comprada al stock del producto

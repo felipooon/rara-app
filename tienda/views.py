@@ -116,9 +116,10 @@ def procesar_pedido(request):
     
     # --- 🛡️ LA ADUANA FINAL (Pre-Checkout) 🛡️ ---
     
-    for item_id, item_data in carrito.carrito.items():
-        # Buscamos el producto real en la base de datos para ver su stock actual
-        producto = Producto.objects.filter(id=item_data['producto_id']).first()
+    # Optimizamos el query: Al iterar sobre el carrito directamente, 
+    # se carga la lista de productos de una sola vez usando id__in.
+    for item_data in carrito:
+        producto = item_data.get('producto_real')
         cantidad_pedida = item_data['cantidad']
         
         # 1. Validar que el producto siga existiendo
@@ -494,10 +495,8 @@ def panel_pedidos(request):
 
 @staff_member_required(login_url='login')
 def detalle_pedido(request, id):
-    # Buscamos el pedido y sus items relacionados
-    pedido = get_object_or_404(Pedido, id=id)
-    # Gracias al related_name='items' que pusiste en el modelo, 
-    # podemos acceder a los productos así: pedido.items.all()
+    # Buscamos el pedido y sus items relacionados optimizando consultas con prefetch_related
+    pedido = get_object_or_404(Pedido.objects.prefetch_related('items__producto'), id=id)
     return render(request, 'panel/detalle_pedido.html', {'pedido': pedido})
 
 
