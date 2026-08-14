@@ -37,6 +37,9 @@ def index(request):
         "productos_destacados": productos_destacados
     })
 
+def terminos_condiciones(request):
+    return render(request, "terminos.html")
+
 
 def categoria_detail(request, slug):
     categoria = get_object_or_404(Categoria, slug=slug)
