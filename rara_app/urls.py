@@ -21,7 +21,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
+from django.contrib.sitemaps.views import sitemap
+from django.views.generic import TemplateView
+from tienda.sitemaps import ProductoViewSitemap, CategoriaViewSitemap, StaticViewSitemap
+
+sitemaps = {
+    'productos': ProductoViewSitemap,
+    'categorias': CategoriaViewSitemap,
+    'static': StaticViewSitemap,
+}
+
 urlpatterns = [
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path('phytotoma-rara/', admin.site.urls),
     path('', include('tienda.urls')),
 

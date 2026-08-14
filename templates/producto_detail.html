@@ -9,6 +9,23 @@
 {% block og_desc %}{{ producto.descripcion|truncatechars:100 }}{% endblock %}
 {% block og_image %}{% if producto.imagen %}{{ request.scheme }}://{{ request.get_host }}{{ producto.imagen.url }}{% endif %}{% endblock %}
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ producto.nombre|escapejs }}",
+  "image": "{% if producto.imagen %}{{ request.scheme }}://{{ request.get_host }}{{ producto.imagen.url }}{% endif %}",
+  "description": "{{ producto.descripcion|escapejs }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{{ request.path }}",
+    "priceCurrency": "CLP",
+    "price": "{{ producto.precio }}",
+    "availability": "https://schema.org/{% if producto.disponible %}InStock{% else %}OutOfStock{% endif %}"
+  }
+}
+</script>
+
 {% block content %}
 
 <div class="producto-detalle">

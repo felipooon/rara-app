@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.urls import reverse
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -13,6 +14,9 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def get_absolute_url(self):
+        return reverse('categoria', args=[self.slug])
 
 
 class Producto(models.Model):
@@ -28,6 +32,9 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+        
+    def get_absolute_url(self):
+        return reverse('producto_detail', args=[str(self.id)])
     
     # Opcional: un método rápido para saber si hay stock
     def hay_stock(self):

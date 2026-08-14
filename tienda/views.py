@@ -158,6 +158,9 @@ def procesar_pedido(request):
             ciudad=request.POST.get('ciudad', 'Puerto Montt') # Tu valor por defecto
         )
         
+        # Guardamos el ID del pedido en la sesión para autorizar la vista de éxito
+        request.session['pedido_autorizado'] = str(pedido.id)
+        
         # 2. método __iter__ en el carrito hace que esto sea súper fácil
         for item in carrito:
             ItemPedido.objects.create(
@@ -292,6 +295,13 @@ def limpiar_carrito(request):
 
 
 def pedido_confirmado(request, pedido_id):
+    # --- 🛡️ VALIDACIÓN DE SEGURIDAD (Prevención de IDOR) ---
+    pedido_autorizado = request.session.get('pedido_autorizado')
+    if str(pedido_autorizado) != str(pedido_id):
+        # Si el usuario intenta ver el pedido de otro, lo mandamos al inicio
+        return redirect('index')
+    # -------------------------------------------------------
+
     # Buscamos el pedido recién creado para mostrarle sus datos
     pedido = get_object_or_404(Pedido, id=pedido_id)
     carrito = Carrito(request)
