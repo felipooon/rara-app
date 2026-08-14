@@ -115,12 +115,20 @@ if DEBUG:
     }
 else:
     # PRODUCCIÓN: Usamos la URL de Neon que configuramos en Render
+    db_config = dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
+    
+    # Solución para el "Cold Start" de Neon (Error 500 al despertar)
+    # Le damos a Django hasta 15 segundos para esperar a que Neon encienda
+    if 'OPTIONS' not in db_config:
+        db_config['OPTIONS'] = {}
+    db_config['OPTIONS']['connect_timeout'] = 15
+    
     DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
-        )
+        'default': db_config
     }
 
 
