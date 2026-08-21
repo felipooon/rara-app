@@ -142,6 +142,15 @@ def procesar_pedido(request):
 
     if request.method == 'POST':
         rut_ingresado = request.POST.get('rut', '')
+        terminos_aceptados = request.POST.get('terminos_aceptados')
+
+        if not terminos_aceptados:
+            context = {
+                'carrito': carrito,
+                'error_terminos': "Debes aceptar los Términos y Condiciones y Políticas de Devolución para realizar tu pedido.",
+                'datos_previos': request.POST
+            }
+            return render(request, 'checkout.html', context)
 
         if not validar_rut_chileno(rut_ingresado):
             context = {
@@ -151,7 +160,6 @@ def procesar_pedido(request):
             }
             return render(request, 'checkout.html', context)
 
-
         # 1. Capturamos los datos del cliente desde el formulario
         pedido = Pedido.objects.create(
             nombre_completo=request.POST.get('nombre_completo'),
@@ -159,13 +167,13 @@ def procesar_pedido(request):
             email=request.POST.get('email'),
             telefono=request.POST.get('telefono'),
             direccion=request.POST.get('direccion'),
-            ciudad=request.POST.get('ciudad', 'Puerto Montt') # Tu valor por defecto
+            ciudad=request.POST.get('ciudad', 'Puerto Montt')
         )
         
         # Guardamos el ID del pedido en la sesión para autorizar la vista de éxito
         request.session['pedido_autorizado'] = str(pedido.id)
         
-        # 2. método __iter__ en el carrito hace que esto sea súper fácil
+        # 2. Guardamos los items del pedido
         for item in carrito:
             ItemPedido.objects.create(
                 pedido=pedido,
@@ -174,97 +182,87 @@ def procesar_pedido(request):
                 cantidad=item['cantidad']
             )
 
-    # ========================================================
-        # 🚀 INICIO INTEGRACIÓN MERCADO PAGO
         # ========================================================
-        sdk = mercadopago.SDK(settings.MP_ACCESS_TOKEN)
-
-        # Armamos la lista de productos tal como los pide Mercado Pago
-        items_mp = []
-        for item in carrito:
-            items_mp.append({
-                "title": item['producto_real'].nombre,
-                "quantity": int(item['cantidad']),
-                "unit_price": int(item['precio']),
-                "currency_id": "CLP"
-            })
-
-        # Construimos la URL completa para que Mercado Pago sepa a dónde devolver al cliente
-        # request.build_absolute_uri crea algo como "https://raratienda.cl/pedido/confirmado/5/"
-        # 🚨 FORZAMOS HTTPS: Los tokens de producción exigen URLs reales
-        url_exito = f"https://raratienda.cl/pedido-confirmado/{pedido.id}/"
-        url_fallo = "https://raratienda.cl/?cart=open"  # <--- Lo devuelve al home y le abre el carrito automáticamente
-        
-        url_webhook = "https://raratienda.cl/webhook/mercadopago/"
-
-        preference_data = {
-            "items": items_mp,
-            "payer": {
-                "name": pedido.nombre_completo,
-                "email": pedido.email,
-            },
-            "back_urls": {
-                "success": url_exito,
-                "failure": url_fallo,
-                "pending": url_exito,
-            },
-            "auto_return": "approved", # Si paga bien, lo devuelve automáticamente a tu tienda
-            "external_reference": str(pedido.id), # 🔑 CLAVE: Guardamos el ID de tu pedido en MP
-            "notification_url": url_webhook,
-        }
-
-        preference_response = sdk.preference().create(preference_data)
-
-        print("\n=== RESPUESTA DE MERCADO PAGO ===")
-        print(preference_response)
-        print("=================================\n")
-
-        # Verificamos si Mercado Pago nos dio el init_point
-        if "init_point" not in preference_response.get("response", {}):
-            # Si no está, devolvemos al cliente al carrito y le avisamos
-            messages.error(request, "Hubo un problema al contactar a la pasarela de pago. Por favor intenta de nuevo.")
-            return redirect('ver_carrito') # Asegúrate de que este sea el nombre correcto de tu url de carrito
-        
-        init_point = preference_response["response"]["init_point"] # ¡Este es el link de pago!
+        # BLOQUE DE CORREO: ALERTA PARA ADMINISTRADORES (SILENCIOSO)
         # ========================================================
-        # FIN INTEGRACIÓN MERCADO PAGO
-        # ========================================================
-
-
-        # ========================================================
-        # BLOQUE DE CORREO: SÓLO ALERTA PARA ADMINISTRADORES
-        # ========================================================
-        try:
-            asunto_admin = f"🚨 NUEVO PEDIDO RARATIENDA#{pedido.codigo_orden} - {pedido.nombre_completo}"
-            mensaje_admin = f"""¡Atención! Acaba de entrar un nuevo pedido.
+        if getattr(settings, 'EMAIL_HOST_USER', None):
+            try:
+                asunto_admin = f"🚨 NUEVO PEDIDO RARATIENDA#{pedido.codigo_orden} - {pedido.nombre_completo}"
+                mensaje_admin = f"""¡Atención! Acaba de entrar un nuevo pedido.
 
 Cliente: {pedido.nombre_completo}
 Ciudad: {pedido.ciudad}
 Total a transferir: ${carrito.get_total()}
 Teléfono: +56{pedido.telefono}
 
-Revisa el panel de administración para ver el detalle completo y coordinar el pago.
-
+Revisa el panel de administración para ver el detalle completo.
 www.raratienda.cl/panel
 """
-            send_mail(
-                asunto_admin,
-                mensaje_admin,
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.EMAIL_HOST_USER], # Se envía al correo de la tienda (el tuyo)
-                fail_silently=False,
-            )
+                send_mail(
+                    asunto_admin,
+                    mensaje_admin,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.EMAIL_HOST_USER],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"Error silencioso al enviar alerta de pedido: {e}")
 
-        except Exception as e:
-            # Si hay un problema temporal con Gmail, la venta no se cae
-            print(f"Error silencioso al enviar alerta de pedido: {e}")
         # ========================================================
-        
-        # 3. ¡Venta lista! Limpiamos la sesión usando el método
-        #carrito.limpiar()
-        
-        #return redirect('pedido_confirmado', pedido_id=pedido.id)
-        return redirect(init_point)
+        # 🚀 INICIO INTEGRACIÓN MERCADO PAGO
+        # ========================================================
+        if not settings.MP_ACCESS_TOKEN:
+            messages.info(request, "Entorno local: MERCADOPAGO_ACCESS_TOKEN no configurado en .env. Pedido registrado correctamente.")
+            return redirect('pedido_confirmado', pedido_id=pedido.id)
+
+        try:
+            sdk = mercadopago.SDK(settings.MP_ACCESS_TOKEN)
+
+            items_mp = []
+            for item in carrito:
+                items_mp.append({
+                    "title": item['producto_real'].nombre,
+                    "quantity": int(item['cantidad']),
+                    "unit_price": int(item['precio']),
+                    "currency_id": "CLP"
+                })
+
+            url_exito = f"https://raratienda.cl/pedido-confirmado/{pedido.id}/"
+            url_fallo = "https://raratienda.cl/?cart=open"
+            url_webhook = "https://raratienda.cl/webhook/mercadopago/"
+
+            preference_data = {
+                "items": items_mp,
+                "payer": {
+                    "name": pedido.nombre_completo,
+                    "email": pedido.email,
+                },
+                "back_urls": {
+                    "success": url_exito,
+                    "failure": url_fallo,
+                    "pending": url_exito,
+                },
+                "auto_return": "approved",
+                "external_reference": str(pedido.id),
+                "notification_url": url_webhook,
+            }
+
+            preference_response = sdk.preference().create(preference_data)
+
+            print("\n=== RESPUESTA DE MERCADO PAGO ===")
+            print(preference_response)
+            print("=================================\n")
+
+            if "init_point" not in preference_response.get("response", {}):
+                messages.error(request, "Hubo un problema al contactar a la pasarela de pago. Por favor intenta de nuevo.")
+                return redirect('ver_carrito')
+            
+            init_point = preference_response["response"]["init_point"]
+            return redirect(init_point)
+        except Exception as e:
+            print(f"Error al conectar con Mercado Pago: {e}")
+            messages.error(request, f"Error con la pasarela de pago: {e}")
+            return redirect('pedido_confirmado', pedido_id=pedido.id)
 
     return render(request, 'checkout.html', {'carrito': carrito})
 
