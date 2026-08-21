@@ -53,21 +53,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <img src="{% static 'img/logo_rara.png' %}" alt="Logo Rara Tienda" class="logo-img">
             Rara Tienda
         </a></h1>
-    <div style="position: relative; width: 220px; margin: 0 15px;" class="search-container">
-        <input type="text" id="live-search-input" placeholder="Buscar productos..." autocomplete="off" style="width: 100%; padding: 8px 14px 8px 34px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.9); font-size: 0.85rem; font-family: 'Inter', sans-serif; outline: none; transition: all 0.3s;">
-        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; font-size: 0.85rem;"></i>
+    <div class="search-container">
+        <input type="text" id="live-search-input" placeholder="Buscar..." autocomplete="off">
+        <i class="fa-solid fa-magnifying-glass"></i>
         
-        <div id="live-search-results" style="display: none; position: absolute; top: 110%; left: 0; right: 0; width: 280px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden; z-index: 1100; border: 1px solid #eee;"></div>
+        <div id="live-search-results" class="live-search-dropdown"></div>
     </div>
 
-    <ul class="nav-links" id="nav-links">
-        <button id="close-menu" class="close-button">&times;</button>
+    <!-- NAVEGACIÓN ESCRITORIO -->
+    <ul class="nav-links">
         <li><a href="/#inicio">Inicio</a></li>
         <li><a href="/#catalogo">Catálogo</a></li>
         <li><a href="{% url 'menu_juegos' %}">Juegos</a></li>
         <li><a href="/#acerca">Acerca</a></li>
         <li><a href="/#contacto">Contacto</a></li>
     </ul>
+
+    <!-- MENÚ LATERAL MÓVIL (SÓLO MOBILE) -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+
+    <div class="mobile-drawer" id="mobile-drawer">
+        <div class="mobile-drawer-header">
+            <div class="mobile-drawer-brand">
+                <img src="{% static 'img/logo_rara.png' %}" alt="Logo Rara Tienda" class="drawer-logo-img">
+                <span>Rara Tienda</span>
+            </div>
+            <button id="close-menu" class="close-button" aria-label="Cerrar menú">&times;</button>
+        </div>
+
+        <ul class="mobile-drawer-nav">
+            <li><a href="/#inicio"><span class="nav-icon"><i class="fa-solid fa-house"></i></span> Inicio</a></li>
+            <li><a href="/#catalogo"><span class="nav-icon"><i class="fa-solid fa-shapes"></i></span> Catálogo</a></li>
+            <li><a href="{% url 'menu_juegos' %}"><span class="nav-icon"><i class="fa-solid fa-gamepad"></i></span> Juegos</a></li>
+            <li><a href="/#acerca"><span class="nav-icon"><i class="fa-solid fa-crow"></i></span> Acerca</a></li>
+            <li><a href="/#contacto"><span class="nav-icon"><i class="fa-solid fa-envelope"></i></span> Contacto</a></li>
+        </ul>
+
+        <div class="mobile-drawer-footer">
+            <p>Hecho con 🧡 por la naturaleza</p>
+            <div class="drawer-social-links">
+                <a href="https://wa.me/56930027170" target="_blank" class="social-btn whatsapp-btn"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a href="https://www.instagram.com/lararatienda/" target="_blank" class="social-btn instagram-btn"><i class="fab fa-instagram"></i> Instagram</a>
+            </div>
+        </div>
+    </div>
 </nav>
 </header>
 
@@ -84,22 +113,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 document.addEventListener("DOMContentLoaded", () => {
 
 const toggle = document.getElementById("menu-toggle");
-const links = document.getElementById("nav-links");
+const drawer = document.getElementById("mobile-drawer");
 const close = document.getElementById("close-menu");
+const overlay = document.getElementById("mobile-menu-overlay");
 
-toggle.addEventListener("click", () => {
-    links.classList.add("show");
-});
+function abrirMenuMovil() {
+    if (drawer) drawer.classList.add("show");
+    if (overlay) overlay.classList.add("show");
+}
 
-close.addEventListener("click", () => {
-    links.classList.remove("show");
-});
+function cerrarMenuMovil() {
+    if (drawer) drawer.classList.remove("show");
+    if (overlay) overlay.classList.remove("show");
+}
 
-  // cerrar al hacer click en un link (UX pro)
-document.querySelectorAll(".nav-links a").forEach(link => {
-    link.addEventListener("click", () => {
-    links.classList.remove("show");
-    });
+if (toggle) toggle.addEventListener("click", abrirMenuMovil);
+if (close) close.addEventListener("click", cerrarMenuMovil);
+if (overlay) overlay.addEventListener("click", cerrarMenuMovil);
+
+document.querySelectorAll("#mobile-drawer a").forEach(link => {
+    link.addEventListener("click", cerrarMenuMovil);
 });
 
   // efecto scroll navbar
@@ -118,6 +151,67 @@ if (!links.contains(e.target) && !toggle.contains(e.target)) {
 </script>
 
 <style>
+    /* Buscador en Vivo Responsivo */
+    .search-container {
+        position: relative;
+        width: 200px;
+        margin: 0 10px;
+        flex-shrink: 1;
+    }
+    .search-container input {
+        width: 100%;
+        padding: 7px 12px 7px 32px;
+        border-radius: 20px;
+        border: 1px solid rgba(0,0,0,0.1);
+        background: rgba(255,255,255,0.95);
+        font-size: 0.85rem;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        box-sizing: border-radius;
+        box-sizing: border-box;
+    }
+    .search-container i {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 0.8rem;
+    }
+    .live-search-dropdown {
+        display: none;
+        position: absolute;
+        top: 110%;
+        right: 0;
+        width: 280px;
+        max-width: 85vw;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        overflow: hidden;
+        z-index: 1100;
+        border: 1px solid #eee;
+    }
+
+    @media (max-width: 768px) {
+        .search-container {
+            width: 130px;
+            margin: 0 5px;
+        }
+        .search-container input {
+            padding: 5px 8px 5px 26px !important;
+            font-size: 0.78rem !important;
+        }
+        .search-container i {
+            left: 7px !important;
+            font-size: 0.72rem !important;
+        }
+        .live-search-dropdown {
+            width: 250px;
+            right: -10px;
+        }
+    }
+
     /* El fondo oscuro que tapa la tienda */
     .overlay-carrito {
         position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
