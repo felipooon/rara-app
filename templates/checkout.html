@@ -73,10 +73,9 @@
                 Confirmar Pedido y Acordar Pago ➔
             </button>-->
 
-            <!-- Checkbox Términos y Condiciones (Oculto temporalmente hasta su revisión) -->
-            <div style="display: none; margin-bottom: 20px; align-items: center; gap: 10px; background: #fdfdfc; padding: 15px; border-radius: 8px; border: 1px solid #eaeaea;">
-                <!-- Para hacerlo obligatorio y visible en el futuro: cambia "display: none;" por "display: flex;" y añade la palabra "required" dentro del <input> -->
-                <input type="checkbox" id="terminos_checkbox" name="terminos_aceptados" style="width: 20px; height: 20px; cursor: pointer;">
+            <!-- Checkbox Términos y Condiciones -->
+            <div style="display: flex; margin-bottom: 20px; align-items: center; gap: 10px; background: #fdfdfc; padding: 15px; border-radius: 8px; border: 1px solid #eaeaea;">
+                <input type="checkbox" id="terminos_checkbox" name="terminos_aceptados" required style="width: 20px; height: 20px; cursor: pointer;">
                 <label for="terminos_checkbox" style="color: #555; font-size: 0.95rem; cursor: pointer;">
                     He leído y acepto los <a href="{% url 'terminos' %}" target="_blank" style="color: #fca311; text-decoration: none; font-weight: bold;">Términos y Condiciones y Políticas de Devolución</a>
                 </label>
