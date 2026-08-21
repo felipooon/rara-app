@@ -85,6 +85,24 @@ class CarritoTests(TestCase):
         
         self.assertEqual(carrito.get_total(), 206000)
 
+    def test_iter_no_contamina_sesion_json(self):
+        """La iteración del carrito no debe inyectar objetos Producto en la sesión original."""
+        request = self._get_request_con_sesion()
+        carrito = Carrito(request)
+        carrito.agregar(self.producto, 1)
+        
+        # Iteramos sobre el carrito para forzar __iter__
+        list(iter(carrito))
+        
+        # Guardar la sesión no debe lanzar TypeError
+        try:
+            request.session.save()
+            sesion_valida = True
+        except TypeError:
+            sesion_valida = False
+            
+        self.assertTrue(sesion_valida)
+
 class PedidoModelTests(TestCase):
     def setUp(self):
         self.categoria = Categoria.objects.create(nombre="Aves")

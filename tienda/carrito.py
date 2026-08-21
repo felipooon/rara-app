@@ -100,16 +100,19 @@ class Carrito:
         """
         Permite iterar sobre los items del carrito en los templates HTML y 
         trae los objetos Producto reales de la base de datos para validaciones de stock.
+        Crea una copia independiente de cada item para no contaminar la sesión de Django con objetos no serializables.
         """
         producto_ids = self.carrito.keys()
         # Obtenemos los productos reales de la base de datos
         productos = Producto.objects.filter(id__in=producto_ids)
         
-        # Hacemos una copia del carrito para iterar de forma segura
-        carrito_copia = self.carrito.copy()
+        # Hacemos una copia independiente de los diccionarios internos del carrito
+        carrito_copia = {key: value.copy() for key, value in self.carrito.items()}
 
         for producto in productos:
-            carrito_copia[str(producto.id)]['producto_real'] = producto
+            key = str(producto.id)
+            if key in carrito_copia:
+                carrito_copia[key]['producto_real'] = producto
 
         for item in carrito_copia.values():
             item['precio_total'] = int(item['precio']) * item['cantidad']
