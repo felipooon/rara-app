@@ -1,16 +1,66 @@
 {% extends "panel/base_panel.html" %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto;">
+<div style="max-width: 900px; margin: 0 auto; padding: 20px;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>Detalle del Pedido #{{ pedido.codigo_orden }}</h1>
+    {% if messages %}
+      {% for message in messages %}
+        <div style="padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; {% if message.tags == 'success' %}background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% else %}background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+        <h1 style="margin: 0;">Detalle del Pedido #{{ pedido.codigo_orden }}</h1>
         <a href="{% url 'panel_pedidos' %}" style="text-decoration: none; color: #666; font-weight: bold;">
             ← Volver a la lista
         </a>
     </div>
 
-    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px;">
+    <!-- Gestión de Estado y Seguimiento de Envío -->
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #eee;">
+        <h3 style="border-bottom: 2px solid #fca311; padding-bottom: 10px; margin-top: 0; color: #333;">🚚 Estado del Pedido y Envío</h3>
+        
+        <form action="{% url 'actualizar_estado_pedido' pedido.id %}" method="POST" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; align-items: end;">
+            {% csrf_token %}
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #555;">Estado Actual:</label>
+                <select name="estado" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95rem; background: white;">
+                    {% for code, label in estados_choices %}
+                        <option value="{{ code }}" {% if pedido.estado == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #555;">Empresa de Transporte:</label>
+                <input type="text" name="empresa_transporte" value="{{ pedido.empresa_transporte }}" placeholder="Ej: Starken, Chilexpress" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95rem; box-sizing: border-box;">
+            </div>
+
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #555;">Nº / Código Seguimiento:</label>
+                <input type="text" name="numero_seguimiento" value="{{ pedido.numero_seguimiento }}" placeholder="Código de orden de envío" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95rem; box-sizing: border-box;">
+            </div>
+
+            <button type="submit" style="padding: 11px 20px; background: #fca311; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                Guardar Estado
+            </button>
+        </form>
+
+        {% if pedido.numero_seguimiento %}
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #555; font-size: 0.95rem;">
+                📦 <strong>{{ pedido.empresa_transporte|default:"Courier" }}:</strong> {{ pedido.numero_seguimiento }}
+            </span>
+            <a href="{% url 'enviar_seguimiento_email' pedido.id %}" style="background: #27ae60; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-paper-plane"></i> Enviar Correo de Seguimiento al Cliente
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #eee;">
         <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">👤 Datos del Cliente</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
             <div>
@@ -20,7 +70,7 @@
                 <p style="display: flex; align-items: center; gap: 10px;">
                 <strong>Teléfono:</strong> {{ pedido.telefono }}
                     <a href="https://wa.me/56{{ pedido.telefono }}" target="_blank" style="text-decoration: none; background-color: #25D366; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(37,211,102,0.3);">
-                        <i class="fab fa-whatsapp"></i>
+                        <i class="fab fa-whatsapp"></i> WhatsApp
                     </a>
                 </p>
             </div>
@@ -28,9 +78,9 @@
                 <p><strong>Dirección:</strong> {{ pedido.direccion }}</p>
                 <p><strong>Ciudad:</strong> {{ pedido.ciudad }}</p>
                 <p><strong>Fecha del Pedido:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
-                <p><strong>Estado:</strong> 
+                <p><strong>Pago:</strong> 
                     {% if pedido.pagado %}
-                        <span style="color: green; font-weight: bold;">✅ Pagado</span>
+                        <span style="color: green; font-weight: bold;">✅ Confirmado</span>
                     {% else %}
                         <span style="color: #e67e22; font-weight: bold;">⏳ Pendiente de Pago</span>
                     {% endif %}
@@ -39,7 +89,7 @@
         </div>
     </div>
 
-    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;">
         <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">📦 Productos en este Nido</h3>
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
             <thead>
@@ -75,8 +125,14 @@
             </tbody>
         </table>
 
-        <div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 2px solid #eee;">
-            <h2 style="margin: 0;">Total del Pedido: <span style="color: #fca311;">${{ pedido.get_total_cost }}</span></h2>
+        {% if pedido.descuento_aplicado > 0 %}
+        <div style="text-align: right; margin-top: 15px; color: #27ae60; font-weight: bold;">
+            Descuento Cupón ({% if pedido.cupon %}{{ pedido.cupon.codigo }}{% else %}Promocional{% endif %}): -${{ pedido.descuento_aplicado }}
+        </div>
+        {% endif %}
+
+        <div style="text-align: right; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+            <h2 style="margin: 0;">Total del Pedido: <span style="color: #fca311;">${{ pedido.get_total_cost|add:"-"|add:pedido.descuento_aplicado }}</span></h2>
         </div>
     </div>
 

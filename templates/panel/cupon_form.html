@@ -1,0 +1,71 @@
+{% extends "panel/base_panel.html" %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 30px auto; padding: 20px;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2><i class="fa-solid fa-ticket"></i> {% if editando %}Editar Cupón{% else %}Crear Nuevo Cupón{% endif %}</h2>
+        <a href="{% url 'panel_cupones' %}" style="color: #666; text-decoration: none; font-weight: 500;">← Volver a cupones</a>
+    </div>
+
+    <form method="POST" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div style="background: #fdf2f2; color: #e74c3c; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                Por favor corrige los errores ingresados.
+            </div>
+        {% endif %}
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Código del Cupón (ej: RARA10)</label>
+            {{ form.codigo }}
+            <small style="color: #888; display: block; margin-top: 4px;">Se convertirá automáticamente a mayúsculas.</small>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">% Descuento</label>
+                {{ form.descuento_porcentaje }}
+            </div>
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Monto Fijo (CLP)</label>
+                {{ form.descuento_monto }}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Usos Máximos</label>
+                {{ form.usos_maximos }}
+                <small style="color: #888;">Dejar en blanco para ilimitado.</small>
+            </div>
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Fecha Expiración</label>
+                {{ form.fecha_expiracion }}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+            {{ form.activo }}
+            <label for="id_activo" style="font-weight: 600; color: #444; cursor: pointer;">Cupón Activo</label>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 14px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">
+            {% if editando %}Guardar Cambios{% else %}Crear Cupón{% endif %}
+        </button>
+    </form>
+
+</div>
+
+<style>
+    input[type="text"], input[type="number"], input[type="datetime-local"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}

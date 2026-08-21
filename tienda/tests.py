@@ -142,7 +142,6 @@ class PedidoModelTests(TestCase):
 
     def test_confirmar_pago_agota_stock(self):
         """Si la compra consume todo el stock, el producto debe marcarse agotado."""
-        # Modificamos el item existente para que consuma todo el stock (5)
         item = self.pedido.items.first()
         item.cantidad = 5
         item.save()
@@ -152,3 +151,28 @@ class PedidoModelTests(TestCase):
         self.producto.refresh_from_db()
         self.assertEqual(self.producto.stock, 0)
         self.assertFalse(self.producto.disponible)
+
+class CuponModelTests(TestCase):
+    def test_validacion_cupon(self):
+        """Un cupón activo debe calcular el descuento correctamente."""
+        from tienda.models import Cupon
+        cupon = Cupon.objects.create(
+            codigo="RARA10",
+            descuento_porcentaje=10,
+            activo=True
+        )
+        valido, msg = cupon.es_valido()
+        self.assertTrue(valido)
+        self.assertEqual(cupon.calcular_descuento(10000), 1000)
+
+class ApiBusquedaTests(TestCase):
+    def test_api_buscar_productos(self):
+        """La API de búsqueda debe retornar coincidencias en formato JSON."""
+        categoria = Categoria.objects.create(nombre="Ropa")
+        Producto.objects.create(categoria=categoria, nombre="Polera Chucao", precio=12000, stock=5, disponible=True)
+        
+        response = self.client.get('/api/buscar-productos/?q=Chucao')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data['productos']), 1)
+        self.assertIn("Polera Chucao", data['productos'][0]['nombre'])

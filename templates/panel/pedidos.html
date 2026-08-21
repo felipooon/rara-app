@@ -1,38 +1,88 @@
 {% extends "panel/base_panel.html" %}
+
 {% block content %}
-<h1>Gestión de Ventas</h1>
-<div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-  <table style="width: 100%; border-collapse: collapse; text-align: left;">
-    <thead style="border-bottom: 2px solid #ddd;">
-            <tr style="border-bottom: 2px solid #eee;">
-                <th style="padding: 12px;">Orden</th>
-                <th style="padding: 12px;">Cliente</th>
-                <th style="padding: 12px;">Fecha</th>
-                <th style="padding: 12px;">Total</th>
-                <th style="padding: 12px;">Estado</th>
-                <th style="padding: 12px;">Acciones</th>
+<div style="padding: 20px;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+        <h1 style="margin: 0; color: #333;"><i class="fa-solid fa-truck-fast"></i> Gestión de Pedidos</h1>
+        
+        <a href="{% url 'exportar_pedidos_excel' %}" style="background-color: #27ae60; color: white; padding: 10px 18px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-file-excel"></i> Exportar Pedidos a Excel
+        </a>
+    </div>
+
+    <!-- Barra de Búsqueda y Filtro -->
+    <form method="GET" style="background: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; border: 1px solid #eee;">
+        <div style="flex-grow: 1; min-width: 200px;">
+            <input type="text" name="q" value="{{ q }}" placeholder="Buscar por Nombre, RUT, Email o ID (#1105)..." style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+
+        <div style="min-width: 180px;">
+            <select name="estado" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; box-sizing: border-box; background: white; cursor: pointer;">
+                <option value="">Todos los Estados</option>
+                {% for code, label in estados_choices %}
+                    <option value="{{ code }}" {% if estado_filtro == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" style="padding: 10px 20px; background: #fca311; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
+            <i class="fa-solid fa-filter"></i> Filtrar
+        </button>
+
+        {% if q or estado_filtro %}
+            <a href="{% url 'panel_pedidos' %}" style="color: #888; text-decoration: none; font-size: 0.9rem; font-weight: 500;">Limpiar filtros</a>
+        {% endif %}
+    </form>
+
+    <div style="overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #eaeaea;">
+                <th style="padding: 14px;">Orden</th>
+                <th style="padding: 14px;">Cliente</th>
+                <th style="padding: 14px;">RUT</th>
+                <th style="padding: 14px;">Fecha</th>
+                <th style="padding: 14px;">Total</th>
+                <th style="padding: 14px;">Estado</th>
+                <th style="padding: 14px; text-align: center;">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for p in pedidos %}
-            <tr style="border-bottom: 1px solid #f9f9f9;">
-                <td style="padding: 12px;">#{{ p.codigo_orden }}</td>
-                <td style="padding: 12px;">{{ p.nombre_completo }}</td>
-                <td style="padding: 12px;">{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
-                <td style="padding: 12px;">${{ p.get_total_cost }}</td>
-                <td style="padding: 12px;">
-                    {% if p.pagado %}
-                        <span style="color: green;">✅ Pagado</span>
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 14px; font-weight: bold; color: #fca311;">#{{ p.codigo_orden }}</td>
+                <td style="padding: 14px; font-weight: 500;">{{ p.nombre_completo }}</td>
+                <td style="padding: 14px; color: #666;">{{ p.rut }}</td>
+                <td style="padding: 14px; color: #666; font-size: 0.85rem;">{{ p.creado|date:"d/m/Y H:i" }}</td>
+                <td style="padding: 14px; font-weight: bold;">${{ p.get_total_cost }}</td>
+                <td style="padding: 14px;">
+                    {% if p.estado == 'PAGADO' or p.pagado %}
+                        <span style="background: #e8f8f5; color: #27ae60; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">✅ Pagado</span>
+                    {% elif p.estado == 'ENVIADO' %}
+                        <span style="background: #ebf5fb; color: #2980b9; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">📦 Enviado</span>
+                    {% elif p.estado == 'EN_PREPARACION' %}
+                        <span style="background: #fef9e7; color: #f39c12; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">⚙️ En Preparación</span>
+                    {% elif p.estado == 'ENTREGADO' %}
+                        <span style="background: #eafaf1; color: #1abc9c; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">🎉 Entregado</span>
                     {% else %}
-                        <span style="color: orange;">⏳ Pendiente</span>
+                        <span style="background: #fef5e7; color: #e67e22; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">⏳ Pendiente</span>
                     {% endif %}
                 </td>
-                <td style="padding: 12px;">
-                    <a href="{% url 'detalle_pedido' p.id %}" class="btn-categoria" style="text-decoration: none; padding: 5px 10px;">Ver detalle</a>
+                <td style="padding: 14px; text-align: center;">
+                    <a href="{% url 'detalle_pedido' p.id %}" style="background-color: #009EE3; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: bold;">
+                        Ver Detalle ➔
+                    </a>
                 </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="padding: 30px; text-align: center; color: #888;">No se encontraron pedidos que coincidan con la búsqueda.</td>
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+      </table>
+    </div>
+
 </div>
 {% endblock %}

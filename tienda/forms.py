@@ -32,3 +32,19 @@ class CategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
         fields = ["nombre", "imagen"]
+
+from .models import Cupon
+
+class CuponForm(forms.ModelForm):
+    class Meta:
+        model = Cupon
+        fields = ["codigo", "descuento_porcentaje", "descuento_monto", "activo", "usos_maximos", "fecha_expiracion"]
+        widgets = {
+            'fecha_expiracion': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+    def clean_codigo(self):
+        codigo = self.cleaned_data.get('codigo', '').strip().upper()
+        if not codigo:
+            raise forms.ValidationError("Ingresa un código de cupón válido.")
+        return codigo

@@ -12,17 +12,29 @@
 
 <div class="categoria-wrapper">
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>{{ categoria.nombre }}</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+    <h1>{{ categoria.nombre }}</h1>
+    
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <label for="ordenarSelect" style="font-size: 0.9rem; color: #555; font-weight: 600;">Ordenar por:</label>
+        <select id="ordenarSelect" onchange="location = this.value;" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; background: white; cursor: pointer;">
+            <option value="?orden=" {% if not orden_actual %}selected{% endif %}>Defecto</option>
+            <option value="?orden=precio_asc" {% if orden_actual == 'precio_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+            <option value="?orden=precio_desc" {% if orden_actual == 'precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+            <option value="?orden=recientes" {% if orden_actual == 'recientes' %}selected{% endif %}>Más recientes</option>
+            <option value="?orden=nombre" {% if orden_actual == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
+        </select>
+        
         <a href="{% url 'index' %}" class="btn-volver">
-    ← Volver al inicio
-  </a>
+            ← Volver al inicio
+        </a>
     </div>
+</div>
 
 <div class="catalogo2">
 
   {% for p in productos %}
-    <div class="producto">
+    <div class="producto" style="position: relative;">
 
       {% if p.imagen %}
         <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
@@ -30,6 +42,8 @@
 
       {% if not p.disponible %}
         <span class="agotado">Agotado</span>
+      {% elif p.stock <= 3 and p.stock > 0 %}
+        <span style="background: #e74c3c; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; position: absolute; top: 10px; right: 10px; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">¡Últimas {{ p.stock }} unidades!</span>
       {% endif %}
 
       <h3>{{ p.nombre }}</h3>

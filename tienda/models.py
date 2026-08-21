@@ -60,7 +60,51 @@ class Producto(models.Model):
     #   PEDIDOS (aun sin uso)
     # ========================= 
 
+class Cupon(models.Model):
+    codigo = models.CharField(max_length=50, unique=True, help_text="Código en mayúsculas (ej: RARA10)")
+    descuento_porcentaje = models.IntegerField(default=0, help_text="Porcentaje de descuento (0-100)")
+    descuento_monto = models.IntegerField(default=0, help_text="Monto fijo de descuento en CLP")
+    activo = models.BooleanField(default=True)
+    usos_maximos = models.PositiveIntegerField(null=True, blank=True, help_text="Dejar en blanco para ilimitado")
+    usos_actuales = models.PositiveIntegerField(default=0)
+    fecha_expiracion = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.codigo
+
+    def es_valido(self):
+        if not self.activo:
+            return False, "El cupón no está activo."
+        if self.usos_maximos and self.usos_actuales >= self.usos_maximos:
+            return False, "El cupón ha alcanzado su límite de usos."
+        if self.fecha_expiracion:
+            from django.utils import timezone
+            if timezone.now() > self.fecha_expiracion:
+                return False, "El cupón ha expirado."
+        return True, "Cupón válido."
+
+    def calcular_descuento(self, total):
+        if self.descuento_porcentaje > 0:
+            return int(total * (self.descuento_porcentaje / 100.0))
+        elif self.descuento_monto > 0:
+            return min(total, self.descuento_monto)
+        return 0
+
+    class Meta:
+        verbose_name = 'Cupón'
+        verbose_name_plural = 'Cupones'
+
+
 class Pedido(models.Model):
+    ESTADO_CHOICES = (
+        ('PENDIENTE', 'Pendiente de Pago'),
+        ('PAGADO', 'Pagado'),
+        ('EN_PREPARACION', 'En Preparación'),
+        ('ENVIADO', 'Enviado'),
+        ('ENTREGADO', 'Entregado'),
+        ('CANCELADO', 'Cancelado'),
+    )
+
     # 1. Datos del cliente (Compra como invitado)
     nombre_completo = models.CharField(max_length=200)
     rut = models.CharField(max_length=12, help_text="Formato: 12.345.678-9")
@@ -70,6 +114,15 @@ class Pedido(models.Model):
     ciudad = models.CharField(max_length=100, default="Puerto Montt")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+    # 2. Estado y Seguimiento de Envío
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
+    empresa_transporte = models.CharField(max_length=100, blank=True, default='', help_text="Ej: Starken, Chilexpress")
+    numero_seguimiento = models.CharField(max_length=100, blank=True, default='')
+
+    # 3. Cupón de descuento aplicado
+    cupon = models.ForeignKey(Cupon, null=True, blank=True, on_delete=models.SET_NULL, related_name='pedidos')
+    descuento_aplicado = models.IntegerField(default=0)
+
     @property
     def codigo_orden(self):
         """
@@ -78,7 +131,7 @@ class Pedido(models.Model):
         """        
         return str(self.id + 1100)
     
-    # 2. Datos de la transacción
+    # 4. Datos de la transacción
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
     pagado = models.BooleanField(default=False)

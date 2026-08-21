@@ -5,8 +5,8 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Categoria, Producto, Pedido, ItemPedido
-from .forms import CategoriaForm, ProductoForm
+from .models import Categoria, Producto, Pedido, ItemPedido, Cupon
+from .forms import CategoriaForm, ProductoForm, CuponForm
 from django.contrib.auth.views import LoginView
 from .carrito import Carrito
 from django.contrib import messages
@@ -21,20 +21,35 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 import re
+from django.db import models
 
 #----------------
 #PAGINA PUBLICA
 #----------------
 
+def aplicar_ordenamiento(queryset, orden):
+    if orden == 'precio_asc':
+        return queryset.order_by('precio')
+    elif orden == 'precio_desc':
+        return queryset.order_by('-precio')
+    elif orden == 'nombre':
+        return queryset.order_by('nombre')
+    elif orden == 'recientes':
+        return queryset.order_by('-id')
+    return queryset
+
 def index(request):
     categorias = Categoria.objects.all()
-    productos = Producto.objects.all()
+    orden = request.GET.get('orden', '')
+    productos = Producto.objects.filter(disponible=True)
+    productos = aplicar_ordenamiento(productos, orden)
     productos_destacados = Producto.objects.filter(disponible=True).order_by('-id')[:4]
 
     return render(request, "index.html", {
         "categorias": categorias,
         "productos": productos,
-        "productos_destacados": productos_destacados
+        "productos_destacados": productos_destacados,
+        "orden_actual": orden
     })
 
 def terminos_condiciones(request):
@@ -43,16 +58,84 @@ def terminos_condiciones(request):
 
 def categoria_detail(request, slug):
     categoria = get_object_or_404(Categoria, slug=slug)
+    orden = request.GET.get('orden', '')
 
     productos = Producto.objects.filter(
         categoria=categoria,
         disponible=True
     )
+    productos = aplicar_ordenamiento(productos, orden)
 
     return render(request, "categoria.html", {
         "categoria": categoria,
-        "productos": productos
+        "productos": productos,
+        "orden_actual": orden
     })
+
+@require_GET
+def api_buscar_productos(request):
+    q = request.GET.get('q', '').strip()
+    if len(q) < 2:
+        return JsonResponse({'productos': []})
+    
+    productos = Producto.objects.filter(
+        models.Q(nombre__icontains=q) | models.Q(descripcion__icontains=q),
+        disponible=True
+    )[:6]
+    
+    data = []
+    for p in productos:
+        data.append({
+            'id': p.id,
+            'nombre': p.nombre,
+            'precio': f"${p.precio:,}".replace(',', '.'),
+            'url': p.get_absolute_url(),
+            'imagen': p.imagen.url if p.imagen else ''
+        })
+    return JsonResponse({'productos': data})
+
+
+def obtener_descuento_cupon(request, total_carrito):
+    codigo = request.session.get('cupon_codigo')
+    if not codigo:
+        return None, 0
+    try:
+        cupon = Cupon.objects.get(codigo__iexact=codigo)
+        valido, _ = cupon.es_valido()
+        if valido:
+            descuento = cupon.calcular_descuento(total_carrito)
+            return cupon, descuento
+    except Cupon.DoesNotExist:
+        pass
+    return None, 0
+
+
+def aplicar_cupon(request):
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo', '').strip().upper()
+        if not codigo:
+            messages.error(request, "Por favor ingresa un código de cupón.")
+            return redirect('procesar_pedido')
+        
+        try:
+            cupon = Cupon.objects.get(codigo__iexact=codigo)
+            valido, msg = cupon.es_valido()
+            if not valido:
+                messages.error(request, msg)
+            else:
+                request.session['cupon_codigo'] = cupon.codigo
+                messages.success(request, f"¡Cupón '{cupon.codigo}' aplicado exitosamente!")
+        except Cupon.DoesNotExist:
+            messages.error(request, "El código de cupón ingresado no existe.")
+            
+    return redirect('procesar_pedido')
+
+
+def quitar_cupon(request):
+    if 'cupon_codigo' in request.session:
+        del request.session['cupon_codigo']
+        messages.info(request, "Cupón removido.")
+    return redirect('procesar_pedido')
 
 def producto_detail(request, id):
     producto = get_object_or_404(Producto, id=id)
@@ -117,28 +200,25 @@ def procesar_pedido(request):
         messages.warning(request, "Tu nido está vacío. ¡Ve a pajarear al catálogo!")
         return redirect('index')
     
-    # --- 🛡️ LA ADUANA FINAL (Pre-Checkout) 🛡️ ---
-    
-    # Optimizamos el query: Al iterar sobre el carrito directamente, 
-    # se carga la lista de productos de una sola vez usando id__in.
     for item_data in carrito:
         producto = item_data.get('producto_real')
         cantidad_pedida = item_data['cantidad']
         
-        # 1. Validar que el producto siga existiendo
         if not producto:
             messages.error(request, "Un producto de tu nido ya no está disponible.")
-            return redirect('ver_carrito') # Cambia a la url de tu carrito
+            return redirect('ver_carrito')
             
-        # 2. Validar el hackeo de números negativos o cero
         if cantidad_pedida <= 0:
             messages.error(request, "Se detectó una cantidad inválida en tu nido. Por favor, revisa tus productos.")
             return redirect('ver_carrito')
             
-        # 3. Validar el "Efecto Black Friday" (El stock bajó antes de que pagara)
         if cantidad_pedida > producto.stock:
             messages.warning(request, f"¡Atención! Mientras pensabas, el stock de '{producto.nombre}' bajó a {producto.stock} unidades. Por favor ajusta tu carrito.")
             return redirect('ver_carrito')
+
+    total_bruto = carrito.get_total()
+    cupon_obj, descuento_aplicado = obtener_descuento_cupon(request, total_bruto)
+    total_final = max(0, total_bruto - descuento_aplicado)
 
     if request.method == 'POST':
         rut_ingresado = request.POST.get('rut', '')
@@ -147,6 +227,9 @@ def procesar_pedido(request):
         if not terminos_aceptados:
             context = {
                 'carrito': carrito,
+                'cupon': cupon_obj,
+                'descuento': descuento_aplicado,
+                'total_final': total_final,
                 'error_terminos': "Debes aceptar los Términos y Condiciones y Políticas de Devolución para realizar tu pedido.",
                 'datos_previos': request.POST
             }
@@ -155,6 +238,9 @@ def procesar_pedido(request):
         if not validar_rut_chileno(rut_ingresado):
             context = {
                 'carrito': carrito,
+                'cupon': cupon_obj,
+                'descuento': descuento_aplicado,
+                'total_final': total_final,
                 'error_rut': "El RUT ingresado no es válido. Por favor, revísalo y escríbelo correctamente.",
                 'datos_previos': request.POST
             }
@@ -167,9 +253,17 @@ def procesar_pedido(request):
             email=request.POST.get('email'),
             telefono=request.POST.get('telefono'),
             direccion=request.POST.get('direccion'),
-            ciudad=request.POST.get('ciudad', 'Puerto Montt')
+            ciudad=request.POST.get('ciudad', 'Puerto Montt'),
+            cupon=cupon_obj,
+            descuento_aplicado=descuento_aplicado
         )
         
+        if cupon_obj:
+            cupon_obj.usos_actuales += 1
+            cupon_obj.save()
+            if 'cupon_codigo' in request.session:
+                del request.session['cupon_codigo']
+
         # Guardamos el ID del pedido en la sesión para autorizar la vista de éxito
         request.session['pedido_autorizado'] = str(pedido.id)
         
@@ -192,7 +286,7 @@ def procesar_pedido(request):
 
 Cliente: {pedido.nombre_completo}
 Ciudad: {pedido.ciudad}
-Total a transferir: ${carrito.get_total()}
+Total: ${total_final}
 Teléfono: +56{pedido.telefono}
 
 Revisa el panel de administración para ver el detalle completo.
@@ -224,6 +318,14 @@ www.raratienda.cl/panel
                     "title": item['producto_real'].nombre,
                     "quantity": int(item['cantidad']),
                     "unit_price": int(item['precio']),
+                    "currency_id": "CLP"
+                })
+
+            if descuento_aplicado > 0 and cupon_obj:
+                items_mp.append({
+                    "title": f"Descuento Cupón ({cupon_obj.codigo})",
+                    "quantity": 1,
+                    "unit_price": -int(descuento_aplicado),
                     "currency_id": "CLP"
                 })
 
@@ -264,7 +366,12 @@ www.raratienda.cl/panel
             messages.error(request, f"Error con la pasarela de pago: {e}")
             return redirect('pedido_confirmado', pedido_id=pedido.id)
 
-    return render(request, 'checkout.html', {'carrito': carrito})
+    return render(request, 'checkout.html', {
+        'carrito': carrito,
+        'cupon': cupon_obj,
+        'descuento': descuento_aplicado,
+        'total_final': total_final
+    })
 
 
 
@@ -444,11 +551,28 @@ def toggle_producto(request, id):
 
 @staff_member_required(login_url='login')
 def panel_home(request):
+    from django.db import models
+    from django.utils import timezone
+
+    ahora = timezone.now()
+    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    pedidos_pagados = Pedido.objects.filter(pagado=True)
+    ventas_mes = ItemPedido.objects.filter(pedido__pagado=True, pedido__creado__gte=inicio_mes).aggregate(
+        total=models.Sum(models.F('precio') * models.F('cantidad'))
+    )['total'] or 0
+
+    top_productos = Producto.objects.filter(items_pedido__pedido__pagado=True).annotate(
+        total_vendidos=models.Sum('items_pedido__cantidad')
+    ).order_by('-total_vendidos')[:5]
+
     context = {
         'pedidos_pendientes': Pedido.objects.filter(pagado=False).count(),
-        'pedidos_pagados': Pedido.objects.filter(pagado=True).count(),
+        'pedidos_pagados': pedidos_pagados.count(),
         'productos_agotados': Producto.objects.filter(stock=0).count(),
-        'ultimos_pedidos': Pedido.objects.all().order_by('-fecha_creacion')[:5], # Los 5 más recientes
+        'ventas_mes': ventas_mes,
+        'top_productos': top_productos,
+        'ultimos_pedidos': Pedido.objects.all().order_by('-fecha_creacion')[:5],
     }
     return render(request, 'panel/dashboard.html', context)
 
@@ -458,47 +582,115 @@ class CustomLoginView(LoginView):
 
 @staff_member_required(login_url='login')
 def editar_producto(request, id):
-    # 1. Buscamos el producto específico
     producto = get_object_or_404(Producto, id=id)
-    
-    # 2. Capturamos la URL de retorno 
-    # Lo buscamos en GET al entrar, o en POST al enviar el formulario.
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
-    
-    # 3. Reutilizamos tu formulario
     form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
     
     if request.method == 'POST' and form.is_valid():
         form.save()
         messages.success(request, f"Producto '{producto.nombre}' actualizado.")
-        # Redirigimos a la URL completa guardada (con sus filtros y página)
         return redirect(next_url)
         
-    # 4. Usamos el mismo HTML que usaste para crear
     return render(request, "panel/producto_form.html", {
         "form": form,
         "editando": True,
-        "next": next_url # Mandamos la URL al template
+        "next": next_url
     })
 
 @staff_member_required(login_url='login')
 def eliminar_producto(request, id):
-    # Buscamos y destruimos
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
     return redirect('panel_productos')
 
 @staff_member_required(login_url='login')
 def panel_pedidos(request):
-    # Traemos todos los pedidos, los más nuevos primero
-    pedidos = Pedido.objects.all().order_by('-id')
-    return render(request, 'panel/pedidos.html', {'pedidos': pedidos})
+    q = request.GET.get('q', '').strip()
+    estado = request.GET.get('estado', '')
+
+    pedidos = Pedido.objects.all()
+
+    if q:
+        pedidos = pedidos.filter(
+            models.Q(nombre_completo__icontains=q) |
+            models.Q(rut__icontains=q) |
+            models.Q(email__icontains=q) |
+            models.Q(id__icontains=q.replace('#', ''))
+        )
+
+    if estado:
+        pedidos = pedidos.filter(estado=estado)
+
+    pedidos = pedidos.order_by('-id')
+
+    return render(request, 'panel/pedidos.html', {
+        'pedidos': pedidos,
+        'q': q,
+        'estado_filtro': estado,
+        'estados_choices': Pedido.ESTADO_CHOICES
+    })
 
 @staff_member_required(login_url='login')
 def detalle_pedido(request, id):
-    # Buscamos el pedido y sus items relacionados optimizando consultas con prefetch_related
     pedido = get_object_or_404(Pedido.objects.prefetch_related('items__producto'), id=id)
-    return render(request, 'panel/detalle_pedido.html', {'pedido': pedido})
+    return render(request, 'panel/detalle_pedido.html', {'pedido': pedido, 'estados_choices': Pedido.ESTADO_CHOICES})
+
+
+@staff_member_required(login_url='login')
+def actualizar_estado_pedido(request, id):
+    pedido = get_object_or_404(Pedido, id=id)
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        empresa = request.POST.get('empresa_transporte', '').strip()
+        seguimiento = request.POST.get('numero_seguimiento', '').strip()
+
+        if nuevo_estado in dict(Pedido.ESTADO_CHOICES):
+            pedido.estado = nuevo_estado
+        pedido.empresa_transporte = empresa
+        pedido.numero_seguimiento = seguimiento
+        
+        if nuevo_estado == 'PAGADO' and not pedido.pagado:
+            pedido.confirmar_pago()
+        else:
+            pedido.save()
+
+        messages.success(request, f"Estado del pedido #{pedido.codigo_orden} actualizado a '{pedido.get_estado_display()}'.")
+    return redirect('detalle_pedido', id=id)
+
+
+@staff_member_required(login_url='login')
+def enviar_seguimiento_email(request, id):
+    pedido = get_object_or_404(Pedido, id=id)
+    if not pedido.numero_seguimiento:
+        messages.error(request, "Debes ingresar un número de seguimiento primero.")
+        return redirect('detalle_pedido', id=id)
+
+    try:
+        asunto = f"📦 Tu pedido #{pedido.codigo_orden} de Rara Tienda ya va en camino"
+        mensaje = f"""Hola {pedido.nombre_completo},
+
+¡Te tenemos excelentes noticias! Tu pedido #{pedido.codigo_orden} ha sido enviado.
+
+Detalles del despacho:
+- Transporte: {pedido.empresa_transporte or 'Empresa de Envíos'}
+- Código / Nº de Seguimiento: {pedido.numero_seguimiento}
+
+Puedes realizar el seguimiento de tu paquete directamente en el sitio web del transporte.
+
+¡Muchas gracias por comprar en Rara Tienda! 🦉
+"""
+        send_mail(
+            asunto,
+            mensaje,
+            settings.DEFAULT_FROM_EMAIL,
+            [pedido.email],
+            fail_silently=False
+        )
+        messages.success(request, f"Correo con número de seguimiento enviado a {pedido.email}.")
+    except Exception as e:
+        messages.error(request, f"No se pudo enviar el correo: {e}")
+
+    return redirect('detalle_pedido', id=id)
 
 
 @staff_member_required(login_url='login')
@@ -510,10 +702,10 @@ def confirmar_pago_pedido(request, id):
             if pedido.pagado:
                 messages.info(request, f'El pedido #{pedido.codigo_orden} ya estaba pagado.')
                 return redirect('detalle_pedido', id=pedido.id)
-            # 1. Ejecutamos tu método maestro que descuenta el stock
             pedido.confirmar_pago()
+            pedido.estado = 'PAGADO'
+            pedido.save()
         
-        # 2. Armamos el mensaje para el cliente
         asunto = f'¡Pago Confirmado! Pedido #{pedido.codigo_orden} en Rara Tienda 🦉'
         mensaje = f'''Hola {pedido.nombre_completo},
 
@@ -526,23 +718,126 @@ Te avisaremos por esta misma vía en cuanto el paquete inicie su vuelo.
 ¡Gracias por apoyar el arte y la naturaleza!
 El equipo de Rara Tienda.
 '''
-        
-        # 3. Disparamos el correo
         try:
             send_mail(
                 asunto, 
                 mensaje, 
-                settings.EMAIL_HOST_USER, # Tu correo configurado en settings
-                [pedido.email], # El correo del cliente
+                settings.DEFAULT_FROM_EMAIL, 
+                [pedido.email], 
                 fail_silently=False
             )
             messages.success(request, f'Pago confirmado, stock actualizado y correo enviado a {pedido.email}.')
         except Exception as e:
-            # Si el correo falla (ej. problemas de red), igual confirmamos el pago en la BD
             messages.warning(request, f'Pago confirmado y stock descontado, pero no se pudo enviar el correo automático.')
             print(f"Error SMTP: {e}")
             
     return redirect('detalle_pedido', id=pedido.id)
+
+
+@staff_member_required(login_url='login')
+def panel_cupones(request):
+    cupones = Cupon.objects.all().order_by('-id')
+    return render(request, 'panel/cupones.html', {'cupones': cupones})
+
+
+@staff_member_required(login_url='login')
+def crear_cupon(request):
+    form = CuponForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Cupón creado exitosamente.")
+        return redirect('panel_cupones')
+    return render(request, 'panel/cupon_form.html', {'form': form, 'editando': False})
+
+
+@staff_member_required(login_url='login')
+def editar_cupon(request, id):
+    cupon = get_object_or_404(Cupon, id=id)
+    form = CuponForm(request.POST or None, instance=cupon)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, f"Cupón '{cupon.codigo}' actualizado exitosamente.")
+        return redirect('panel_cupones')
+    return render(request, 'panel/cupon_form.html', {'form': form, 'editando': True})
+
+
+@staff_member_required(login_url='login')
+def toggle_cupon(request, id):
+    cupon = get_object_or_404(Cupon, id=id)
+    cupon.activo = not cupon.activo
+    cupon.save()
+    messages.success(request, f"Estado del cupón '{cupon.codigo}' cambiado.")
+    return redirect('panel_cupones')
+
+
+@staff_member_required(login_url='login')
+def exportar_pedidos_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Pedidos Rara Tienda"
+
+    fill_header = PatternFill(start_color="FCA311", end_color="FCA311", fill_type="solid")
+    font_header = Font(name='Calibri', size=11, bold=True, color="FFFFFF")
+    align_center = Alignment(horizontal="center", vertical="center")
+    
+    thin_border = Border(left=Side(style='thin', color='DDDDDD'),
+                         right=Side(style='thin', color='DDDDDD'),
+                         top=Side(style='thin', color='DDDDDD'),
+                         bottom=Side(style='thin', color='DDDDDD'))
+
+    headers = ['ID Orden', 'Cliente', 'RUT', 'Email', 'Teléfono', 'Ciudad', 'Dirección', 'Estado', 'Pagado', 'Total', 'Transporte', 'Nº Seguimiento', 'Fecha']
+    ws.append(headers)
+    
+    for col_num in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.fill = fill_header
+        cell.font = font_header
+        cell.alignment = align_center
+        cell.border = thin_border
+
+    ws.column_dimensions['A'].width = 12
+    ws.column_dimensions['B'].width = 25
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 25
+    ws.column_dimensions['E'].width = 15
+    ws.column_dimensions['F'].width = 15
+    ws.column_dimensions['G'].width = 30
+    ws.column_dimensions['H'].width = 18
+    ws.column_dimensions['I'].width = 10
+    ws.column_dimensions['J'].width = 15
+    ws.column_dimensions['K'].width = 18
+    ws.column_dimensions['L'].width = 20
+    ws.column_dimensions['M'].width = 18
+
+    pedidos = Pedido.objects.all().order_by('-id')
+    
+    for row_num, p in enumerate(pedidos, start=2):
+        ws.append([
+            f"#{p.codigo_orden}",
+            p.nombre_completo,
+            p.rut,
+            p.email,
+            f"+56{p.telefono}",
+            p.ciudad,
+            p.direccion,
+            p.get_estado_display(),
+            "Sí" if p.pagado else "No",
+            f"${p.get_total_cost() - p.descuento_aplicado}",
+            p.empresa_transporte,
+            p.numero_seguimiento,
+            p.creado.strftime("%Y-%m-%d %H:%M")
+        ])
+        
+        for col_num in range(1, len(headers) + 1):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.border = thin_border
+            if col_num in [1, 3, 5, 8, 9, 10, 13]:
+                cell.alignment = align_center
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Pedidos_Rara_Tienda.xlsx"'
+    wb.save(response)
+    return response
 
 
 @staff_member_required(login_url='login')
@@ -551,23 +846,18 @@ def exportar_stock_excel(request):
     ws = wb.active
     ws.title = "Stock Rara Tienda"
 
-    # --- 1. DEFINIR NUESTROS ESTILOS ---
-    # Fondo naranja (el color de tu tienda) y letra blanca para el encabezado
     fill_header = PatternFill(start_color="FCA311", end_color="FCA311", fill_type="solid")
     font_header = Font(name='Calibri', size=12, bold=True, color="FFFFFF")
     align_center = Alignment(horizontal="center", vertical="center")
     
-    # Bordes sutiles para todas las celdas
     thin_border = Border(left=Side(style='thin', color='DDDDDD'),
                          right=Side(style='thin', color='DDDDDD'),
                          top=Side(style='thin', color='DDDDDD'),
                          bottom=Side(style='thin', color='DDDDDD'))
 
-    # Colores dinámicos para el estado
-    font_agotado = Font(color="E74C3C", bold=True)  # Rojo alerta
-    font_disponible = Font(color="27AE60", bold=True) # Verde éxito
+    font_agotado = Font(color="E74C3C", bold=True)
+    font_disponible = Font(color="27AE60", bold=True)
 
-    # --- 2. CREAR Y PINTAR EL ENCABEZADO ---
     headers = ['ID', 'Producto', 'Stock Actual', 'Precio', 'Estado']
     ws.append(headers)
     
@@ -578,37 +868,26 @@ def exportar_stock_excel(request):
         cell.alignment = align_center
         cell.border = thin_border
 
-    # --- 3. AJUSTAR ANCHOS DE COLUMNA (Para que no se corte el texto) ---
-    ws.column_dimensions['A'].width = 10  # ID
-    ws.column_dimensions['B'].width = 35  # Nombre del Producto
-    ws.column_dimensions['C'].width = 15  # Stock
-    ws.column_dimensions['D'].width = 15  # Precio
-    ws.column_dimensions['E'].width = 18  # Estado
+    ws.column_dimensions['A'].width = 10
+    ws.column_dimensions['B'].width = 35
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 15
+    ws.column_dimensions['E'].width = 18
 
-    # --- 4. POBLAR DATOS CON FORMATO INTELIGENTE ---
     productos = Producto.objects.all().order_by('nombre')
     
-    # start=2 porque la fila 1 ya la ocupó el encabezado
     for row_num, p in enumerate(productos, start=2): 
         estado = "Disponible" if p.stock > 0 else "Agotado"
-        
-        # Insertar la fila de datos (agregamos el signo $ al precio para que se vea mejor)
         ws.append([p.id, p.nombre, p.stock, f"${p.precio}", estado])
         
-        # Aplicar diseño a esta nueva fila
         for col_num in range(1, 6):
             cell = ws.cell(row=row_num, column=col_num)
             cell.border = thin_border
-            
-            # Centrar ID, Stock, Precio y Estado
             if col_num in [1, 3, 4, 5]: 
                 cell.alignment = align_center
-                
-            # Pintar la palabra "Agotado" de rojo y "Disponible" de verde
             if col_num == 5:
                 cell.font = font_agotado if estado == "Agotado" else font_disponible
 
-    # --- 5. ENVIAR EL ARCHIVO HERMOSEADO ---
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="Inventario_Rara_Tienda.xlsx"'
     wb.save(response)

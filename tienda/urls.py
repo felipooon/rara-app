@@ -39,6 +39,22 @@ urlpatterns = [
 
     
 
+    # API Búsqueda en vivo y Cupones
+    path('api/buscar-productos/', views.api_buscar_productos, name='api_buscar_productos'),
+    path('carrito/aplicar-cupon/', views.aplicar_cupon, name='aplicar_cupon'),
+    path('carrito/quitar-cupon/', views.quitar_cupon, name='quitar_cupon'),
+
+    # Panel - Cupones
+    path('panel/cupones/', views.panel_cupones, name='panel_cupones'),
+    path('panel/cupones/crear/', views.crear_cupon, name='crear_cupon'),
+    path('panel/cupones/editar/<int:id>/', views.editar_cupon, name='editar_cupon'),
+    path('panel/cupones/<int:id>/toggle/', views.toggle_cupon, name='toggle_cupon'),
+
+    # Panel - Pedidos avanzadas
+    path('panel/pedidos/exportar/', views.exportar_pedidos_excel, name='exportar_pedidos_excel'),
+    path('panel/pedidos/<int:id>/actualizar-estado/', views.actualizar_estado_pedido, name='actualizar_estado_pedido'),
+    path('panel/pedidos/<int:id>/enviar-seguimiento/', views.enviar_seguimiento_email, name='enviar_seguimiento_email'),
+
     # Ruta pública para acceder al radar
     path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),
     path('api/diccionario-especies/', views.get_species_dict, name='species_dict'),
