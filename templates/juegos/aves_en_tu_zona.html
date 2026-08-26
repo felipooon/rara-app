@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aves en tu Zona</title>
+    
+    <!-- Google Fonts Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS & JS para mapas -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --primary: #ef9d71;
+            --primary-hover: #e2895a;
+            --success: #65C18C;
+            --danger: #FF7BA9;
+            --accent: #c2ebd3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--accent) 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 950px;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-nav {
+            padding: 0.5rem 1.2rem;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--text-muted);
+            color: white;
+        }
+
+        /* Filter Control Box */
+        .filter-box {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.2rem 1.8rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            width: 100%;
+            margin-bottom: 2rem;
+            border: 2px solid #f3f4f6;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .filter-label {
+            font-weight: 800;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .region-select {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background: #ffffff;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .region-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(239, 157, 113, 0.2);
+        }
+
+        .stats-text {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .stats-count {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        /* Bird Grid */
+        .birds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 950px;
+            margin-bottom: 2rem;
+        }
+
+        .bird-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+            border: 2px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bird-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 30px rgba(239, 157, 113, 0.18);
+            border-color: var(--primary);
+        }
+
+        .bird-img-container {
+            width: 100%;
+            height: 160px;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bird-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .bird-card:hover .bird-img-container img {
+            transform: scale(1.05);
+        }
+
+        .bird-card-body {
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .bird-common-name {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.2rem;
+            line-height: 1.3;
+        }
+
+        .bird-sci-name {
+            font-size: 0.88rem;
+            font-style: italic;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .sightings-badge {
+            margin-top: auto;
+            align-self: flex-start;
+            background: rgba(101, 193, 140, 0.15);
+            color: #2b7a4b;
+            padding: 0.35rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Loading & Status States */
+        .status-box {
+            text-align: center;
+            padding: 4rem 1rem;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .loading-pulse {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Detail Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            animation: bounceIn 0.4s ease;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(0,0,0,0.85);
+        }
+
+        .modal-header-img {
+            width: 100%;
+            height: 220px;
+            background: #1e293b;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-header-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-body {
+            padding: 1.8rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.2rem;
+        }
+
+        .modal-sci {
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .map-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+        }
+
+        #birdMap {
+            width: 100%;
+            height: 240px;
+            border-radius: 16px;
+            border: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+            z-index: 1;
+        }
+
+        .locations-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .location-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: #f9fafb;
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            .filter-box { flex-direction: column; align-items: stretch; padding: 1rem; }
+            .region-select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Aves en tu Zona 📡</h1>
+        <p class="subtitle">Descubre las especies avistadas recientemente en cada región de Chile</p>
+        <div class="nav-buttons">
+            <a href="{% url 'radar_realtime' %}" class="btn-nav" style="background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px rgba(239, 157, 113, 0.3);">🗺️ Ver en Mapa</a>
+            <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
+            <a href="{% url 'index' %}" class="btn-nav">🛍️ Volver a la Tienda</a>
+        </div>
+    </header>
+
+    <!-- Filter Control Box -->
+    <div class="filter-box">
+        <div class="filter-group">
+            <label for="regionSelect" class="filter-label">📍 Región:</label>
+            <select id="regionSelect" class="region-select" onchange="fetchObservations(this.value)">
+                <option value="CL-AP">Arica y Parinacota</option>
+                <option value="CL-TA">Tarapacá</option>
+                <option value="CL-AN">Antofagasta</option>
+                <option value="CL-AT">Atacama</option>
+                <option value="CL-CO">Coquimbo</option>
+                <option value="CL-RM">Metropolitana</option>
+                <option value="CL-LI">O'Higgins</option>
+                <option value="CL-ML">Maule</option>
+                <option value="CL-NB">Ñuble</option>
+                <option value="CL-BI">Biobío</option>
+                <option value="CL-AR">La Araucanía</option>
+                <option value="CL-LR">Los Ríos</option>
+                <option value="CL-LL" selected>Los Lagos</option>
+                <option value="CL-AI">Aysén</option>
+                <option value="CL-MA">Magallanes</option>
+            </select>
+        </div>
+        <div class="stats-text" id="statsText">
+            Especies detectadas: <span class="stats-count" id="speciesCount">0</span>
+        </div>
+    </div>
+
+    <!-- Status Messages -->
+    <div class="status-box" id="loadingBox">
+        <div class="loading-pulse">Buscando avistamientos recientes... 🦜</div>
+    </div>
+
+    <div class="status-box" id="errorBox" style="display: none;">
+        <p style="color: var(--danger); font-weight: 800; font-size: 1.1rem;" id="errorText">Error al cargar datos.</p>
+        <button onclick="fetchObservations(document.getElementById('regionSelect').value)" class="btn-nav" style="margin-top: 1rem; border-color: var(--primary); color: var(--primary);">Reintentar</button>
+    </div>
+
+    <!-- Bird Grid -->
+    <div class="birds-grid" id="birdsGrid" style="display: none;"></div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-card">
+            <button class="modal-close-btn" onclick="closeModal()">✕</button>
+            
+            <div class="modal-header-img">
+                <span id="modalImgLoading" style="color: #94a3b8; font-weight: 700;">Buscando foto...</span>
+                <img id="modalBirdImg" src="" alt="Ave" style="display: none;" />
+            </div>
+
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalCommonName">Nombre Ave</h2>
+                <div class="modal-sci" id="modalSciName">Nombre Científico</div>
+
+                <div style="margin-bottom: 1.2rem; text-align: center;">
+                    <a id="storeSearchPill" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239, 157, 113, 0.12); color: #c26332; border: 1.5px solid var(--primary); padding: 0.4rem 1rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;">
+                        🎨 ¿Te inspira esta especie? <span style="text-decoration: underline;">Ver productos en la tienda 🛍️</span>
+                    </a>
+                </div>
+
+                <div class="map-title">📍 Mapa de Avistamientos Recientes</div>
+                <div id="birdMap"></div>
+
+                <div class="map-title">📋 Lugares reportados</div>
+                <ul class="locations-list" id="locationsList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let speciesDict = {};
+        let birdGroups = [];
+        let currentMap = null;
+
+        // Elements
+        const regionSelect = document.getElementById('regionSelect');
+        const loadingBox = document.getElementById('loadingBox');
+        const errorBox = document.getElementById('errorBox');
+        const errorText = document.getElementById('errorText');
+        const birdsGrid = document.getElementById('birdsGrid');
+        const speciesCount = document.getElementById('speciesCount');
+        const detailModal = document.getElementById('detailModal');
+        const modalCommonName = document.getElementById('modalCommonName');
+        const modalSciName = document.getElementById('modalSciName');
+        const modalBirdImg = document.getElementById('modalBirdImg');
+        const modalImgLoading = document.getElementById('modalImgLoading');
+        const locationsList = document.getElementById('locationsList');
+
+        async function fetchBirdImage(sciName) {
+            try {
+                let res = await fetch("https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(sciName));
+                let data = await res.json();
+                if (data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                    return data.thumbnail.source;
+                }
+                res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(sciName));
+                data = await res.json();
+                if (data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                    return data.thumbnail.source;
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        async function fetchObservations(regionCode) {
+            loadingBox.style.display = 'block';
+            errorBox.style.display = 'none';
+            birdsGrid.style.display = 'none';
+
+            try {
+                let res = await fetch(`/api/ebird/data/obs/${regionCode}/recent?locale=es_CL`);
+                if (!res.ok) {
+                    res = await fetch(`https://api.ebird.org/v2/data/obs/${regionCode}/recent?locale=es_CL`);
+                }
+                if (!res.ok) throw new Error('No se pudieron obtener avistamientos');
+
+                const rawObs = await res.json();
+
+                // Group by species
+                const mapGroups = {};
+                rawObs.forEach(obs => {
+                    const code = obs.speciesCode;
+                    if (!mapGroups[code]) {
+                        const comName = obs.comName || (speciesDict[code] && speciesDict[code].es) || obs.sciName;
+                        mapGroups[code] = {
+                            speciesCode: code,
+                            commonName: comName,
+                            sciName: obs.sciName,
+                            imageUrl: null,
+                            observations: []
+                        };
+                    }
+                    mapGroups[code].observations.push(obs);
+                });
+
+                birdGroups = Object.values(mapGroups);
+                speciesCount.textContent = birdGroups.length;
+
+                renderBirdCards();
+
+                loadingBox.style.display = 'none';
+                birdsGrid.style.display = 'grid';
+
+            } catch (err) {
+                console.error(err);
+                loadingBox.style.display = 'none';
+                errorText.textContent = err.message || 'Error al conectar con el servidor de avistamientos';
+                errorBox.style.display = 'block';
+            }
+        }
+
+        function renderBirdCards() {
+            birdsGrid.innerHTML = '';
+
+            birdGroups.forEach(bird => {
+                const card = document.createElement('div');
+                card.className = 'bird-card';
+                card.onclick = () => openModal(bird);
+
+                card.innerHTML = `
+                    <div class="bird-img-container">
+                        <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700;">Cargando foto...</span>
+                        <img id="card-img-${bird.speciesCode}" src="" alt="${bird.commonName}" style="display: none;" />
+                    </div>
+                    <div class="bird-card-body">
+                        <div class="bird-common-name">${bird.commonName}</div>
+                        <div class="bird-sci-name">${bird.sciName}</div>
+                        <div class="sightings-badge">
+                            📍 Vista en ${bird.observations.length} lugar(es)
+                        </div>
+                    </div>
+                `;
+
+                birdsGrid.appendChild(card);
+
+                // Fetch image asynchronously
+                fetchBirdImage(bird.sciName).then(imgUrl => {
+                    if (imgUrl) {
+                        bird.imageUrl = imgUrl;
+                        const imgEl = document.getElementById(`card-img-${bird.speciesCode}`);
+                        if (imgEl) {
+                            imgEl.src = imgUrl;
+                            imgEl.onload = () => {
+                                imgEl.style.display = 'block';
+                                if (imgEl.previousElementSibling) imgEl.previousElementSibling.style.display = 'none';
+                            };
+                        }
+                    }
+                });
+            });
+        }
+
+        async function openModal(bird) {
+            modalCommonName.textContent = bird.commonName;
+            modalSciName.textContent = bird.sciName;
+
+            const storePill = document.getElementById('storeSearchPill');
+            if (storePill) {
+                storePill.href = `/?q=${encodeURIComponent(bird.commonName)}`;
+            }
+
+            modalBirdImg.style.display = 'none';
+            modalImgLoading.style.display = 'block';
+
+            if (bird.imageUrl) {
+                modalBirdImg.src = bird.imageUrl;
+                modalBirdImg.style.display = 'block';
+                modalImgLoading.style.display = 'none';
+            } else {
+                const img = await fetchBirdImage(bird.sciName);
+                if (img) {
+                    bird.imageUrl = img;
+                    modalBirdImg.src = img;
+                    modalBirdImg.style.display = 'block';
+                    modalImgLoading.style.display = 'none';
+                } else {
+                    modalImgLoading.textContent = "Foto no disponible";
+                }
+            }
+
+            // Populate locations list
+            locationsList.innerHTML = '';
+            bird.observations.forEach(obs => {
+                const li = document.createElement('li');
+                li.className = 'location-item';
+                const dateStr = obs.obsDt ? obs.obsDt.split(' ')[1] || obs.obsDt : '';
+                li.innerHTML = `📍 <span>${obs.locName} <span style="color: var(--text-muted); font-size: 0.8rem;">(${dateStr || 'Reciente'})</span></span>`;
+                locationsList.appendChild(li);
+            });
+
+            detailModal.style.display = 'flex';
+
+            // Render Map
+            renderMap(bird.observations);
+        }
+
+        function renderMap(observations) {
+            if (!observations || observations.length === 0) return;
+
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+
+            const lats = observations.map(o => o.lat);
+            const lngs = observations.map(o => o.lng);
+
+            const minLat = Math.min(...lats);
+            const maxLat = Math.max(...lats);
+            const minLng = Math.min(...lngs);
+            const maxLng = Math.max(...lngs);
+
+            currentMap = L.map('birdMap');
+            
+            if (lats.length === 1 || minLat === maxLat) {
+                currentMap.setView([lats[0], lngs[0]], 12);
+            } else {
+                currentMap.fitBounds([
+                    [minLat, minLng],
+                    [maxLat, maxLng]
+                ], { padding: [30, 30], maxZoom: 14 });
+            }
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }).addTo(currentMap);
+
+            observations.forEach(o => {
+                L.circleMarker([o.lat, o.lng], {
+                    radius: 8,
+                    fillColor: '#65C18C',
+                    color: '#ffffff',
+                    weight: 2,
+                    fillOpacity: 0.95
+                }).addTo(currentMap).bindPopup(`<b>${o.locName}</b><br/>${o.obsDt || ''}`);
+            });
+
+            setTimeout(() => currentMap && currentMap.invalidateSize(), 200);
+        }
+
+        function closeModal() {
+            detailModal.style.display = 'none';
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+        }
+
+        async function init() {
+            try {
+                const res = await fetch('/api/diccionario-especies/');
+                if (res.ok) speciesDict = await res.json();
+            } catch (e) {}
+
+            fetchObservations(regionSelect.value);
+        }
+
+        init();
+    </script>
+</body>
+</html>

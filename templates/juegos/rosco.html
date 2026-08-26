@@ -487,7 +487,7 @@
         <p class="subtitle">Demuestra tus conocimientos ornitológicos de la A a la Z</p>
         <div class="nav-buttons">
             <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
-            <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+            <a href="{% url 'index' %}" class="btn-nav">🛍️ Volver a la Tienda</a>
         </div>
     </header>
 
@@ -533,6 +533,12 @@
             <button type="button" class="btn-pass-wide" onclick="handlePass()">Pasapalabra ⏭</button>
 
             <div class="feedback-msg" id="feedbackMsg"></div>
+
+            <div style="margin-top: 0.8rem; text-align: center; display: none;" id="roscoStorePillContainer">
+                <a id="roscoStorePill" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239, 157, 113, 0.12); color: #c26332; border: 1.5px solid var(--primary); padding: 0.35rem 0.8rem; border-radius: 20px; font-weight: 700; font-size: 0.82rem; text-decoration: none; transition: all 0.2s;">
+                    🎨 ¿Te inspira esta especie? <span style="text-decoration: underline;">Ver productos en la tienda 🛍️</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -808,6 +814,9 @@
             feedbackMsg.textContent = '';
             feedbackMsg.className = 'feedback-msg';
 
+            const roscoStoreBox = document.getElementById('roscoStorePillContainer');
+            if (roscoStoreBox) roscoStoreBox.style.display = 'none';
+
             // Build Option Buttons
             optionsGridEl.innerHTML = '';
             item.options.forEach(opt => {
@@ -865,6 +874,13 @@
             }
 
             updateStatsDisplay();
+
+            const roscoStoreBox = document.getElementById('roscoStorePillContainer');
+            const roscoStorePill = document.getElementById('roscoStorePill');
+            if (roscoStoreBox && roscoStorePill && item.bird) {
+                roscoStorePill.href = `/?q=${encodeURIComponent(item.bird.es)}`;
+                roscoStoreBox.style.display = 'block';
+            }
 
             // Next letter delay for user feedback
             setTimeout(() => {

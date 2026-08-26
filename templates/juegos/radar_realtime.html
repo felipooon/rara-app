@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Radar Real-Time GBD | Chile</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --accent: #ef9d71;
+            --green: #65C18C;
+            --bg-body: #fdfaf6;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --border-light: #e5e7eb;
+            --panel: #ffffff;
+        }
+        
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Nunito', sans-serif; background: var(--bg-body); overflow: hidden; color: var(--text-main); }
+        
+        .main-view { display: flex; flex-direction: column; height: 100%; width: 100vw; }
+        #map { flex: 1; position: relative; z-index: 1; width: 100%; }
+
+        /* HUD CONTADORES */
+        .mobile-stats {
+            position: absolute; top: 12px; left: 12px; right: 12px;
+            z-index: 1000; display: flex; justify-content: space-around;
+            background: var(--panel); padding: 10px 14px; border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-bottom: 4px solid var(--accent); pointer-events: none;
+        }
+        .stat-item { text-align: center; flex: 1; border-right: 1px solid var(--border-light); }
+        .stat-item:last-child { border-right: none; }
+        .stat-item b { display: block; font-size: 18px; font-weight: 800; color: var(--accent); line-height: 1.2; }
+        .stat-item span { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
+
+        /* SELECTOR DE REGIÓN Y NAVEGACIÓN */
+        .region-floating {
+            position: absolute; top: 80px; left: 12px;
+            z-index: 1001; background: var(--panel); padding: 0;
+            border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-light); overflow: hidden; width: fit-content;
+            display: flex; align-items: center;
+        }
+        .reg-select { 
+            width: 100%; border: none; background: transparent; padding: 8px 12px; 
+            font-weight: 800; font-size: 13px; color: var(--accent); 
+            outline: none; cursor: pointer;
+        }
+
+        .nav-floating-bar {
+            position: absolute; top: 12px; right: 12px;
+            z-index: 1005; display: flex; gap: 8px;
+        }
+
+        .btn-nav-float {
+            background: var(--panel); padding: 8px 14px;
+            border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-light); text-decoration: none;
+            font-weight: 800; font-size: 12px; color: var(--text-main);
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav-float:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+        }
+
+        .btn-store-float {
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        .store-banner-subtle {
+            background: rgba(239, 157, 113, 0.12);
+            color: #c26332;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .store-banner-subtle a {
+            color: #c26332;
+            text-decoration: underline;
+            font-weight: 800;
+        }
+
+        /* PANEL DE DATOS */
+        .overlay-panel {
+            height: 42%; background: var(--panel); z-index: 1000;
+            display: flex; flex-direction: column; box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+        }
+        
+        /* PESTAÑAS TIPO APP */
+        .tabs { display: flex; background: var(--panel); padding: 10px 12px; border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
+        .tab-btn { 
+            flex: 1; padding: 8px; border: none; background: var(--bg-body); 
+            font-size: 11px; font-weight: 800; color: var(--text-muted); 
+            border-radius: 8px; cursor: pointer; transition: all 0.2s;
+            margin: 0 4px;
+        }
+        .tab-btn.active { background: var(--panel); color: var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.08); border: 1px solid var(--border-light); }
+
+        .content-area { flex: 1; overflow-y: auto; background: var(--panel); display: none; }
+        .content-area.active { display: block; }
+
+        /* TABLAS Y BUSCADOR */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        th { padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; background: var(--panel); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-light); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border-light); vertical-align: middle; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        td b { color: var(--text-main); font-size: 13px; font-weight: 800; }
+        
+        .input-mini { 
+            width: 100%; padding: 8px 10px; border: 1px solid var(--border-light); 
+            border-radius: 8px; font-size: 11px; background: var(--bg-body); 
+            outline: none; color: var(--text-main); font-family: inherit; margin-top: 4px; box-sizing: border-box;
+        }
+        .input-mini:focus { border-color: var(--accent); background: var(--panel); }
+
+        /* PUBLICIDAD */
+        .ads-floating { position: absolute; bottom: 44%; right: 10px; z-index: 1001; display: flex; gap: 8px; }
+        .ad-logo { height: 26px; background: white; padding: 4px 6px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); border: 1px solid var(--border-light); }
+
+        /* ESTILO POPUP LEAFLET */
+        .popup-card { min-width: 160px; font-family: 'Nunito', sans-serif; }
+        .popup-card b { color: var(--text-main); display: block; margin-bottom: 6px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+        .popup-card small { font-size: 11px; color: var(--text-muted); }
+        .popup-card i { color: var(--accent); width: 14px; margin-right: 4px; }
+        .btn-ver { 
+            display: block; background: var(--accent); color: white !important; 
+            text-align: center; padding: 8px; border-radius: 8px; 
+            text-decoration: none; margin-top: 10px; font-weight: 800; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .store-popup-link {
+            display: block; text-align: center; margin-top: 6px; font-size: 10px;
+            font-weight: 800; color: #c26332; text-decoration: underline;
+        }
+
+        /* DISEÑO ESCRITORIO */
+        @media (min-width: 1024px) {
+            .main-view { flex-direction: row; }
+            .overlay-panel { width: 400px; height: 100%; border-left: 1px solid var(--border-light); }
+            .mobile-stats { width: 360px; left: 20px; top: 20px; right: auto; }
+            .region-floating { width: fit-content; left: 20px; top: 95px; }
+            .nav-floating-bar { right: 420px; top: 20px; }
+            .ads-floating { bottom: 20px; right: 420px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-stats">
+        <div class="stat-item"><b id="s-sp">0</b><span>Especies</span></div>
+        <div class="stat-item"><b id="s-list">--</b><span>Listas</span></div>
+        <div class="stat-item"><b id="s-user">--</b><span>Pajareros</span></div>
+    </div>
+
+    <div class="region-floating">
+        <select class="reg-select" onchange="changeRegion(this.value)">
+            <option value="CL-LL" selected>Los Lagos</option>
+            <option value="CL-LR">Los Ríos</option>
+            <option value="CL-AR">Araucanía</option>
+            <option value="CL-BI">Biobío</option>
+            <option value="CL-RM">Metropolitana</option>
+            <option value="CL-VS">Valparaíso</option>
+            <option value="CL-CO">Coquimbo</option>
+            <option value="CL-AT">Atacama</option>
+            <option value="CL-AN">Antofagasta</option>
+            <option value="CL-TA">Tarapacá</option>
+            <option value="CL-AP">Arica y P.</option>
+            <option value="CL-ML">Maule</option>
+            <option value="CL-NB">Ñuble</option>
+            <option value="CL-AI">Aysén</option>
+            <option value="CL-MA">Magallanes</option>
+            <option value="CL-LI">O'Higgins</option>
+            <option value="CL">Todo Chile</option>
+        </select>
+    </div>
+
+    <div class="nav-floating-bar">
+        <a href="{% url 'aves_en_tu_zona' %}" class="btn-nav-float">⬅️ Volver a Lista</a>
+        <a href="{% url 'index' %}" class="btn-nav-float btn-store-float">🛍️ Rara Tienda</a>
+    </div>
+
+    <div class="ads-floating">
+        <a href="https://ebird.org" target="_blank"><img src="https://clo-brand-static-prod.s3.amazonaws.com/logos/ebird/clo_ebird_solo_web.svg" class="ad-logo" alt="ebird"></a>
+    </div>
+
+    <div class="main-view">
+        <div id="map"></div>
+        <div class="overlay-panel">
+            <div class="store-banner-subtle">
+                🎨 Ilustraciones y souvenirs en <a href="{% url 'index' %}" target="_blank">Rara Tienda 🛍️</a>
+            </div>
+
+            <div style="text-align: center; font-size: 11px; font-weight: 700; color: var(--text-muted); padding-top: 6px;" id="last-update">Cargando mapa...</div>
+
+            <div class="tabs">
+                <button id="b2" class="tab-btn active" onclick="setTab('especies')">ESPECIES EN VIVO</button>
+                <button id="b1" class="tab-btn" onclick="setTab('listas')">LISTAS</button>
+            </div>
+
+            <div id="tab-especies" class="content-area active">
+                <table>
+                    <thead><tr><th width="40%">Nombre</th><th width="35%">Lugar</th><th width="15%">Hora</th><th width="10%">Ir</th></tr></thead>
+                    <tbody id="tbody-especies"></tbody>
+                </table>
+            </div>
+
+            <div id="tab-listas" class="content-area">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="70%">Obs / Lugar <br><input type="text" id="f-user" class="input-mini" placeholder="Filtro..." onkeyup="render()"></th>
+                            <th width="15%">Esp</th>
+                            <th width="15%">Ir</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-listas"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    {% verbatim %}
+    <script>
+        let REGION = "CL-LL";
+        let rawListas = [], diaH = "";
+        let diccEspecies = {};
+
+        const coordsRegiones = {
+            "CL-AP": [-18.47, -70.30], "CL-TA": [-20.21, -70.14], "CL-AN": [-23.65, -70.40],
+            "CL-AT": [-27.36, -70.33], "CL-CO": [-29.95, -71.25], "CL-VS": [-33.04, -71.61],
+            "CL-RM": [-33.45, -70.66], "CL-LI": [-34.17, -70.74], "CL-ML": [-35.42, -71.65],
+            "CL-NB": [-36.60, -72.10], "CL-BI": [-36.82, -73.03], "CL-AR": [-38.73, -72.59],
+            "CL-LR": [-39.81, -73.24], "CL-LL": [-41.47, -72.94], "CL-AI": [-45.57, -72.06],
+            "CL-MA": [-53.16, -70.91], "CL": [-35.67, -71.54]
+        };
+
+        const map = L.map('map', { zoomControl: false }).setView([-41.47, -72.94], 9);
+        const sat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}').addTo(map);
+        const streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
+        L.control.layers({"Satélite": sat, "Mapa": streets}, null, {position:'bottomleft'}).addTo(map);
+        const markers = L.layerGroup().addTo(map);
+
+        async function changeRegion(val) {
+            REGION = val;
+            const nivelZoom = (val === "CL") ? 5 : 9;
+            
+            if(coordsRegiones[REGION]) {
+                map.flyTo(coordsRegiones[REGION], nivelZoom);
+            }
+            
+            markers.clearLayers();
+            await update();
+        }
+
+        window.onload = async () => {
+            diaH = new Intl.DateTimeFormat('es-CL', { day: '2-digit' }).format(new Date());
+            
+            try {
+                const resDicc = await fetch('/api/diccionario-especies/'); 
+                if (resDicc.ok) {
+                    diccEspecies = await resDicc.json();
+                }
+            } catch (e) {
+                console.error("Error de red cargando diccionario:", e);
+            }
+            
+            await update();
+        };
+
+        async function update() {
+            const h = new Date();
+            const y = h.getFullYear(), m = h.getMonth() + 1, d = h.getDate();
+            
+            try {
+                let resObs = await fetch(`/api/ebird/data/obs/${REGION}/historic/${y}/${m}/${d}?locale=es_CL`);
+                if (!resObs.ok) {
+                    resObs = await fetch(`/api/ebird/data/obs/${REGION}/recent?locale=es_CL`);
+                }
+                const obsData = await resObs.json();
+                
+                document.getElementById('s-sp').innerText = obsData.length;
+                
+                const htmlEspecies = obsData.map(o => {
+                    const codigo = o.speciesCode; 
+                    let nombreFinal = o.comName;
+                    
+                    if (diccEspecies && diccEspecies[codigo]) {
+                        nombreFinal = diccEspecies[codigo].es; 
+                    }
+
+                    return `
+                        <tr>
+                            <td><b>${nombreFinal}</b></td>
+                            <td>${(o.locName || '').substring(0,12)}..</td>
+                            <td>${(o.obsDt && o.obsDt.split(' ')[1]) || '--'}</td>
+                            <td style="text-align:center">
+                                <a href="https://ebird.org/checklist/${o.subId}" target="_blank" style="color:var(--accent)">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                document.getElementById('tbody-especies').innerHTML = htmlEspecies;
+
+            } catch(e) {
+                console.error("Error cargando especies en vivo:", e);
+            }
+            
+            try {
+                const resList = await fetch(`/api/ebird/product/lists/${REGION}?maxResults=200`);
+                if (resList.ok) {
+                    rawListas = await resList.json();
+                }
+                
+                const resStats = await fetch(`/api/ebird/product/stats/${REGION}/${y}/${m}/${d}`);
+                if(resStats.ok) {
+                    const sd = await resStats.json();
+                    document.getElementById('s-list').innerText = sd.numChecklists || '--';
+                    document.getElementById('s-user').innerText = sd.numContributors || '--';
+                }
+                
+                render();
+
+            } catch(e) {
+                console.error("Error cargando listas o stats:", e);
+            }
+
+            const horaActual = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('last-update').innerText = `Última actualización: ${horaActual}`;
+        }
+
+        function formatName(n) { 
+            if(!n) return 'Pajarero';
+            const p = n.split(' '); 
+            return p.length > 1 ? `${p[0]} ${p[1][0]}.` : p[0]; 
+        }
+
+        function render() {
+            const fu = document.getElementById('f-user').value.toLowerCase();
+            markers.clearLayers();
+            
+            const filtradas = Array.isArray(rawListas) ? rawListas.filter(l => 
+                l.userDisplayName && 
+                l.userDisplayName.toLowerCase().includes(fu)
+            ) : [];
+
+            document.getElementById('tbody-listas').innerHTML = filtradas.map(l => `
+                <tr>
+                    <td onclick="map.flyTo([${l.loc.latitude}, ${l.loc.longitude}], 14)" style="cursor:pointer">
+                        <b>${formatName(l.userDisplayName)}</b> <br> <span style="font-size:9px; color:#666">${(l.loc.name || '').substring(0,25)}</span>
+                    </td>
+                    <td style="text-align:center"><span style="background:var(--green); color:white; padding:2px 5px; border-radius:10px">${l.numSpecies}</span></td>
+                    <td style="text-align:center"><a href="https://ebird.org/checklist/${l.subId}" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link-alt"></i></a></td>
+                </tr>
+            `).join('');
+
+            filtradas.forEach(l => {
+                const popupContent = `
+                    <div class="popup-card">
+                        <b>${l.userDisplayName}</b>
+                        <small><i class="fas fa-map-marker-alt"></i> ${l.loc.name}</small><br>
+                        <small><i class="fas fa-dove"></i> Especies: <b>${l.numSpecies}</b></small>
+                        <a href="https://ebird.org/checklist/${l.subId}" target="_blank" class="btn-ver">VER LISTA</a>
+                    </div>
+                `;
+                L.circleMarker([l.loc.latitude, l.loc.longitude], { 
+                    radius: 9, 
+                    fillColor: '#ef9d71', 
+                    color: 'white', 
+                    weight: 2, 
+                    fillOpacity: 0.9 
+                }).addTo(markers).bindPopup(popupContent);
+            });
+        }
+
+        function setTab(t) {
+            document.getElementById('tab-listas').classList.toggle('active', t === 'listas');
+            document.getElementById('tab-especies').classList.toggle('active', t === 'especies');
+            document.getElementById('b1').classList.toggle('active', t === 'listas');
+            document.getElementById('b2').classList.toggle('active', t === 'especies');
+        }
+        setInterval(update, 300000);
+    </script>
+    {% endverbatim %}
+</body>
+</html>

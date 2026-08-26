@@ -66,5 +66,7 @@ urlpatterns = [
     path('juegos/letras-locas/', views.letras_locas, name='letras_locas'),
     path('juegos/trivia-cientifica/', views.minijuego, name='minijuego'),
     path('juegos/rosco/', views.rosco, name='rosco'),
+    path('juegos/aves-en-tu-zona/', views.aves_en_tu_zona, name='aves_en_tu_zona'),
+    path('juegos/radar-realtime/', views.radar_realtime, name='radar_realtime'),
 
 ]  

@@ -255,7 +255,7 @@
         <div class="subtitle">Adivina la especie por su silueta</div>
         <div class="nav-buttons">
             <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
-            <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+            <a href="{% url 'index' %}" class="btn-nav">🛍️ Volver a la Tienda</a>
         </div>
 
         <div class="stats">
@@ -287,6 +287,12 @@
         </div>
 
         <button class="next-btn" id="nextBtn" onclick="initRound()">Siguiente Especie ➔</button>
+
+        <div style="margin-top: 1rem; text-align: center; display: none;" id="storePillContainer">
+            <a id="quienStorePill" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239, 157, 113, 0.12); color: #c26332; border: 1.5px solid var(--primary); padding: 0.4rem 1rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;">
+                🎨 ¿Te inspira esta especie? <span style="text-decoration: underline;">Ver productos en la tienda 🛍️</span>
+            </a>
+        </div>
     </div>
 
     <script>
@@ -357,6 +363,8 @@
         async function initRound() {
             nextBtn.classList.remove('show');
             optionsGridEl.innerHTML = '';
+            const storeBox = document.getElementById('storePillContainer');
+            if (storeBox) storeBox.style.display = 'none';
             
             document.documentElement.style.setProperty('--blur-level', currentBlur);
             if (focusHintBtn) focusHintBtn.disabled = false;
@@ -431,6 +439,13 @@
             
             scoreDisplay.textContent = score;
             streakDisplay.textContent = streak;
+            
+            const storeBox = document.getElementById('storePillContainer');
+            const storePill = document.getElementById('quienStorePill');
+            if (storeBox && storePill && currentBird) {
+                storePill.href = `/?q=${encodeURIComponent(currentBird.es)}`;
+                storeBox.style.display = 'block';
+            }
             
             setTimeout(() => nextBtn.classList.add('show'), 800);
         }
