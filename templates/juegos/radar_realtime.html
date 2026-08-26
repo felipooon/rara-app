@@ -39,74 +39,74 @@
         .stat-item b { display: block; font-size: 18px; font-weight: 800; color: var(--accent); line-height: 1.2; }
         .stat-item span { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
 
-        /* SELECTOR DE REGIÓN Y NAVEGACIÓN */
-        .region-floating {
-            position: absolute; top: 80px; left: 12px;
-            z-index: 1001; background: var(--panel); padding: 0;
-            border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-light); overflow: hidden; width: fit-content;
-            display: flex; align-items: center;
+        /* NAVEGACIÓN Y CONTROLES FLOTANTES UNIFICADOS */
+        .top-app-bar {
+            position: absolute; top: 10px; left: 10px; right: 10px;
+            z-index: 1005; display: flex; align-items: center; justify-content: space-between;
+            gap: 6px; pointer-events: none;
         }
+
+        .top-bar-left, .top-bar-right {
+            display: flex; align-items: center; gap: 6px; pointer-events: auto;
+        }
+
         .reg-select { 
-            width: 100%; border: none; background: transparent; padding: 8px 12px; 
-            font-weight: 800; font-size: 13px; color: var(--accent); 
-            outline: none; cursor: pointer;
+            border: 1px solid var(--border-light); background: var(--panel); 
+            padding: 6px 10px; border-radius: 12px; font-weight: 800; 
+            font-size: 12px; color: var(--accent); outline: none; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         }
 
-        .nav-floating-bar {
-            position: absolute; top: 12px; right: 12px;
-            z-index: 1005; display: flex; gap: 8px;
+        .species-count-badge {
+            background: var(--panel); padding: 6px 10px; border-radius: 12px;
+            font-size: 11px; font-weight: 800; color: var(--text-muted);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); border: 1px solid var(--border-light);
+            white-space: nowrap; display: flex; align-items: center; gap: 4px;
         }
 
-        .btn-nav-float {
-            background: var(--panel); padding: 8px 14px;
-            border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-light); text-decoration: none;
-            font-weight: 800; font-size: 12px; color: var(--text-main);
-            display: flex; align-items: center; gap: 6px;
-            transition: all 0.2s ease;
+        .species-count-badge .badge-num {
+            color: var(--accent); font-weight: 800; font-size: 13px;
         }
 
-        .btn-nav-float:hover {
+        .btn-app-nav {
+            background: var(--panel); padding: 6px 10px; border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); border: 1px solid var(--border-light);
+            text-decoration: none; font-weight: 800; font-size: 11px; color: var(--text-main);
+            white-space: nowrap; transition: all 0.2s ease;
+        }
+
+        .btn-app-nav:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
         }
 
-        .btn-store-float {
-            background: var(--accent);
-            color: white;
-            border: none;
+        .btn-app-store {
+            background: var(--accent); color: white; border: none;
         }
 
         .store-banner-subtle {
-            background: rgba(239, 157, 113, 0.12);
-            color: #c26332;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 6px 12px;
-            text-align: center;
-            border-bottom: 1px solid var(--border-light);
+            background: rgba(239, 157, 113, 0.12); color: #c26332;
+            font-size: 11px; font-weight: 700; padding: 6px 12px;
+            text-align: center; border-bottom: 1px solid var(--border-light);
         }
 
         .store-banner-subtle a {
-            color: #c26332;
-            text-decoration: underline;
-            font-weight: 800;
+            color: #c26332; text-decoration: underline; font-weight: 800;
         }
 
         /* PANEL DE DATOS */
         .overlay-panel {
-            height: 42%; background: var(--panel); z-index: 1000;
+            height: 44%; background: var(--panel); z-index: 1000;
             display: flex; flex-direction: column; box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
         }
         
         /* PESTAÑAS TIPO APP */
-        .tabs { display: flex; background: var(--panel); padding: 10px 12px; border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
+        .tabs { display: flex; background: var(--panel); padding: 8px 10px; border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
         .tab-btn { 
             flex: 1; padding: 8px; border: none; background: var(--bg-body); 
             font-size: 11px; font-weight: 800; color: var(--text-muted); 
             border-radius: 8px; cursor: pointer; transition: all 0.2s;
-            margin: 0 4px;
+            margin: 0 3px;
         }
         .tab-btn.active { background: var(--panel); color: var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.08); border: 1px solid var(--border-light); }
 
@@ -115,20 +115,20 @@
 
         /* TABLAS Y BUSCADOR */
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-        th { padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; background: var(--panel); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-light); }
-        td { padding: 10px 12px; border-bottom: 1px solid var(--border-light); vertical-align: middle; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-        td b { color: var(--text-main); font-size: 13px; font-weight: 800; }
+        th { padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; background: var(--panel); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-light); }
+        td { padding: 8px 10px; border-bottom: 1px solid var(--border-light); vertical-align: middle; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        td b { color: var(--text-main); font-size: 12px; font-weight: 800; }
         
         .input-mini { 
-            width: 100%; padding: 8px 10px; border: 1px solid var(--border-light); 
+            width: 100%; padding: 6px 8px; border: 1px solid var(--border-light); 
             border-radius: 8px; font-size: 11px; background: var(--bg-body); 
             outline: none; color: var(--text-main); font-family: inherit; margin-top: 4px; box-sizing: border-box;
         }
         .input-mini:focus { border-color: var(--accent); background: var(--panel); }
 
         /* PUBLICIDAD */
-        .ads-floating { position: absolute; bottom: 44%; right: 10px; z-index: 1001; display: flex; gap: 8px; }
-        .ad-logo { height: 26px; background: white; padding: 4px 6px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); border: 1px solid var(--border-light); }
+        .ads-floating { position: absolute; bottom: 46%; right: 10px; z-index: 1001; display: flex; gap: 8px; }
+        .ad-logo { height: 24px; background: white; padding: 3px 5px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); border: 1px solid var(--border-light); }
 
         /* ESTILO POPUP LEAFLET */
         .popup-card { min-width: 160px; font-family: 'Nunito', sans-serif; }
@@ -150,47 +150,49 @@
         @media (min-width: 1024px) {
             .main-view { flex-direction: row; }
             .overlay-panel { width: 400px; height: 100%; border-left: 1px solid var(--border-light); }
-            .mobile-stats { width: 360px; left: 20px; top: 20px; right: auto; }
-            .region-floating { width: fit-content; left: 20px; top: 95px; }
-            .nav-floating-bar { right: 420px; top: 20px; }
+            .top-app-bar { top: 16px; left: 16px; right: 416px; }
             .ads-floating { bottom: 20px; right: 420px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="mobile-stats">
-        <div class="stat-item"><b id="s-sp">0</b><span>Especies</span></div>
-        <div class="stat-item"><b id="s-list">--</b><span>Listas</span></div>
-        <div class="stat-item"><b id="s-user">--</b><span>Pajareros</span></div>
+    <div class="top-app-bar">
+        <div class="top-bar-left">
+            <select class="reg-select" onchange="changeRegion(this.value)">
+                <option value="CL-LL" selected>Los Lagos</option>
+                <option value="CL-LR">Los Ríos</option>
+                <option value="CL-AR">Araucanía</option>
+                <option value="CL-BI">Biobío</option>
+                <option value="CL-RM">Metropolitana</option>
+                <option value="CL-VS">Valparaíso</option>
+                <option value="CL-CO">Coquimbo</option>
+                <option value="CL-AT">Atacama</option>
+                <option value="CL-AN">Antofagasta</option>
+                <option value="CL-TA">Tarapacá</option>
+                <option value="CL-AP">Arica y P.</option>
+                <option value="CL-ML">Maule</option>
+                <option value="CL-NB">Ñuble</option>
+                <option value="CL-AI">Aysén</option>
+                <option value="CL-MA">Magallanes</option>
+                <option value="CL-LI">O'Higgins</option>
+                <option value="CL">Todo Chile</option>
+            </select>
+
+            <div class="species-count-badge">
+                🦜 <span class="badge-num" id="s-sp">0</span> especies
+            </div>
+        </div>
+
+        <div class="top-bar-right">
+            <a href="{% url 'aves_en_tu_zona' %}" class="btn-app-nav">⬅️ Lista</a>
+            <a href="{% url 'index' %}" class="btn-app-nav btn-app-store">🛍️ Tienda</a>
+        </div>
     </div>
 
-    <div class="region-floating">
-        <select class="reg-select" onchange="changeRegion(this.value)">
-            <option value="CL-LL" selected>Los Lagos</option>
-            <option value="CL-LR">Los Ríos</option>
-            <option value="CL-AR">Araucanía</option>
-            <option value="CL-BI">Biobío</option>
-            <option value="CL-RM">Metropolitana</option>
-            <option value="CL-VS">Valparaíso</option>
-            <option value="CL-CO">Coquimbo</option>
-            <option value="CL-AT">Atacama</option>
-            <option value="CL-AN">Antofagasta</option>
-            <option value="CL-TA">Tarapacá</option>
-            <option value="CL-AP">Arica y P.</option>
-            <option value="CL-ML">Maule</option>
-            <option value="CL-NB">Ñuble</option>
-            <option value="CL-AI">Aysén</option>
-            <option value="CL-MA">Magallanes</option>
-            <option value="CL-LI">O'Higgins</option>
-            <option value="CL">Todo Chile</option>
-        </select>
-    </div>
-
-    <div class="nav-floating-bar">
-        <a href="{% url 'aves_en_tu_zona' %}" class="btn-nav-float">⬅️ Volver a Lista</a>
-        <a href="{% url 'index' %}" class="btn-nav-float btn-store-float">🛍️ Rara Tienda</a>
-    </div>
+    <!-- Hidden elements for JS compatibility -->
+    <span id="s-list" style="display: none;"></span>
+    <span id="s-user" style="display: none;"></span>
 
     <div class="ads-floating">
         <a href="https://ebird.org" target="_blank"><img src="https://clo-brand-static-prod.s3.amazonaws.com/logos/ebird/clo_ebird_solo_web.svg" class="ad-logo" alt="ebird"></a>
@@ -199,11 +201,10 @@
     <div class="main-view">
         <div id="map"></div>
         <div class="overlay-panel">
-            <div class="store-banner-subtle">
-                🎨 Ilustraciones y souvenirs en <a href="{% url 'index' %}" target="_blank">Rara Tienda 🛍️</a>
+            <div class="store-banner-subtle" style="display: flex; align-items: center; justify-content: space-between; padding: 5px 12px;">
+                <span>🎨 Ilustraciones en <a href="{% url 'index' %}" target="_blank">Rara Tienda 🛍️</a></span>
+                <span id="last-update" style="font-size: 10px; font-weight: 700; opacity: 0.85;">Cargando...</span>
             </div>
-
-            <div style="text-align: center; font-size: 11px; font-weight: 700; color: var(--text-muted); padding-top: 6px;" id="last-update">Cargando mapa...</div>
 
             <div class="tabs">
                 <button id="b2" class="tab-btn active" onclick="setTab('especies')">ESPECIES EN VIVO</button>
@@ -342,7 +343,7 @@
             }
 
             const horaActual = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('last-update').innerText = `Última actualización: ${horaActual}`;
+            document.getElementById('last-update').innerText = `Últ. act: ${horaActual}`;
         }
 
         function formatName(n) { 
