@@ -65,5 +65,6 @@ urlpatterns = [
     path('juegos/memorice/', views.memorice, name='memorice'),
     path('juegos/letras-locas/', views.letras_locas, name='letras_locas'),
     path('juegos/trivia-cientifica/', views.minijuego, name='minijuego'),
+    path('juegos/rosco/', views.rosco, name='rosco'),
 
 ]  

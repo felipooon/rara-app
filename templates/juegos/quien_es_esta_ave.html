@@ -113,10 +113,10 @@
             user-select: none;
         }
 
-        /* Efecto de foto oculta (ya que no tienen fondo transparente) */
+        /* Efecto de foto oculta con desenfoque en el punto medio (11px) */
         .silhouette {
-            filter: blur(16px) saturate(1.5) !important;
-            transform: scale(0.95);
+            filter: blur(var(--blur-level, 11px)) saturate(1.2) !important;
+            transform: scale(0.98);
         }
         
         .revealed {
@@ -260,12 +260,26 @@
 
         <div class="stats">
             <div>Puntos: <span id="scoreDisplay" style="color: var(--primary)">0</span></div>
+            <div>
+                Dificultad: 
+                <select id="diffSelect" onchange="changeDifficulty(this.value)" style="padding: 0.2rem 0.5rem; border-radius: 8px; font-weight: 700; border: 1px solid #d1d5db; color: var(--text-main); outline: none;">
+                    <option value="6px">Suave</option>
+                    <option value="11px" selected>Normal</option>
+                    <option value="16px">Máximo</option>
+                </select>
+            </div>
             <div>Racha: <span id="streakDisplay" style="color: var(--accent)">0</span> 🔥</div>
         </div>
 
         <div class="image-container">
             <span class="loading-text" id="loadingText">Buscando un ave misteriosa...</span>
             <img id="birdImage" class="silhouette" src="" alt="Ave Misteriosa"/>
+        </div>
+
+        <div style="margin-bottom: 1rem; text-align: center;">
+            <button id="focusHintBtn" onclick="applyFocusHint()" style="background: rgba(239, 157, 113, 0.15); color: var(--primary-hover); border: 1.5px solid var(--primary); padding: 0.4rem 1rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;">
+                🔍 Pista
+            </button>
         </div>
 
         <div class="options-grid" id="optionsGrid">
@@ -324,10 +338,29 @@
             return null;
         }
 
+        let currentBlur = '11px';
+        const focusHintBtn = document.getElementById('focusHintBtn');
+
+        function changeDifficulty(val) {
+            currentBlur = val;
+            document.documentElement.style.setProperty('--blur-level', currentBlur);
+            if (focusHintBtn) focusHintBtn.disabled = false;
+        }
+
+        function applyFocusHint() {
+            const numBlur = parseInt(currentBlur);
+            const newBlur = Math.max(2, Math.floor(numBlur / 2)) + 'px';
+            document.documentElement.style.setProperty('--blur-level', newBlur);
+            if (focusHintBtn) focusHintBtn.disabled = true;
+        }
+
         async function initRound() {
             nextBtn.classList.remove('show');
             optionsGridEl.innerHTML = '';
             
+            document.documentElement.style.setProperty('--blur-level', currentBlur);
+            if (focusHintBtn) focusHintBtn.disabled = false;
+
             birdImage.style.display = 'none';
             birdImage.className = 'silhouette'; // Set it back to silhouette
             loadingText.style.display = 'block';

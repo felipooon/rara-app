@@ -90,6 +90,7 @@
         .game-card:nth-child(2) { animation-delay: 0.2s; }
         .game-card:nth-child(3) { animation-delay: 0.3s; }
         .game-card:nth-child(4) { animation-delay: 0.4s; }
+        .game-card:nth-child(5) { animation-delay: 0.5s; }
 
         .game-card:hover {
             transform: translateY(-8px);
@@ -225,6 +226,14 @@
             <div class="icon-container">🧪</div>
             <h2 class="game-title">Trivia Científica</h2>
             <p class="game-desc">Pon a prueba tus conocimientos científicos.</p>
+            <div class="play-btn">Jugar</div>
+        </a>
+
+        <!-- Card 5 -->
+        <a href="{% url 'rosco' %}" class="game-card">
+            <div class="icon-container">🎡</div>
+            <h2 class="game-title">Rosco Pajarero</h2>
+            <p class="game-desc">Completa el rosco ornitológico de la A a la Z.</p>
             <div class="play-btn">Jugar</div>
         </a>
     </div>

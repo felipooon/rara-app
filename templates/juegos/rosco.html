@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rosco Pajarero</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #4a4a4a;
+            --text-muted: #737373;
+            --primary: #ef9d71;
+            --primary-hover: #e2895a;
+            --success: #65C18C;
+            --danger: #FF7BA9;
+            --accent: #c2ebd3;
+            --blue-bubble: #3b82f6;
+            --blue-bubble-hover: #2563eb;
+            --gold: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--accent) 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.5rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-nav {
+            padding: 0.4rem 0.9rem;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--text-muted);
+            color: white;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            max-width: 720px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 0.7rem 1.2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .stat-val {
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .stat-correct { background-color: var(--success); }
+        .stat-wrong { background-color: var(--danger); }
+        .stat-pending { background-color: var(--blue-bubble); }
+        .stat-timer { background-color: var(--primary); }
+
+        /* Main Game Layout Container */
+        .game-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 740px;
+            height: 740px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* The Circular Ring */
+        .rosco-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .node-bubble {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            margin-top: -20px;
+            margin-left: -20px;
+            border-radius: 50%;
+            background: var(--blue-bubble);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.05rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            cursor: pointer;
+            border: 2px solid white;
+            user-select: none;
+        }
+
+        .node-bubble:hover {
+            transform: scale(1.15);
+        }
+
+        .node-bubble.active {
+            background: var(--gold) !important;
+            transform: scale(1.3);
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.7);
+            z-index: 10;
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        .node-bubble.correct {
+            background: var(--success) !important;
+        }
+
+        .node-bubble.wrong {
+            background: var(--danger) !important;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        /* Central Card */
+        .center-card {
+            width: 380px;
+            max-width: 90%;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 1.2rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #f3f4f6;
+            transition: all 0.3s ease;
+        }
+
+        .clue-badge {
+            background: rgba(239, 157, 113, 0.15);
+            color: var(--primary-hover);
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sci-name {
+            font-style: italic;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .bird-img-box {
+            width: 100%;
+            height: 135px;
+            background: #f8fafc;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding: 4px;
+        }
+
+        .bird-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.9rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Multiple Choice Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            width: 100%;
+            margin-bottom: 0.6rem;
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            color: var(--text-main);
+            padding: 0.65rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #f9fafb;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(101, 193, 140, 0.3);
+        }
+
+        .option-btn.wrong {
+            background: var(--danger) !important;
+            border-color: var(--danger) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(255, 123, 169, 0.3);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .btn-pass-wide {
+            width: 100%;
+            padding: 0.65rem;
+            background-color: var(--blue-bubble);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 0 var(--blue-bubble-hover);
+        }
+
+        .btn-pass-wide:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 var(--blue-bubble-hover);
+        }
+
+        .feedback-msg {
+            font-size: 0.85rem;
+            font-weight: 700;
+            min-height: 1.2rem;
+            margin-top: 0.4rem;
+        }
+
+        .feedback-msg.correct { color: var(--success); }
+        .feedback-msg.wrong { color: var(--danger); }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem 1.5rem;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: bounceIn 0.4s ease;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-stats {
+            margin: 1.2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0.9rem;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .btn-restart {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 9999px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-hover);
+            transition: all 0.2s;
+        }
+
+        .btn-restart:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 var(--primary-hover);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 740px) {
+            .game-wrapper {
+                height: 580px;
+                max-width: 580px;
+            }
+
+            .node-bubble {
+                width: 34px;
+                height: 34px;
+                margin-top: -17px;
+                margin-left: -17px;
+                font-size: 0.9rem;
+            }
+
+            .center-card {
+                width: 320px;
+                padding: 1rem;
+            }
+
+            .bird-img-box {
+                height: 110px;
+            }
+
+            .sci-name {
+                font-size: 0.95rem;
+            }
+
+            .clue-badge {
+                font-size: 0.8rem;
+            }
+
+            .option-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.4rem;
+                min-height: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-wrapper {
+                height: 480px;
+                max-width: 480px;
+            }
+
+            .node-bubble {
+                width: 28px;
+                height: 28px;
+                margin-top: -14px;
+                margin-left: -14px;
+                font-size: 0.8rem;
+            }
+
+            .center-card {
+                width: 270px;
+                padding: 0.8rem;
+            }
+
+            .bird-img-box {
+                height: 95px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Rosco Pajarero</h1>
+        <p class="subtitle">Demuestra tus conocimientos ornitológicos de la A a la Z</p>
+        <div class="nav-buttons">
+            <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
+            <a href="{% url 'index' %}" class="btn-nav">🏠 Volver al Home</a>
+        </div>
+    </header>
+
+    <!-- Bar with statistics -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span>Aciertos:</span>
+            <span class="stat-val stat-correct" id="statCorrect">0</span>
+        </div>
+        <div class="stat-item">
+            <span>Fallos:</span>
+            <span class="stat-val stat-wrong" id="statWrong">0</span>
+        </div>
+        <div class="stat-item">
+            <span>Pendientes:</span>
+            <span class="stat-val stat-pending" id="statPending">24</span>
+        </div>
+        <div class="stat-item">
+            <span>Tiempo:</span>
+            <span class="stat-val stat-timer" id="statTimer">180s</span>
+        </div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="game-wrapper" id="gameWrapper">
+        <div class="rosco-ring" id="roscoRing"></div>
+
+        <!-- Center Card -->
+        <div class="center-card" id="centerCard">
+            <div class="clue-badge" id="clueBadge">Cargando...</div>
+            
+            <div class="bird-img-box">
+                <span class="loading-text" id="loadingImgText">Buscando ave...</span>
+                <img id="birdImg" src="" alt="Ave" style="display: none;" />
+            </div>
+
+            <!-- Multiple Choice Grid -->
+            <div class="options-grid" id="optionsGrid">
+                <!-- Option buttons generated by JS -->
+            </div>
+
+            <!-- Pasapalabra button -->
+            <button type="button" class="btn-pass-wide" onclick="handlePass()">Pasapalabra ⏭</button>
+
+            <div class="feedback-msg" id="feedbackMsg"></div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal-overlay" id="resultsModal">
+        <div class="modal-card">
+            <div class="modal-title" id="modalTitle">¡Rosco Finalizado! 🎉</div>
+            <p style="color: var(--text-muted); font-weight: 600;">Resultados de tu partida:</p>
+            
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span>Aciertos:</span>
+                    <span style="color: var(--success);" id="modalCorrect">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span>Fallos:</span>
+                    <span style="color: var(--danger);" id="modalWrong">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span>Sin responder:</span>
+                    <span style="color: var(--blue-bubble);" id="modalUnanswered">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span>Tiempo restante:</span>
+                    <span style="color: var(--primary);" id="modalTime">0s</span>
+                </div>
+            </div>
+
+            <button class="btn-restart" onclick="restartGame()">Jugar de nuevo 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // Alphabet array for the Rosco ring (24 letters)
+        const ALPHABET = ['A','B','C','D','E','F','G','H','I','J','L','M','N','Ñ','O','P','Q','R','S','T','U','V','Y','Z'];
+        
+        let speciesList = [];
+        let roscoItems = []; // Objects: { letter, bird, options: [], type: 'starts'|'contains', state: 'pending'|'correct'|'wrong' }
+        let currentIndex = 0;
+        let timerInterval = null;
+        let timeLeft = 180;
+        let isGameActive = false;
+
+        // Elements
+        const roscoRingEl = document.getElementById('roscoRing');
+        const clueBadgeEl = document.getElementById('clueBadge');
+        const loadingImgText = document.getElementById('loadingImgText');
+        const birdImgEl = document.getElementById('birdImg');
+        const optionsGridEl = document.getElementById('optionsGrid');
+        const feedbackMsg = document.getElementById('feedbackMsg');
+        const statCorrectEl = document.getElementById('statCorrect');
+        const statWrongEl = document.getElementById('statWrong');
+        const statPendingEl = document.getElementById('statPending');
+        const statTimerEl = document.getElementById('statTimer');
+        const resultsModal = document.getElementById('resultsModal');
+        const gameWrapper = document.getElementById('gameWrapper');
+
+        function normalizeString(str) {
+            if(!str) return '';
+            return str
+                .toLowerCase()
+                .replace(/ñ/g, '___ñ___')
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/___ñ___/g, 'ñ')
+                .replace(/[^a-zñ]/g, "")
+                .trim();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Layout node bubbles around a circle outside the center card
+        function createRoscoRing() {
+            roscoRingEl.innerHTML = '';
+            const total = ALPHABET.length;
+            const containerWidth = gameWrapper.clientWidth;
+            
+            // Dynamic bubble size and radius calculation to prevent collisions on mobile
+            let bubbleSize = 40;
+            if (containerWidth < 420) bubbleSize = 26;
+            else if (containerWidth < 640) bubbleSize = 32;
+
+            const radius = (containerWidth / 2) - (bubbleSize / 2) - 4;
+
+            ALPHABET.forEach((letter, i) => {
+                const angleDeg = (i * (360 / total)) - 90;
+                const angleRad = (angleDeg * Math.PI) / 180;
+                
+                const x = 50 + (radius / containerWidth * 100) * Math.cos(angleRad);
+                const y = 50 + (radius / containerWidth * 100) * Math.sin(angleRad);
+
+                const bubble = document.createElement('div');
+                bubble.className = 'node-bubble pending';
+                bubble.id = `bubble-${i}`;
+                bubble.textContent = letter;
+                bubble.style.left = `${x}%`;
+                bubble.style.top = `${y}%`;
+                bubble.style.width = `${bubbleSize}px`;
+                bubble.style.height = `${bubbleSize}px`;
+                bubble.style.marginTop = `-${bubbleSize / 2}px`;
+                bubble.style.marginLeft = `-${bubbleSize / 2}px`;
+                bubble.style.fontSize = containerWidth < 420 ? '0.75rem' : (containerWidth < 640 ? '0.85rem' : '1.05rem');
+                bubble.onclick = () => selectLetter(i);
+                
+                // Preserve existing state styling on resize
+                if (roscoItems[i]) {
+                    if (roscoItems[i].state === 'correct') bubble.className = 'node-bubble correct';
+                    else if (roscoItems[i].state === 'wrong') bubble.className = 'node-bubble wrong';
+                    if (i === currentIndex && isGameActive) bubble.classList.add('active');
+                }
+                
+                roscoRingEl.appendChild(bubble);
+            });
+        }
+
+        // Select a bird and 3 distractors for each letter
+        function buildRoscoItems() {
+            roscoItems = [];
+            let usedSciNames = new Set();
+
+            // Shuffle the pool so candidate birds vary across rounds
+            const pool = shuffleArray([...speciesList]);
+
+            ALPHABET.forEach(letter => {
+                const searchChar = letter.toLowerCase();
+                
+                // 1. Try to find a species whose name STARTS with letter
+                let candidate = pool.find(s => {
+                    if(usedSciNames.has(s.sci) || !s.es) return false;
+                    const normEs = normalizeString(s.es);
+                    return normEs.startsWith(searchChar);
+                });
+
+                // 2. If not found, find a species whose name CONTAINS letter
+                if (!candidate) {
+                    candidate = pool.find(s => {
+                        if(usedSciNames.has(s.sci) || !s.es) return false;
+                        const normEs = normalizeString(s.es);
+                        return normEs.includes(searchChar);
+                    });
+                }
+
+                // Fallbacks para Ñ y O si no se encontraron en la base
+                if (!candidate && letter === 'Ñ') {
+                    candidate = { sci: "Rhea americana", es: "Ñandú" };
+                } else if (!candidate && letter === 'O') {
+                    candidate = { sci: "Haematopus palliatus", es: "Ostrero americano" };
+                }
+
+                // 3. Fallback general: otra especie
+                if (!candidate) {
+                    candidate = pool.find(s => !usedSciNames.has(s.sci) && s.es) || pool[0];
+                }
+
+                let type = normalizeString(candidate.es).startsWith(searchChar) ? 'starts' : 'contains';
+                usedSciNames.add(candidate.sci);
+
+                // Generate 3 distractors
+                let wrongList = [];
+
+                // Priority 1: Species whose name STARTS with the active letter
+                let startsMatches = shuffleArray(speciesList.filter(s => {
+                    if (s.sci === candidate.sci || !s.es) return false;
+                    const normEs = normalizeString(s.es);
+                    return normEs.startsWith(searchChar);
+                }));
+
+                for (let matchSp of startsMatches) {
+                    if (wrongList.length < 3) {
+                        wrongList.push(matchSp);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Priority 2: Species whose name CONTAINS the active letter
+                if (wrongList.length < 3) {
+                    let containsMatches = shuffleArray(speciesList.filter(s => {
+                        if (s.sci === candidate.sci || !s.es || wrongList.find(w => w.sci === s.sci)) return false;
+                        const normEs = normalizeString(s.es);
+                        return normEs.includes(searchChar);
+                    }));
+
+                    for (let matchSp of containsMatches) {
+                        if (wrongList.length < 3) {
+                            wrongList.push(matchSp);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                // Priority 3: Fill remaining with any random species
+                if (wrongList.length < 3) {
+                    let otherSpecies = shuffleArray(speciesList.filter(s => 
+                        s.sci !== candidate.sci && 
+                        !wrongList.find(w => w.sci === s.sci) && 
+                        s.es
+                    ));
+                    for (let randSp of otherSpecies) {
+                        if (wrongList.length < 3) {
+                            wrongList.push(randSp);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                let allOpts = shuffleArray([candidate, ...wrongList]);
+
+                roscoItems.push({
+                    letter: letter,
+                    bird: candidate,
+                    options: allOpts,
+                    type: type,
+                    state: 'pending'
+                });
+            });
+        }
+
+        async function fetchBirdImage(sciName) {
+            try {
+                let res = await fetch("https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(sciName));
+                let data = await res.json();
+                if (data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                    return data.thumbnail.source;
+                }
+                
+                res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(sciName));
+                data = await res.json();
+                if (data.thumbnail && data.thumbnail.source && !data.thumbnail.source.toLowerCase().match(/map|dist|range|icon|\.svg/)) {
+                    return data.thumbnail.source;
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        async function renderCurrentLetter() {
+            if (!isGameActive) return;
+
+            const item = roscoItems[currentIndex];
+            
+            // Highlight current active bubble in ring
+            ALPHABET.forEach((_, idx) => {
+                const bubble = document.getElementById(`bubble-${idx}`);
+                if (!bubble) return;
+                bubble.classList.remove('active');
+                if (idx === currentIndex) {
+                    bubble.classList.add('active');
+                }
+            });
+
+            // Update Clue Badge
+            if (item.type === 'starts') {
+                clueBadgeEl.textContent = `CON LA ${item.letter} - Empieza por ${item.letter}`;
+            } else {
+                clueBadgeEl.textContent = `CON LA ${item.letter} - Contiene la ${item.letter}`;
+            }
+
+            // Reset image container
+            birdImgEl.style.display = 'none';
+            birdImgEl.src = '';
+            loadingImgText.style.display = 'block';
+            loadingImgText.textContent = "Buscando foto...";
+
+            // Reset feedback
+            feedbackMsg.textContent = '';
+            feedbackMsg.className = 'feedback-msg';
+
+            // Build Option Buttons
+            optionsGridEl.innerHTML = '';
+            item.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt.es;
+                btn.onclick = () => handleChoice(btn, opt);
+                optionsGridEl.appendChild(btn);
+            });
+
+            // Fetch Image
+            const imgUrl = await fetchBirdImage(item.bird.sci);
+            if (imgUrl) {
+                birdImgEl.src = imgUrl;
+                birdImgEl.onload = () => {
+                    loadingImgText.style.display = 'none';
+                    birdImgEl.style.display = 'block';
+                };
+            } else {
+                loadingImgText.textContent = "Foto no disponible";
+            }
+        }
+
+        function handleChoice(selectedBtn, selectedOpt) {
+            if (!isGameActive) return;
+
+            const item = roscoItems[currentIndex];
+
+            // Disable all option buttons
+            const allBtns = optionsGridEl.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            const isCorrect = selectedOpt.sci === item.bird.sci;
+            const bubble = document.getElementById(`bubble-${currentIndex}`);
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                item.state = 'correct';
+                bubble.className = 'node-bubble correct';
+                feedbackMsg.textContent = `¡Correcto! Es el ${item.bird.es} ✨`;
+                feedbackMsg.className = 'feedback-msg correct';
+            } else {
+                selectedBtn.classList.add('wrong');
+                item.state = 'wrong';
+                bubble.className = 'node-bubble wrong';
+                feedbackMsg.textContent = `Incorrecto. Es: "${item.bird.es}" ❌`;
+                feedbackMsg.className = 'feedback-msg wrong';
+
+                // Highlight correct button
+                allBtns.forEach(b => {
+                    if (b.textContent === item.bird.es) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+
+            updateStatsDisplay();
+
+            // Next letter delay for user feedback
+            setTimeout(() => {
+                const nextIdx = findNextPendingIndex(currentIndex);
+                if (nextIdx !== -1) {
+                    currentIndex = nextIdx;
+                    renderCurrentLetter();
+                } else {
+                    finishGame();
+                }
+            }, 1200);
+        }
+
+        function updateStatsDisplay() {
+            const correctCount = roscoItems.filter(i => i.state === 'correct').length;
+            const wrongCount = roscoItems.filter(i => i.state === 'wrong').length;
+            const pendingCount = roscoItems.filter(i => i.state === 'pending').length;
+
+            statCorrectEl.textContent = correctCount;
+            statWrongEl.textContent = wrongCount;
+            statPendingEl.textContent = pendingCount;
+            statTimerEl.textContent = `${timeLeft}s`;
+        }
+
+        function findNextPendingIndex(fromIndex) {
+            let count = 0;
+            let idx = (fromIndex + 1) % roscoItems.length;
+            while (count < roscoItems.length) {
+                if (roscoItems[idx].state === 'pending') {
+                    return idx;
+                }
+                idx = (idx + 1) % roscoItems.length;
+                count++;
+            }
+            return -1; // All completed
+        }
+
+        function selectLetter(idx) {
+            if (!isGameActive) return;
+            if (roscoItems[idx].state !== 'pending') return;
+            currentIndex = idx;
+            renderCurrentLetter();
+        }
+
+        function handlePass() {
+            if (!isGameActive) return;
+
+            feedbackMsg.textContent = "¡Pasapalabra! ⏭";
+            feedbackMsg.className = 'feedback-msg';
+
+            const nextIdx = findNextPendingIndex(currentIndex);
+            if (nextIdx !== -1 && nextIdx !== currentIndex) {
+                currentIndex = nextIdx;
+                renderCurrentLetter();
+            } else if (nextIdx === currentIndex) {
+                feedbackMsg.textContent = "¡Es la única letra pendiente!";
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                statTimerEl.textContent = `${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishGame("¡Se ha agotado el tiempo! ⏰");
+                }
+            }, 1000);
+        }
+
+        function finishGame(reasonTitle) {
+            isGameActive = false;
+            clearInterval(timerInterval);
+
+            const correctCount = roscoItems.filter(i => i.state === 'correct').length;
+            const wrongCount = roscoItems.filter(i => i.state === 'wrong').length;
+            const unansweredCount = roscoItems.filter(i => i.state === 'pending').length;
+
+            document.getElementById('modalTitle').textContent = reasonTitle || "¡Rosco Finalizado! 🎉";
+            document.getElementById('modalCorrect').textContent = correctCount;
+            document.getElementById('modalWrong').textContent = wrongCount;
+            document.getElementById('modalUnanswered').textContent = unansweredCount;
+            document.getElementById('modalTime').textContent = `${timeLeft}s`;
+
+            resultsModal.style.display = 'flex';
+        }
+
+        function restartGame() {
+            resultsModal.style.display = 'none';
+            timeLeft = 180;
+            currentIndex = 0;
+            isGameActive = true;
+
+            buildRoscoItems();
+            createRoscoRing();
+            updateStatsDisplay();
+            renderCurrentLetter();
+            startTimer();
+        }
+
+        async function initGame() {
+            try {
+                // Fetch species dictionary
+                let res = await fetch('/api/diccionario-especies/');
+                if(!res.ok) {
+                    res = await fetch('https://raratienda.cl/api/diccionario-especies/');
+                }
+                const rawData = await res.json();
+                speciesList = Object.values(rawData);
+
+                createRoscoRing();
+                restartGame();
+
+                window.addEventListener('resize', createRoscoRing);
+            } catch (err) {
+                console.error("Error al iniciar el Rosco", err);
+                clueBadgeEl.textContent = "Error al cargar la base de especies.";
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

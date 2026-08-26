@@ -1065,3 +1065,6 @@ def letras_locas(request):
 
 def minijuego(request):
     return render(request, "juegos/minijuego.html")
+
+def rosco(request):
+    return render(request, "juegos/rosco.html")
