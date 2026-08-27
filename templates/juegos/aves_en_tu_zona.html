@@ -403,30 +403,43 @@
 
     <!-- Filter Control Box -->
     <div class="filter-box">
-        <div class="filter-group">
-            <label for="regionSelect" class="filter-label">📍 Región:</label>
-            <select id="regionSelect" class="region-select" onchange="fetchObservations(this.value)">
-                <option value="CL-AP">Arica y Parinacota</option>
-                <option value="CL-TA">Tarapacá</option>
-                <option value="CL-AN">Antofagasta</option>
-                <option value="CL-AT">Atacama</option>
-                <option value="CL-CO">Coquimbo</option>
-                <option value="CL-RM">Metropolitana</option>
-                <option value="CL-LI">O'Higgins</option>
-                <option value="CL-ML">Maule</option>
-                <option value="CL-NB">Ñuble</option>
-                <option value="CL-BI">Biobío</option>
-                <option value="CL-AR">La Araucanía</option>
-                <option value="CL-LR">Los Ríos</option>
-                <option value="CL-LL" selected>Los Lagos</option>
-                <option value="CL-AI">Aysén</option>
-                <option value="CL-MA">Magallanes</option>
-            </select>
+        <div class="filter-group" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div>
+                <label for="regionSelect" class="filter-label">📍 Región:</label>
+                <select id="regionSelect" class="region-select" onchange="fetchObservations(this.value)">
+                    <option value="CL-AP">Arica y Parinacota</option>
+                    <option value="CL-TA">Tarapacá</option>
+                    <option value="CL-AN">Antofagasta</option>
+                    <option value="CL-AT">Atacama</option>
+                    <option value="CL-CO">Coquimbo</option>
+                    <option value="CL-RM">Metropolitana</option>
+                    <option value="CL-LI">O'Higgins</option>
+                    <option value="CL-ML">Maule</option>
+                    <option value="CL-NB">Ñuble</option>
+                    <option value="CL-BI">Biobío</option>
+                    <option value="CL-AR">La Araucanía</option>
+                    <option value="CL-LR">Los Ríos</option>
+                    <option value="CL-LL" selected>Los Lagos</option>
+                    <option value="CL-AI">Aysén</option>
+                    <option value="CL-MA">Magallanes</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="backSelect" class="filter-label">📅 Período:</label>
+                <select id="backSelect" class="region-select" onchange="fetchObservations(document.getElementById('regionSelect').value)">
+                    <option value="7" selected>Última semana (7 días)</option>
+                    <option value="14">Últimas 2 semanas (14 días)</option>
+                    <option value="3">Últimos 3 días</option>
+                    <option value="1">Hoy (Últimas 24h)</option>
+                </select>
+            </div>
         </div>
         <div class="stats-text" id="statsText">
             Especies detectadas: <span class="stats-count" id="speciesCount">0</span>
         </div>
     </div>
+
 
     <!-- Status Messages -->
     <div class="status-box" id="loadingBox">
@@ -510,11 +523,14 @@
             errorBox.style.display = 'none';
             birdsGrid.style.display = 'none';
 
+            const backDays = document.getElementById('backSelect') ? document.getElementById('backSelect').value : '7';
+
             try {
-                let res = await fetch(`/api/ebird/data/obs/${regionCode}/recent?sppLocale=es_CL`);
+                let res = await fetch(`/api/ebird/data/obs/${regionCode}/recent?sppLocale=es_CL&back=${backDays}`);
                 if (!res.ok) {
-                    res = await fetch(`https://api.ebird.org/v2/data/obs/${regionCode}/recent?sppLocale=es_CL`);
+                    res = await fetch(`https://api.ebird.org/v2/data/obs/${regionCode}/recent?sppLocale=es_CL&back=${backDays}`);
                 }
+
                 if (!res.ok) throw new Error('No se pudieron obtener avistamientos');
 
                 const rawObs = await res.json();
