@@ -26,7 +26,7 @@ def index(request):
     orden = request.GET.get('orden', '')
     productos = Producto.objects.filter(disponible=True)
     productos = aplicar_ordenamiento(productos, orden)
-    productos_destacados = Producto.objects.filter(disponible=True).order_by('-id')[:4]
+    productos_destacados = Producto.objects.filter(disponible=True).order_by('?')[:4]
     resenas = ResenaProducto.objects.filter(aprobado=True).select_related('producto')[:8]
 
     return render(request, "index.html", {
