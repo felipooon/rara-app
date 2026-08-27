@@ -2,6 +2,12 @@
    BASE
 ========================= */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
   display: flex;
@@ -13,6 +19,7 @@ body {
   padding: 0;
   background-color: #fdfdfc;
   color: #333;
+  overflow-x: hidden;
 }
 
 html {
@@ -191,8 +198,11 @@ section:nth-of-type(4) {
 }
 
 .categoria-wrapper {
-  padding-top: 130px;
+  padding: 130px 1rem 2rem 1rem;
   min-height: 81vh;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
 
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.7)),
@@ -370,6 +380,24 @@ section:nth-of-type(4) {
   box-shadow: 0 6px 15px rgba(252, 163, 17, 0.5);
 }
 
+.producto-acciones {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 10px 20px 10px;
+}
+
+.btn-accion {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.btn-acento {
+  background: var(--acento);
+}
+
 .btn-volver {
   display: inline-block;
   margin: 10px 0 20px 0;
@@ -496,14 +524,17 @@ section:nth-of-type(4) {
 
 .catalogo2 {
   padding: 2rem 1rem;
-  margin-top: 50px;
+  margin-top: 30px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background-color: rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
 
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 250px));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   justify-content: center;
-  gap: 2rem;
+  gap: 1.5rem;
   align-self: center;
 }
 
@@ -1337,6 +1368,43 @@ section:nth-of-type(4) {
       url("https://res.cloudinary.com/dfyj3s6bi/image/upload/v1776384767/aveschilenas_abq88w.jpg");
     background-repeat: no-repeat;
     background-size: cover;
+  }
+}
+
+@media (max-width: 600px) {
+  .catalogo2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 1rem 0.4rem;
+  }
+
+  .catalogo2 .producto img {
+    height: 135px;
+  }
+
+  .catalogo2 .producto h3 {
+    font-size: 0.85rem;
+    margin: 8px 5px 4px 5px;
+    line-height: 1.25;
+  }
+
+  .catalogo2 .producto p {
+    font-size: 0.85rem;
+    margin: 0 5px 6px 5px;
+  }
+
+  .catalogo2 .producto-acciones {
+    gap: 4px;
+    margin: 6px 4px 12px 4px;
+    flex-wrap: wrap;
+  }
+
+  .catalogo2 .btn-accion {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    flex: 1 1 auto;
+    text-align: center;
   }
 }
 

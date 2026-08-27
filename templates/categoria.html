@@ -12,12 +12,12 @@
 
 <div class="categoria-wrapper">
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-    <h1>{{ categoria.nombre }}</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; width: 100%;">
+    <h1 style="margin: 0; word-break: break-word;">{{ categoria.nombre }}</h1>
     
-    <div style="display: flex; align-items: center; gap: 10px;">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; max-width: 100%;">
         <label for="ordenarSelect" style="font-size: 0.9rem; color: #555; font-weight: 600;">Ordenar por:</label>
-        <select id="ordenarSelect" onchange="location = this.value;" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; background: white; cursor: pointer;">
+        <select id="ordenarSelect" onchange="location = this.value;" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; background: white; cursor: pointer; max-width: 100%;">
             <option value="?orden=" {% if not orden_actual %}selected{% endif %}>Defecto</option>
             <option value="?orden=precio_asc" {% if orden_actual == 'precio_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
             <option value="?orden=precio_desc" {% if orden_actual == 'precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
@@ -25,7 +25,7 @@
             <option value="?orden=nombre" {% if orden_actual == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
         </select>
         
-        <a href="{% url 'index' %}" class="btn-volver">
+        <a href="{% url 'index' %}" class="btn-volver" style="margin: 0;">
             ← Volver al inicio
         </a>
     </div>
@@ -50,17 +50,15 @@
       <p>${{ p.precio }}</p>
 
 
-      <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 10px 10px 20px 10px;">
-      
-    <a href="{% url 'producto_detail' p.id %}" class="btn-categoria" style="margin: 0; padding: 8px 14px; font-size: 14px;">
-      <i class="fa-solid fa-eye"></i> Ver
-    </a>
-      
-    <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria" style="margin: 0; padding: 8px 14px; font-size: 14px; background-color: var(--acento);">
-        <i class="fa-solid fa-cart-plus"></i> Añadir
-    </a>
-
-</div>
+      <div class="producto-acciones">
+        <a href="{% url 'producto_detail' p.id %}" class="btn-categoria btn-accion">
+          <i class="fa-solid fa-eye"></i> Ver
+        </a>
+          
+        <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria btn-accion btn-acento">
+            <i class="fa-solid fa-cart-plus"></i> Añadir
+        </a>
+      </div>
 
     </div>
   {% empty %}

@@ -108,15 +108,18 @@ DATABASES = {
 """
 
 if os.environ.get('DATABASE_URL'):
+    db_url = os.environ.get('DATABASE_URL')
+    is_sqlite = db_url.startswith('sqlite')
     db_config = dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=0,
-        conn_health_checks=True,
-        ssl_require=True
+        default=db_url,
+        conn_max_age=0 if is_sqlite else 600,
+        conn_health_checks=not is_sqlite,
+        ssl_require=not is_sqlite
     )
-    if 'OPTIONS' not in db_config:
-        db_config['OPTIONS'] = {}
-    db_config['OPTIONS']['connect_timeout'] = 15
+    if not is_sqlite:
+        if 'OPTIONS' not in db_config:
+            db_config['OPTIONS'] = {}
+        db_config['OPTIONS']['connect_timeout'] = 15
     DATABASES = {
         'default': db_config
     }
