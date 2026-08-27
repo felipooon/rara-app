@@ -511,9 +511,9 @@
             birdsGrid.style.display = 'none';
 
             try {
-                let res = await fetch(`/api/ebird/data/obs/${regionCode}/recent?locale=es_CL`);
+                let res = await fetch(`/api/ebird/data/obs/${regionCode}/recent?sppLocale=es_CL`);
                 if (!res.ok) {
-                    res = await fetch(`https://api.ebird.org/v2/data/obs/${regionCode}/recent?locale=es_CL`);
+                    res = await fetch(`https://api.ebird.org/v2/data/obs/${regionCode}/recent?sppLocale=es_CL`);
                 }
                 if (!res.ok) throw new Error('No se pudieron obtener avistamientos');
 
@@ -524,7 +524,7 @@
                 rawObs.forEach(obs => {
                     const code = obs.speciesCode;
                     if (!mapGroups[code]) {
-                        const comName = obs.comName || (speciesDict[code] && speciesDict[code].es) || obs.sciName;
+                        const comName = (speciesDict[code] && speciesDict[code].es) || obs.comName || obs.sciName;
                         mapGroups[code] = {
                             speciesCode: code,
                             commonName: comName,

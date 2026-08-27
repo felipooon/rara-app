@@ -58,15 +58,29 @@
         }
 
         .species-count-badge {
-            background: var(--panel); padding: 6px 10px; border-radius: 12px;
-            font-size: 11px; font-weight: 800; color: var(--text-muted);
+            background: var(--panel); padding: 5px 10px; border-radius: 12px;
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); border: 1px solid var(--border-light);
-            white-space: nowrap; display: flex; align-items: center; gap: 4px;
+            white-space: nowrap; display: flex; align-items: center; gap: 6px;
+        }
+
+        .species-count-badge .stat-pill {
+            display: inline-flex; align-items: center; gap: 3px;
         }
 
         .species-count-badge .badge-num {
-            color: var(--accent); font-weight: 800; font-size: 13px;
+            color: var(--accent); font-weight: 800; font-size: 12px;
         }
+
+        .species-count-badge .badge-divider {
+            color: var(--border-light); opacity: 0.8; font-weight: 400;
+        }
+
+        @media (max-width: 520px) {
+            .species-count-badge .lbl-text { display: none; }
+            .species-count-badge { padding: 5px 8px; gap: 5px; }
+        }
+
 
         .btn-app-nav {
             background: var(--panel); padding: 6px 10px; border-radius: 12px;
@@ -180,9 +194,20 @@
             </select>
 
             <div class="species-count-badge">
-                🦜 <span class="badge-num" id="s-sp">0</span> especies
+                <span class="stat-pill" title="Especies registradas hoy">
+                    🦜 <b class="badge-num" id="s-sp">0</b> <span class="lbl-text">especies</span>
+                </span>
+                <span class="badge-divider">|</span>
+                <span class="stat-pill" title="Listas de avistamientos hoy">
+                    📋 <b class="badge-num" id="s-list">0</b> <span class="lbl-text">listas</span>
+                </span>
+                <span class="badge-divider">|</span>
+                <span class="stat-pill" title="Pajareros activos hoy">
+                    👥 <b class="badge-num" id="s-user">0</b> <span class="lbl-text">pajareros</span>
+                </span>
             </div>
         </div>
+
 
         <div class="top-bar-right">
             <a href="{% url 'aves_en_tu_zona' %}" class="btn-app-nav">⬅️ Lista</a>
@@ -190,9 +215,7 @@
         </div>
     </div>
 
-    <!-- Hidden elements for JS compatibility -->
-    <span id="s-list" style="display: none;"></span>
-    <span id="s-user" style="display: none;"></span>
+
 
     <div class="ads-floating">
         <a href="https://ebird.org" target="_blank"><img src="https://clo-brand-static-prod.s3.amazonaws.com/logos/ebird/clo_ebird_solo_web.svg" class="ad-logo" alt="ebird"></a>
@@ -287,9 +310,9 @@
             const y = h.getFullYear(), m = h.getMonth() + 1, d = h.getDate();
             
             try {
-                let resObs = await fetch(`/api/ebird/data/obs/${REGION}/historic/${y}/${m}/${d}?locale=es_CL`);
+                let resObs = await fetch(`/api/ebird/data/obs/${REGION}/historic/${y}/${m}/${d}?sppLocale=es_CL`);
                 if (!resObs.ok) {
-                    resObs = await fetch(`/api/ebird/data/obs/${REGION}/recent?locale=es_CL`);
+                    resObs = await fetch(`/api/ebird/data/obs/${REGION}/recent?sppLocale=es_CL`);
                 }
                 const obsData = await resObs.json();
                 
@@ -297,11 +320,8 @@
                 
                 const htmlEspecies = obsData.map(o => {
                     const codigo = o.speciesCode; 
-                    let nombreFinal = o.comName;
-                    
-                    if (diccEspecies && diccEspecies[codigo]) {
-                        nombreFinal = diccEspecies[codigo].es; 
-                    }
+                    let nombreFinal = (diccEspecies && diccEspecies[codigo] && diccEspecies[codigo].es) || o.comName || o.sciName;
+
 
                     return `
                         <tr>
