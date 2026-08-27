@@ -106,30 +106,27 @@ DATABASES = {
 }
 """
 
-if DEBUG:
+if os.environ.get('DATABASE_URL'):
+    db_config = dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=0,
+        conn_health_checks=True,
+        ssl_require=True
+    )
+    if 'OPTIONS' not in db_config:
+        db_config['OPTIONS'] = {}
+    db_config['OPTIONS']['connect_timeout'] = 15
+    DATABASES = {
+        'default': db_config
+    }
+else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-else:
-    # PRODUCCIÓN: Usamos la URL de Neon que configuramos en Render
-    db_config = dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
-    
-    # Solución para el "Cold Start" de Neon (Error 500 al despertar)
-    # Le damos a Django hasta 15 segundos para esperar a que Neon encienda
-    if 'OPTIONS' not in db_config:
-        db_config['OPTIONS'] = {}
-    db_config['OPTIONS']['connect_timeout'] = 15
-    
-    DATABASES = {
-        'default': db_config
-    }
+
 
 
 LOGIN_URL = '/login/'
@@ -220,6 +217,8 @@ else:
             "BACKEND": "whitenoise.storage.ManifestStaticFilesStorage",
         },
     }
+    WHITENOISE_MANIFEST_STRICT = False
+
 
 """
 
