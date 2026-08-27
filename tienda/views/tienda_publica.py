@@ -26,7 +26,7 @@ def index(request):
     orden = request.GET.get('orden', '')
     productos = Producto.objects.filter(disponible=True)
     productos = aplicar_ordenamiento(productos, orden)
-    productos_destacados = Producto.objects.filter(disponible=True).order_by('?')[:4]
+    productos_destacados = Producto.objects.filter(disponible=True).order_by('?')[:8]
     resenas = ResenaProducto.objects.filter(aprobado=True).select_related('producto')[:8]
 
     return render(request, "index.html", {
@@ -216,3 +216,22 @@ def agregar_resena(request, producto_id):
         else:
             messages.error(request, "Por favor revisa los campos ingresados en tu reseña.")
     return redirect(producto.get_absolute_url())
+
+
+@require_GET
+def api_destacados_random(request):
+    import random
+    badges_pool = ['✨ Recomendado', '🔥 Tendencia', '🌟 Selección Rara', '🌿 Favorito', '🎨 Arte Local', '🦉 Novedad Rara', '💖 Destacado', '⭐ Recomendación']
+    productos = Producto.objects.filter(disponible=True).order_by('?')[:8]
+    
+    data = []
+    for idx, p in enumerate(productos):
+        data.append({
+            'id': p.id,
+            'nombre': p.nombre,
+            'precio': f"{p.precio:,}".replace(',', '.'),
+            'url': p.get_absolute_url(),
+            'imagen': p.get_imagen_url_absoluta(),
+            'badge': badges_pool[idx % len(badges_pool)]
+        })
+    return JsonResponse({'productos': data})

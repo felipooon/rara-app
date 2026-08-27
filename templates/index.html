@@ -44,34 +44,67 @@
 
 <!-- Destacados -->
 <section id="destacados" class="catalogo-seccion" style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 2.5rem 1rem 3rem;">
-  <div style="text-align: center;">
-    <h2 style="font-family: 'Quicksand', sans-serif; font-size: 1.6rem; font-weight: 700; color: #4a4a4a; margin-bottom: 0.5rem;">Novedades Destacadas</h2>
+  
+  <div class="destacados-header-box">
+    <div>
+      <h2 style="font-family: 'Quicksand', sans-serif; font-size: 1.6rem; font-weight: 700; color: #4a4a4a; margin: 0;">
+        Novedades Destacadas
+      </h2>
+      <p style="color: #64748b; font-size: 0.9rem; margin: 2px 0 0 0;">Descubre creaciones únicas de la fauna chilena</p>
+    </div>
+    
+    <button type="button" class="btn-shuffle" onclick="shuffleDestacados()" id="btn-shuffle-destacados">
+      <i class="fa-solid fa-dice" id="shuffle-icon"></i> Descubrir más
+    </button>
   </div>
-  <div class="catalogo-destacados">
-    {% for p in productos_destacados %}
-      <div class="producto-destacado">
-        <div style="position: relative;">
-          {% if p.imagen %}
-            <img src="{{ p.get_imagen_url_absoluta }}" alt="{{ p.nombre }}">
-          {% endif %}
-          {% if not p.disponible %}
-            <span class="agotado">Agotado</span>
-          {% endif %}
+
+  <div class="destacados-slider-wrapper">
+    <button type="button" class="slider-nav-btn prev" onclick="scrollDestacados(-280)" title="Anterior">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <div class="catalogo-destacados-slider" id="destacados-container">
+      {% for p in productos_destacados %}
+        <div class="producto-destacado-card">
+          <div class="img-box">
+            {% if forloop.counter == 1 %}
+              <span class="badge-glass">✨ Recomendado</span>
+            {% elif forloop.counter == 2 %}
+              <span class="badge-glass">🔥 Tendencia</span>
+            {% elif forloop.counter == 3 %}
+              <span class="badge-glass">🦉 Novedad Rara</span>
+            {% else %}
+              <span class="badge-glass">🌟 Selección Rara</span>
+            {% endif %}
+
+            {% if p.imagen %}
+              <img src="{{ p.get_imagen_url_absoluta }}" alt="{{ p.nombre }}">
+            {% endif %}
+            {% if not p.disponible %}
+              <span class="agotado">Agotado</span>
+            {% endif %}
+          </div>
+          
+          <h3 style="font-size: 1rem; font-weight: 700; color: #334155; margin: 0 0 4px 0; font-family: 'Quicksand', sans-serif;">{{ p.nombre }}</h3>
+          <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">${{ p.precio }}</p>
+          
+          <div style="display: flex; gap: 6px; margin-top: auto;">
+            <a href="{{ p.get_absolute_url }}" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0;">
+              <i class="fa-solid fa-eye"></i> Ver
+            </a>
+            <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0; background-color: var(--acento);">
+              <i class="fa-solid fa-cart-plus"></i> Añadir
+            </a>
+          </div>
         </div>
-        <h3>{{ p.nombre }}</h3>
-        <p>${{ p.precio }}</p>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 6px; margin: 6px 8px 14px 8px;">
-          <a href="{{ p.get_absolute_url }}" class="btn-categoria" style="margin: 0; padding: 6px 10px; font-size: 12px;">
-            <i class="fa-solid fa-eye"></i> Ver
-          </a>
-          <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria" style="margin: 0; padding: 6px 10px; font-size: 12px; background-color: var(--acento);">
-            <i class="fa-solid fa-cart-plus"></i> Añadir
-          </a>
-        </div>
-      </div>
-    {% empty %}
-      <p>No hay productos destacados aún.</p>
-    {% endfor %}
+      {% empty %}
+        <p>No hay productos destacados aún.</p>
+      {% endfor %}
+    </div>
+
+    <button type="button" class="slider-nav-btn next" onclick="scrollDestacados(280)" title="Siguiente">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
   </div>
 </section>
 
@@ -219,5 +252,80 @@
     </a>
   </div>
 </section>
+
+<script>
+function scrollDestacados(amount) {
+  const container = document.getElementById('destacados-container');
+  if (!container) return;
+
+  const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+  if (amount > 0) {
+    if (container.scrollLeft >= maxScrollLeft - 15) {
+      const firstCard = container.firstElementChild;
+      if (firstCard) {
+        container.appendChild(firstCard);
+      }
+    }
+    container.scrollBy({ left: amount, behavior: 'smooth' });
+  } else {
+    if (container.scrollLeft <= 15) {
+      const lastCard = container.lastElementChild;
+      if (lastCard) {
+        container.insertBefore(lastCard, container.firstElementChild);
+      }
+    }
+    container.scrollBy({ left: amount, behavior: 'smooth' });
+  }
+}
+
+async function shuffleDestacados() {
+  const container = document.getElementById('destacados-container');
+  const icon = document.getElementById('shuffle-icon');
+  if (!container) return;
+
+  if (icon) icon.classList.add('fa-spin');
+  
+  container.style.opacity = '0.4';
+  container.style.transition = 'opacity 0.25s ease';
+
+  try {
+    const response = await fetch('/api/destacados-random/');
+    const data = await response.json();
+    
+    if (data.productos && data.productos.length > 0) {
+      container.innerHTML = '';
+      data.productos.forEach(p => {
+        const cardHtml = `
+          <div class="producto-destacado-card">
+            <div class="img-box">
+              <span class="badge-glass">${p.badge}</span>
+              ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}">` : ''}
+            </div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #334155; margin: 0 0 4px 0; font-family: 'Quicksand', sans-serif;">${p.nombre}</h3>
+            <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">$${p.precio}</p>
+            <div style="display: flex; gap: 6px; margin-top: auto;">
+              <a href="${p.url}" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0;">
+                <i class="fa-solid fa-eye"></i> Ver
+              </a>
+              <a href="/carrito/agregar/${p.id}/" title="Agregar al nido" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0; background-color: var(--acento);">
+                <i class="fa-solid fa-cart-plus"></i> Añadir
+              </a>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
+      });
+    }
+  } catch (err) {
+    console.error('Error al actualizar destacados:', err);
+  } finally {
+    setTimeout(() => {
+      container.style.opacity = '1';
+      if (icon) icon.classList.remove('fa-spin');
+    }, 200);
+  }
+}
+</script>
 
 {% endblock %}
