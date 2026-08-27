@@ -24,16 +24,96 @@
             </div>
 
             <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Autor del Artículo (Opcional)</label>
+                {{ form.autor }}
+                <span style="font-size: 0.8rem; color: #64748b;">Si lo dejas en blanco o como "Rara Tienda", aparecerá con el ícono de pluma de Rara Tienda.</span>
+                {% if form.autor.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.autor.errors }}</div>{% endif %}
+            </div>
+
+            <div style="margin-bottom: 20px;">
                 <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Resumen Breve (Extracto para tarjetas)</label>
                 {{ form.resumen }}
                 {% if form.resumen.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.resumen.errors }}</div>{% endif %}
             </div>
 
             <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Contenido del Artículo *</label>
+                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Contenido del Artículo (Formato HTML Enriquecido) *</label>
+                
+                <!-- Barra de Herramientas HTML -->
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-bottom: none; border-top-left-radius: 10px; border-top-right-radius: 10px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <span style="font-size: 0.8rem; font-weight: 800; color: #64748b; margin-right: 4px;">🛠️ Insertar HTML:</span>
+                    <button type="button" onclick="insertarEtiqueta('<b>', '</b>')" title="Negrita" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;"><b>B</b></button>
+                    <button type="button" onclick="insertarEtiqueta('<i>', '</i>')" title="Cursiva" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-style: italic; cursor: pointer;">I</button>
+                    <button type="button" onclick="insertarEtiqueta('<h2>', '</h2>')" title="Subtítulo H2" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">H2</button>
+                    <button type="button" onclick="insertarEtiqueta('<h3>', '</h3>')" title="Subtítulo H3" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">H3</button>
+                    <button type="button" onclick="insertarImagen()" title="Insertar Imagen en Medio" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🖼️ + Imagen</button>
+                    <button type="button" onclick="insertarYouTube()" title="Insertar Video de YouTube" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🎬 + Video YouTube</button>
+                    <button type="button" onclick="insertarEnlace()" title="Insertar Enlace" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🔗 Enlace</button>
+                    <button type="button" onclick="insertarLista()" title="Insertar Lista" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer;">📋 Lista</button>
+                    <button type="button" onclick="insertarCita()" title="Insertar Cita" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer;">💬 Cita</button>
+                </div>
+
                 {{ form.contenido }}
                 {% if form.contenido.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.contenido.errors }}</div>{% endif %}
             </div>
+
+<script>
+function insertarEtiqueta(inicio, fin) {
+    var txt = document.getElementById('editor-contenido');
+    var start = txt.selectionStart;
+    var end = txt.selectionEnd;
+    var val = txt.value;
+    var selected = val.substring(start, end);
+    if (!selected && fin !== '') {
+        selected = 'Texto aquí';
+    }
+    txt.value = val.substring(0, start) + inicio + selected + fin + val.substring(end);
+    txt.focus();
+}
+
+function insertarImagen() {
+    var url = prompt("Ingresa la URL completa de la imagen que deseas insertar en medio del texto:");
+    if (url) {
+        var alt = prompt("Descripción breve de la imagen (opcional):") || "Imagen del blog";
+        var htmlImg = '\n<img src="' + url + '" alt="' + alt + '" style="width: 100%; border-radius: 16px; margin: 25px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">\n';
+        insertarEtiqueta(htmlImg, '');
+    }
+}
+
+function insertarYouTube() {
+    var url = prompt("Ingresa el enlace del video de YouTube (ej: https://www.youtube.com/watch?v=... o https://youtu.be/...):");
+    if (url) {
+        var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        var match = url.match(regExp);
+        var videoId = (match && match[2].length === 11) ? match[2] : null;
+        
+        if (videoId) {
+            var htmlVideo = '\n<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 18px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e2ece5;">\n  <iframe src="https://www.youtube-nocookie.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>\n</div>\n';
+            insertarEtiqueta(htmlVideo, '');
+        } else {
+            alert("No pudimos reconocer el ID del video de YouTube. Asegúrate de pegar un enlace válido.");
+        }
+    }
+}
+
+function insertarEnlace() {
+    var url = prompt("Ingresa la URL del enlace:");
+    if (url) {
+        var texto = prompt("Texto del enlace:") || "Ver enlace";
+        insertarEtiqueta('<a href="' + url + '" target="_blank" style="color: #ef9d71; font-weight: 800;">' + texto + '</a>', '');
+    }
+}
+
+function insertarLista() {
+    var listaHtml = '\n<ul>\n  <li>Primer elemento</li>\n  <li>Segundo elemento</li>\n</ul>\n';
+    insertarEtiqueta(listaHtml, '');
+}
+
+function insertarCita() {
+    var citaHtml = '\n<blockquote style="border-left: 4px solid #ef9d71; padding-left: 18px; margin: 20px 0; font-style: italic; color: #4a5568;">\n  Cita o texto destacado...\n</blockquote>\n';
+    insertarEtiqueta(citaHtml, '');
+}
+</script>
 
             <div style="margin-bottom: 25px;">
                 <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Imagen de Portada</label>

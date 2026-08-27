@@ -256,6 +256,7 @@ class ConfiguracionSitio(models.Model):
 class BlogPost(models.Model):
     titulo = models.CharField(max_length=250)
     slug = models.SlugField(max_length=270, unique=True, blank=True)
+    autor = models.CharField(max_length=100, blank=True, default='Rara Tienda', help_text="Nombre del autor del artículo (opcional)")
     resumen = models.TextField(blank=True, help_text="Breve resumen para las tarjetas de blog")
     contenido = models.TextField(help_text="Contenido completo del artículo")
     imagen = models.ImageField(upload_to='blog/', blank=True, null=True)

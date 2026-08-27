@@ -55,11 +55,12 @@ from .models import BlogPost, ResenaProducto, ConfiguracionSitio
 class BlogPostForm(forms.ModelForm):
     class Meta:
         model = BlogPost
-        fields = ['titulo', 'resumen', 'contenido', 'imagen', 'publicado']
+        fields = ['titulo', 'autor', 'resumen', 'contenido', 'imagen', 'publicado']
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Título del artículo'}),
+            'autor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del autor (Ej: Rara Tienda, Felipe, etc.)'}),
             'resumen': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Breve resumen para las tarjetas'}),
-            'contenido': forms.Textarea(attrs={'class': 'form-control', 'rows': 10, 'placeholder': 'Contenido completo del artículo...'}),
+            'contenido': forms.Textarea(attrs={'class': 'form-control', 'rows': 12, 'id': 'editor-contenido', 'placeholder': 'Escribe el contenido de tu artículo...'}),
         }
 
 class ResenaForm(forms.ModelForm):
