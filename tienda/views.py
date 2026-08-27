@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio
+from .models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido
 from .forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ResenaForm, ConfiguracionSitioForm
 from django.contrib.auth.views import LoginView
 from .carrito import Carrito
@@ -296,7 +296,7 @@ def procesar_pedido(request):
         # Guardamos el ID del pedido en la sesión para autorizar la vista de éxito
         request.session['pedido_autorizado'] = str(pedido.id)
         
-        # 2. Guardamos los items del pedido
+        # 2. Guardamos los items del pedido y registramos logs de auditoría
         for item in carrito:
             ItemPedido.objects.create(
                 pedido=pedido,
@@ -304,6 +304,26 @@ def procesar_pedido(request):
                 precio=item['precio'],
                 cantidad=item['cantidad']
             )
+            LogProducto.objects.create(
+                producto_id=item['producto_real'].id,
+                nombre_producto=item['producto_real'].nombre,
+                accion='VENTA',
+                detalles=f"Vendido {item['cantidad']} unidad(es) en Pedido #{pedido.codigo_orden} | Cliente: {pedido.nombre_completo} ({pedido.email})"
+            )
+
+        items_summary = ", ".join([f"{item['producto_real'].nombre} (x{item['cantidad']})" for item in carrito])
+        detalles_creacion = f"Pedido iniciado por total ${total_final} | Ítems: {items_summary} | Dirección: {pedido.direccion}, {pedido.ciudad} | RUT: {pedido.rut} | Teléfono: +56{pedido.telefono}"
+        if cupon_obj:
+            detalles_creacion += f" | Cupón: {cupon_obj.codigo} (-${descuento_aplicado})"
+
+        LogPedido.objects.create(
+            pedido_id=pedido.id,
+            codigo_orden=pedido.codigo_orden,
+            cliente_nombre=pedido.nombre_completo,
+            cliente_email=pedido.email,
+            accion='CREACION',
+            detalles=detalles_creacion
+        )
 
         # ========================================================
         # BLOQUE DE CORREO: ALERTA PARA ADMINISTRADORES (SILENCIOSO)
@@ -385,12 +405,28 @@ www.raratienda.cl/panel
             print("=================================\n")
 
             if "init_point" not in preference_response.get("response", {}):
+                LogPedido.objects.create(
+                    pedido_id=pedido.id,
+                    codigo_orden=pedido.codigo_orden,
+                    cliente_nombre=pedido.nombre_completo,
+                    cliente_email=pedido.email,
+                    accion='ERROR',
+                    detalles=f"Respuesta de MercadoPago sin init_point: {preference_response}"
+                )
                 messages.error(request, "Hubo un problema al contactar a la pasarela de pago. Por favor intenta de nuevo.")
                 return redirect('ver_carrito')
             
             init_point = preference_response["response"]["init_point"]
             return redirect(init_point)
         except Exception as e:
+            LogPedido.objects.create(
+                pedido_id=pedido.id,
+                codigo_orden=pedido.codigo_orden,
+                cliente_nombre=pedido.nombre_completo,
+                cliente_email=pedido.email,
+                accion='ERROR',
+                detalles=f"Excepción al conectar con Mercado Pago: {e}"
+            )
             print(f"Error al conectar con Mercado Pago: {e}")
             messages.error(request, f"Error con la pasarela de pago: {e}")
             return redirect('pedido_confirmado', pedido_id=pedido.id)
@@ -523,22 +559,29 @@ def panel_productos(request):
 
 @staff_member_required(login_url='login')
 def crear_producto(request):
-    # 1. Capturamos la URL de retorno
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
     
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Producto creado exitosamente.")
-            # 2. Redirigimos al estado anterior
+            producto = form.save()
+            usuario_log = request.user if request.user.is_authenticated else None
+            detalles_str = f"Precio inicial: ${producto.precio} | Stock inicial: {producto.stock} | Categoría: {producto.categoria.nombre if producto.categoria else 'Sin categoría'}"
+            LogProducto.objects.create(
+                producto_id=producto.id,
+                nombre_producto=producto.nombre,
+                accion='CREACION',
+                usuario=usuario_log,
+                detalles=detalles_str
+            )
+            messages.success(request, f"Producto '{producto.nombre}' creado exitosamente.")
             return redirect(next_url)
     else:
         form = ProductoForm()
 
     return render(request, "panel/producto_form.html", {
         "form": form,
-        "next": next_url  # 3. Lo mandamos al template
+        "next": next_url
     })
 
 
@@ -566,11 +609,19 @@ def crear_categoria(request):
 @staff_member_required(login_url='login')
 def toggle_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
-    # Cambiamos el estado (si es True pasa a False, y viceversa)
     producto.disponible = not producto.disponible
     producto.save()
     
-    # Buscamos si hay una dirección de retorno
+    usuario_log = request.user if request.user.is_authenticated else None
+    estado_str = "Activado en catálogo (Visible)" if producto.disponible else "Desactivado de catálogo (Oculto)"
+    LogProducto.objects.create(
+        producto_id=producto.id,
+        nombre_producto=producto.nombre,
+        accion='TOGGLE',
+        usuario=usuario_log,
+        detalles=f"Estado del producto cambiado a: {estado_str}"
+    )
+    
     next_url = request.GET.get('next')
     if next_url:
         return redirect(next_url)
@@ -612,12 +663,46 @@ class CustomLoginView(LoginView):
 @staff_member_required(login_url='login')
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
+    nombre_ant = producto.nombre
+    precio_ant = producto.precio
+    stock_ant = producto.stock
+    dispon_ant = producto.disponible
+    cat_ant = producto.categoria.nombre if producto.categoria else "Sin categoría"
+
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
     form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
     
     if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, f"Producto '{producto.nombre}' actualizado.")
+        prod_editado = form.save()
+        cambios = []
+        if nombre_ant != prod_editado.nombre:
+            cambios.append(f"Nombre: '{nombre_ant}' ➔ '{prod_editado.nombre}'")
+        if precio_ant != prod_editado.precio:
+            cambios.append(f"Precio: ${precio_ant} ➔ ${prod_editado.precio}")
+        if stock_ant != prod_editado.stock:
+            cambios.append(f"Stock: {stock_ant} ➔ {prod_editado.stock}")
+        if dispon_ant != prod_editado.disponible:
+            cambios.append(f"Disponible: {'Sí' if dispon_ant else 'No'} ➔ {'Sí' if prod_editado.disponible else 'No'}")
+        
+        cat_nueva = prod_editado.categoria.nombre if prod_editado.categoria else "Sin categoría"
+        if cat_ant != cat_nueva:
+            cambios.append(f"Categoría: '{cat_ant}' ➔ '{cat_nueva}'")
+
+        if 'imagen' in request.FILES:
+            cambios.append("Nueva imagen de portada subida")
+
+        detalles_str = " | ".join(cambios) if cambios else "Edición realizada sin cambios principales"
+        usuario_log = request.user if request.user.is_authenticated else None
+
+        LogProducto.objects.create(
+            producto_id=prod_editado.id,
+            nombre_producto=prod_editado.nombre,
+            accion='EDICION',
+            usuario=usuario_log,
+            detalles=detalles_str
+        )
+
+        messages.success(request, f"Producto '{prod_editado.nombre}' actualizado.")
         return redirect(next_url)
         
     return render(request, "panel/producto_form.html", {
@@ -629,7 +714,19 @@ def editar_producto(request, id):
 @staff_member_required(login_url='login')
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
+    usuario_log = request.user if request.user.is_authenticated else None
+    detalles_str = f"Producto eliminado definitivamente. Nombre final: '{producto.nombre}', Precio final: ${producto.precio}, Stock final: {producto.stock}, Categoría: {producto.categoria.nombre if producto.categoria else 'Sin categoría'}"
+    
+    LogProducto.objects.create(
+        producto_id=producto.id,
+        nombre_producto=producto.nombre,
+        accion='ELIMINACION',
+        usuario=usuario_log,
+        detalles=detalles_str
+    )
+    
     producto.delete()
+    messages.success(request, f"Producto '{producto.nombre}' eliminado.")
     return redirect('panel_productos')
 
 @staff_member_required(login_url='login')
@@ -683,6 +780,21 @@ def actualizar_estado_pedido(request, id):
         else:
             pedido.save()
 
+        usuario_log = request.user if request.user.is_authenticated else None
+        detalles_act = f"Estado cambiado a '{pedido.get_estado_display()}'"
+        if empresa or seguimiento:
+            detalles_act += f" | Transporte: '{empresa if empresa else 'No especificado'}' | Seguimiento: '{seguimiento if seguimiento else 'Sin código'}'"
+
+        LogPedido.objects.create(
+            pedido_id=pedido.id,
+            codigo_orden=pedido.codigo_orden,
+            cliente_nombre=pedido.nombre_completo,
+            cliente_email=pedido.email,
+            accion='ESTADO_CAMBIO',
+            usuario=usuario_log,
+            detalles=detalles_act
+        )
+
         messages.success(request, f"Estado del pedido #{pedido.codigo_orden} actualizado a '{pedido.get_estado_display()}'.")
     return redirect('detalle_pedido', id=id)
 
@@ -715,6 +827,18 @@ Puedes realizar el seguimiento de tu paquete directamente en el sitio web del tr
             [pedido.email],
             fail_silently=False
         )
+
+        usuario_log = request.user if request.user.is_authenticated else None
+        LogPedido.objects.create(
+            pedido_id=pedido.id,
+            codigo_orden=pedido.codigo_orden,
+            cliente_nombre=pedido.nombre_completo,
+            cliente_email=pedido.email,
+            accion='SEGUIMIENTO',
+            usuario=usuario_log,
+            detalles=f"Correo de despacho enviado a {pedido.email} | Transporte: {pedido.empresa_transporte or 'No especificado'} | Nº Seguimiento: {pedido.numero_seguimiento}"
+        )
+
         messages.success(request, f"Correo con número de seguimiento enviado a {pedido.email}.")
     except Exception as e:
         messages.error(request, f"No se pudo enviar el correo: {e}")
@@ -731,9 +855,21 @@ def confirmar_pago_pedido(request, id):
             if pedido.pagado:
                 messages.info(request, f'El pedido #{pedido.codigo_orden} ya estaba pagado.')
                 return redirect('detalle_pedido', id=pedido.id)
+            
             pedido.confirmar_pago()
             pedido.estado = 'PAGADO'
             pedido.save()
+
+            usuario_log = request.user if request.user.is_authenticated else None
+            LogPedido.objects.create(
+                pedido_id=pedido.id,
+                codigo_orden=pedido.codigo_orden,
+                cliente_nombre=pedido.nombre_completo,
+                cliente_email=pedido.email,
+                accion='PAGO_OK',
+                usuario=usuario_log,
+                detalles="Pago confirmado manualmente por administrador desde el panel"
+            )
         
         asunto = f'¡Pago Confirmado! Pedido #{pedido.codigo_orden} en Rara Tienda 🦉'
         mensaje = f'''Hola {pedido.nombre_completo},
@@ -1098,6 +1234,14 @@ def webhook_mercadopago(request):
                                     pago_procesado = True
                             
                             if pago_procesado and pedido:
+                                LogPedido.objects.create(
+                                    pedido_id=pedido.id,
+                                    codigo_orden=pedido.codigo_orden,
+                                    cliente_nombre=pedido.nombre_completo,
+                                    cliente_email=pedido.email,
+                                    accion='PAGO_OK',
+                                    detalles=f"Pago confirmado exitosamente por Webhook MercadoPago | ID Transacción MP: {payment_id}"
+                                )
                                 print(f"✅ ¡ÉXITO! Pedido #{pedido.id} pagado y stock descontado.")
 
                                 asunto = f'¡Pago Recibido! Tu pedido #{pedido.codigo_orden} está en camino 🦉'
@@ -1128,10 +1272,24 @@ www.raratienda.cl
                                     )
                                     print(f"✅ Webhook: Pago procesado y correo enviado a {pedido.email}")
                                 except Exception as mail_error:
-                                    # Si el correo falla, igual el pago ya quedó registrado
                                     print(f"⚠️ Webhook: Pago OK pero falló el correo: {mail_error}")
                             elif pedido and pedido.pagado:
                                 print(f"ℹ️ Webhook duplicado ignorado para pedido #{pedido.id}.")
+                    elif payment and payment.get("status") != "approved":
+                        pedido_id = payment.get("external_reference")
+                        if pedido_id:
+                            pedido_obj = Pedido.objects.filter(id=pedido_id).first()
+                            if pedido_obj:
+                                mp_status = payment.get("status")
+                                accion_log = 'CANCELADO' if mp_status in ['cancelled', 'refunded'] else 'ERROR'
+                                LogPedido.objects.create(
+                                    pedido_id=pedido_obj.id,
+                                    codigo_orden=pedido_obj.codigo_orden,
+                                    cliente_nombre=pedido_obj.nombre_completo,
+                                    cliente_email=pedido_obj.email,
+                                    accion=accion_log,
+                                    detalles=f"Notificación de Webhook MercadoPago | Estado MP: '{mp_status}' | Detalle MP: '{payment.get('status_detail', 'Sin detalle')}' | ID Transacción MP: {payment_id}"
+                                )
 
             # SIEMPRE debemos responder 200 OK, sino MP pensará que falló y enviará el aviso de nuevo
             return JsonResponse({"status": "ok"}, status=200)

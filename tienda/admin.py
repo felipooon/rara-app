@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio
+from .models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido
 
 # --- Configuración de Categorías ---
 @admin.register(Categoria)
@@ -57,3 +57,25 @@ class ResenaProductoAdmin(admin.ModelAdmin):
 @admin.register(ConfiguracionSitio)
 class ConfiguracionSitioAdmin(admin.ModelAdmin):
     list_display = ('mostrar_blog', 'mostrar_resenas')
+
+# --- Configuración de Logs de Productos ---
+@admin.register(LogProducto)
+class LogProductoAdmin(admin.ModelAdmin):
+    list_display = ('fecha', 'accion', 'nombre_producto', 'producto_id', 'usuario', 'detalles')
+    list_filter = ('accion', 'fecha', 'usuario')
+    search_fields = ('nombre_producto', 'detalles', 'usuario__username')
+    readonly_fields = ('fecha', 'accion', 'nombre_producto', 'producto_id', 'usuario', 'detalles')
+
+    def has_add_permission(self, request):
+        return False
+
+# --- Configuración de Logs de Pedidos ---
+@admin.register(LogPedido)
+class LogPedidoAdmin(admin.ModelAdmin):
+    list_display = ('fecha', 'accion', 'codigo_orden', 'cliente_nombre', 'cliente_email', 'usuario', 'detalles')
+    list_filter = ('accion', 'fecha', 'usuario')
+    search_fields = ('codigo_orden', 'cliente_nombre', 'cliente_email', 'detalles')
+    readonly_fields = ('fecha', 'accion', 'codigo_orden', 'cliente_nombre', 'cliente_email', 'pedido_id', 'usuario', 'detalles')
+
+    def has_add_permission(self, request):
+        return False

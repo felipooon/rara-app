@@ -327,3 +327,56 @@ class ResenaProducto(models.Model):
 
     def __str__(self):
         return f"Reseña de {self.nombre_cliente} en {self.producto.nombre} ({self.calificacion}⭐)"
+
+
+class LogProducto(models.Model):
+    ACCION_CHOICES = [
+        ('CREACION', '🟢 Creación'),
+        ('EDICION', '🔵 Edición'),
+        ('TOGGLE', '🟡 Cambio de Estado'),
+        ('VENTA', '🛍️ Venta Realizada'),
+        ('ELIMINACION', '🔴 Eliminación'),
+    ]
+
+    producto_id = models.IntegerField(null=True, blank=True, help_text="ID del producto en la base de datos")
+    nombre_producto = models.CharField(max_length=250, help_text="Nombre del producto en el momento del evento")
+    accion = models.CharField(max_length=20, choices=ACCION_CHOICES)
+    usuario = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True)
+    detalles = models.TextField(blank=True, help_text="Detalles o cambios registrados")
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Log de Producto'
+        verbose_name_plural = 'Logs de Productos'
+
+    def __str__(self):
+        return f"{self.get_accion_display()} - {self.nombre_producto} ({self.fecha.strftime('%d/%m/%Y %H:%M')})"
+
+
+class LogPedido(models.Model):
+    ACCION_CHOICES = [
+        ('CREACION', '🟢 Pedido Creado'),
+        ('PAGO_OK', '✅ Pago Confirmado'),
+        ('ESTADO_CAMBIO', '🚚 Cambio de Estado'),
+        ('SEGUIMIENTO', '📦 Datos de Seguimiento'),
+        ('ERROR', '⚠️ Error / Fallo de Pago'),
+        ('CANCELADO', '❌ Pedido Cancelado'),
+    ]
+
+    pedido_id = models.IntegerField(null=True, blank=True, help_text="ID del pedido en la base de datos")
+    codigo_orden = models.CharField(max_length=50, help_text="Código de orden del pedido (ej: #1005)")
+    cliente_nombre = models.CharField(max_length=150, help_text="Nombre del cliente")
+    cliente_email = models.EmailField(blank=True, help_text="Email del cliente")
+    accion = models.CharField(max_length=20, choices=ACCION_CHOICES)
+    usuario = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, help_text="Usuario admin si la acción fue manual")
+    detalles = models.TextField(blank=True, help_text="Detalles técnicos o resumen del evento")
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Log de Pedido'
+        verbose_name_plural = 'Logs de Pedidos'
+
+    def __str__(self):
+        return f"{self.get_accion_display()} - Pedido #{self.codigo_orden} ({self.cliente_nombre})"
