@@ -74,6 +74,7 @@ urlpatterns = [
     path('blog/', views.blog_list, name='blog_list'),
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
     path('evaluar-compra/<uuid:token>/', views.evaluar_compra, name='evaluar_compra'),
+    path('evaluar-producto/<int:id>/', views.evaluar_producto_directo, name='evaluar_producto_directo'),
     path('producto/<int:producto_id>/resena/', views.agregar_resena, name='agregar_resena'),
 
     # Panel Admin - Configuración, Blog, Reseñas y Solicitud por Email

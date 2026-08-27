@@ -9,11 +9,11 @@
         <div style="font-size: 3.5rem; margin-bottom: 16px;">🌟</div>
         
         <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.1rem; font-weight: 800; color: #1e293b; margin-bottom: 12px;">
-            ¡Muchas gracias, {{ pedido.nombre_completo }}!
+            ¡Muchas gracias, {{ nombre_cliente }}!
         </h1>
         
         <p style="color: #64748b; font-size: 1.05rem; line-height: 1.6; margin-bottom: 30px;">
-            Hemos recibido tus {{ resenas_creadas }} valoració{% if resenas_creadas != 1 %}nes{% else %}n{% endif %}. Tus comentarios han sido publicados como <strong>Comprador Verificado</strong>.
+            Tu valoración de <strong>{{ producto.nombre }}</strong> ha sido registrada exitosamente con el distintivo de <strong>Comprador Verificado</strong>.
         </p>
 
         <a href="/" class="btn" style="background: #ef9d71; color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-block;">

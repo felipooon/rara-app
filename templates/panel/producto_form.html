@@ -112,6 +112,82 @@
         {% if editando %}✏️ Editar Producto{% else %}✨ Crear Nuevo Producto{% endif %}
     </h2>
 
+    {% if editando and form.instance.id %}
+    <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 10px; padding: 14px 18px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #92400e; font-size: 0.93rem;">
+            <span>⭐ Link de Valoración para este producto:</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button type="button" onclick="abrirModalResenaForm('https://www.raratienda.cl/evaluar-producto/{{ form.instance.id }}/', '{{ form.instance.nombre|escapejs }}')" style="background: #f59e0b; color: white; border: none; padding: 7px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                📋 Copiar Link
+            </button>
+            <a href="https://wa.me/?text=Hola!%20%C2%BFNos%20dejar%C3%ADas%20tu%20opini%C3%B3n%20sobre%20{{ form.instance.nombre|urlencode }}%3F%20https://www.raratienda.cl/evaluar-producto/{{ form.instance.id }}/" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+        </div>
+    </div>
+
+<!-- Modal Estética Rara Tienda -->
+<div id="modalResenaForm" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #fef3c7;">
+        <button onclick="cerrarModalResenaForm()" style="position: absolute; top: 15px; right: 18px; background: #f1f5f9; border: none; font-size: 14px; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #64748b;">✕</button>
+        
+        <div style="font-size: 2.8rem; margin-bottom: 8px;">⭐</div>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #1e293b; margin: 0 0 6px 0;">Link de Valoración</h3>
+        <p id="modalResenaFormSubtitulo" style="color: #64748b; font-size: 0.95rem; margin: 0 0 20px 0; font-weight: 600;"></p>
+        
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="modalResenaFormInput" readonly style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: monospace; background: #f8fafc; color: #334155; text-align: center; box-sizing: border-box; outline: none;">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" id="btnCopiarFormModal" onclick="ejecutarCopiaFormModal()" style="background: #ef9d71; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-copy"></i> Copiar Link
+            </button>
+            <a id="btnWhatsappFormModal" href="#" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fab fa-whatsapp"></i> Compartir WhatsApp
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function abrirModalResenaForm(url, nombre) {
+    document.getElementById('modalResenaFormSubtitulo').innerText = 'Producto: "' + nombre + '"';
+    document.getElementById('modalResenaFormInput').value = url;
+    document.getElementById('btnWhatsappFormModal').href = "https://wa.me/?text=" + encodeURIComponent("Hola! ¿Nos dejarías tu opinión sobre " + nombre + "? " + url);
+    document.getElementById('btnCopiarFormModal').innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Link';
+    document.getElementById('btnCopiarFormModal').style.background = '#ef9d71';
+    document.getElementById('modalResenaForm').style.display = 'flex';
+}
+
+function cerrarModalResenaForm() {
+    document.getElementById('modalResenaForm').style.display = 'none';
+}
+
+document.getElementById('modalResenaForm').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalResenaForm();
+    }
+});
+
+function ejecutarCopiaFormModal() {
+    var input = document.getElementById('modalResenaFormInput');
+    navigator.clipboard.writeText(input.value).then(function() {
+        var btn = document.getElementById('btnCopiarFormModal');
+        btn.innerHTML = '✓ ¡Copiado!';
+        btn.style.background = '#22c55e';
+        setTimeout(function() {
+            btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Link';
+            btn.style.background = '#ef9d71';
+        }, 2500);
+    }, function() {
+        input.select();
+    });
+}
+</script>
+{% endif %}
+
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 

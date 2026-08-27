@@ -1361,3 +1361,32 @@ https://www.raratienda.cl/
         messages.error(request, f"Error al enviar el correo: {e}")
         
     return redirect('detalle_pedido', id=pedido.id)
+
+
+def evaluar_producto_directo(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    
+    if request.method == 'POST':
+        nombre_cliente = request.POST.get('nombre_cliente', '').strip()
+        email_cliente = request.POST.get('email_cliente', '').strip()
+        try:
+            calificacion = int(request.POST.get('calificacion', 5))
+        except ValueError:
+            calificacion = 5
+        comentario = request.POST.get('comentario', '').strip()
+        
+        if nombre_cliente and comentario:
+            ResenaProducto.objects.create(
+                producto=producto,
+                nombre_cliente=nombre_cliente,
+                email_cliente=email_cliente,
+                calificacion=calificacion,
+                comentario=comentario,
+                comprador_verificado=True,
+                aprobado=True
+            )
+            return render(request, "evaluar_producto_exito.html", {"producto": producto, "nombre_cliente": nombre_cliente})
+        else:
+            messages.warning(request, "Por favor completa tu nombre y comentario.")
+
+    return render(request, "evaluar_producto_directo.html", {"producto": producto})
