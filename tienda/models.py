@@ -22,6 +22,7 @@ class Categoria(models.Model):
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True, blank=True, null=True)
     descripcion = models.TextField(blank=True)
     precio = models.IntegerField()
     imagen = models.ImageField(upload_to='productos/')
@@ -34,6 +35,8 @@ class Producto(models.Model):
         return self.nombre
         
     def get_absolute_url(self):
+        if self.slug:
+            return reverse('producto_detail_slug', args=[self.slug])
         return reverse('producto_detail', args=[str(self.id)])
 
     @property
@@ -68,13 +71,17 @@ class Producto(models.Model):
         # 1. Si el stock es 0, forzamos 'disponible' a False (Agotado)
         if self.stock == 0:
             self.disponible = False
-        
-        # 2. Si el stock es mayor a 0 y estaba marcado como agotado (False),
-        # lo volvemos a poner como disponible (True) automáticamente.
-        #elif self.stock > 0 and self.disponible == False:
-            #self.disponible = True
+
+        # 2. Autogeneración de Slug único si no tiene uno asignado
+        if not self.slug:
+            base_slug = slugify(self.nombre) or "producto"
+            slug_candidate = base_slug
+            counter = 1
+            while Producto.objects.filter(slug=slug_candidate).exclude(pk=self.pk).exists():
+                slug_candidate = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug_candidate
             
-        # Llamamos al método save original para que guarde en la BD
         super().save(*args, **kwargs)
     
 

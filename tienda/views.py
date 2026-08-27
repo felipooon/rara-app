@@ -137,9 +137,31 @@ def quitar_cupon(request):
         messages.info(request, "Cupón removido.")
     return redirect('procesar_pedido')
 
-def producto_detail(request, id):
-    producto = get_object_or_404(Producto, id=id)
+def producto_detail(request, slug=None, id=None):
+    if slug:
+        # Si slug es numérico por accidente, intenta buscar por ID
+        if slug.isdigit():
+            producto = Producto.objects.filter(id=int(slug)).first()
+            if producto:
+                if producto.slug and producto.slug != slug:
+                    return redirect(producto.get_absolute_url(), permanent=True)
+                return render(request, "producto_detail.html", {"producto": producto})
+        producto = get_object_or_404(Producto, slug=slug)
+    elif id:
+        producto = get_object_or_404(Producto, id=id)
+        if producto.slug:
+            return redirect(producto.get_absolute_url(), permanent=True)
+    else:
+        return redirect('index')
 
+    return render(request, "producto_detail.html", {
+        "producto": producto
+    })
+
+def producto_detail_by_id(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    if producto.slug:
+        return redirect(producto.get_absolute_url(), permanent=True)
     return render(request, "producto_detail.html", {
         "producto": producto
     })

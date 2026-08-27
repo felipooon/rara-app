@@ -8,7 +8,7 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = "__all__"
+        exclude = ['slug']
 
     def clean_precio(self):
         data = self.cleaned_data.get('precio')
