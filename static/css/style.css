@@ -1416,3 +1416,82 @@ section:nth-of-type(4) {
     max-width: 100%;
   }
 }
+
+/* ==========================================================================
+   UTILIDADES & COMPONENTES SEMÁNTICOS (PANEL, GUÍA Y ERRORES)
+   ========================================================================== */
+
+/* Guía del Panel */
+.guia-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: 'Inter', sans-serif;
+}
+
+.guia-header-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.guia-chip {
+  background: #f8fafc;
+  color: #334155;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: 1px solid #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.guia-chip:hover {
+  background: #ef9d71;
+  color: white;
+  border-color: #ef9d71;
+}
+
+.guia-section-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.guia-item-box {
+  background: #f8fafc;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Modales Glassmorphism */
+.modal-glass-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-glass-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.8);
+}
