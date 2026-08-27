@@ -34,17 +34,59 @@
     {% endif %}
   </nav>
 
-  <main class="panel-main">
-    {% if messages %}
-      <div style="margin-bottom: 20px;">
-        {% for message in messages %}
-          <div style="padding: 12px 20px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; {% if message.tags == 'success' %}background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% elif message.tags == 'warning' %}background-color: #fff3cd; color: #856404; border: 1px solid #ffe8a1;{% elif message.tags == 'info' %}background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;{% else %}background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% endif %} display: flex; justify-content: space-between; align-items: center;">
-            <span>{{ message }}</span>
-            <button type="button" onclick="this.parentElement.remove();" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; opacity: 0.7; margin-left: 10px;">&times;</button>
-          </div>
-        {% endfor %}
+{% if messages %}
+<div id="panel-toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; max-width: 400px; width: calc(100% - 40px); pointer-events: none;">
+  {% for message in messages %}
+    <div class="toast-item" style="pointer-events: auto; padding: 12px 18px; border-radius: 12px; font-weight: 500; font-family: 'Inter', sans-serif; font-size: 0.95rem; box-shadow: 0 8px 24px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.4s ease; animation: toastSlideIn 0.3s ease forwards; {% if message.tags == 'success' %}background-color: #e8f8f5; color: #116b47; border: 1px solid #a3e4d7;{% elif message.tags == 'warning' %}background-color: #fff9e6; color: #975a16; border: 1px solid #ffe082;{% elif message.tags == 'info' %}background-color: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8;{% else %}background-color: #fdf2f2; color: #9b2c2c; border: 1px solid #f8b4b4;{% endif %}">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        {% if message.tags == 'success' %}
+          <i class="fa-solid fa-circle-check" style="font-size: 1.1rem;"></i>
+        {% elif message.tags == 'error' %}
+          <i class="fa-solid fa-circle-xmark" style="font-size: 1.1rem;"></i>
+        {% elif message.tags == 'warning' %}
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.1rem;"></i>
+        {% else %}
+          <i class="fa-solid fa-circle-info" style="font-size: 1.1rem;"></i>
+        {% endif %}
+        <span>{{ message }}</span>
       </div>
-    {% endif %}
+      <button type="button" onclick="dismissToast(this.parentElement);" style="background: none; border: none; font-size: 1.3rem; line-height: 1; cursor: pointer; color: inherit; opacity: 0.6; padding: 0 2px;">&times;</button>
+    </div>
+  {% endfor %}
+</div>
+
+<style>
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(-15px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.toast-fadeOut {
+  opacity: 0 !important;
+  transform: translateX(30px) !important;
+}
+</style>
+
+<script>
+function dismissToast(el) {
+  if (!el) return;
+  el.classList.add('toast-fadeOut');
+  setTimeout(function() {
+    if (el.parentNode) el.remove();
+  }, 400);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const toasts = document.querySelectorAll('#panel-toast-container .toast-item');
+  toasts.forEach(function(toast, index) {
+    setTimeout(function() {
+      dismissToast(toast);
+    }, 3500 + (index * 500));
+  });
+});
+</script>
+{% endif %}
+
+  <main class="panel-main">
     {% block content %}{% endblock %}
   </main>
 
