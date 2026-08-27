@@ -41,6 +41,16 @@ class Producto(models.Model):
         if not self.imagen:
             return ""
         url = self.imagen.url
+        if not url:
+            return ""
+        if 'cloudinary.com' in url:
+            if url.startswith('http://'):
+                url = 'https://' + url[7:]
+            if '/upload/' in url and '/f_jpg' not in url:
+                url = url.replace('/upload/', '/upload/f_jpg,q_auto,w_600/')
+            if not (url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png')):
+                url = url + '.jpg'
+            return url
         if url.startswith('http://') or url.startswith('https://'):
             if url.startswith('http://'):
                 return 'https://' + url[7:]

@@ -6,9 +6,14 @@
 {% block meta_desc %}{{ producto.descripcion|truncatechars:150 }}{% endblock %}
 
 {% block og_title %}{{ producto.nombre }} | Rara Tienda{% endblock %}
-{% block og_desc %}{{ producto.descripcion|truncatechars:100 }}{% endblock %}
+{% block og_desc %}{{ producto.descripcion|striptags|truncatechars:100 }}{% endblock %}
+{% block og_type %}product{% endblock %}
 {% block og_image %}{% if producto.imagen %}{{ producto.get_imagen_url_absoluta }}{% endif %}{% endblock %}
 {% block og_image_secure %}{% if producto.imagen %}{{ producto.get_imagen_url_absoluta }}{% endif %}{% endblock %}
+{% block og_image_type %}image/jpeg{% endblock %}
+{% block twitter_title %}{{ producto.nombre }} | Rara Tienda{% endblock %}
+{% block twitter_desc %}{{ producto.descripcion|striptags|truncatechars:100 }}{% endblock %}
+{% block twitter_image %}{% if producto.imagen %}{{ producto.get_imagen_url_absoluta }}{% endif %}{% endblock %}
 
 <script type="application/ld+json">
 {

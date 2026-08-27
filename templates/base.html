@@ -13,12 +13,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="{% block meta_desc %}Equipamiento, guías y accesorios para amantes de la naturaleza y el pajareo. Todo para tus salidas a terreno.{% endblock %}">
+<meta property="og:site_name" content="Rara Tienda">
 <meta property="og:title" content="{% block og_title %}Rara Tienda{% endblock %}">
 <meta property="og:description" content="{% block og_desc %}Equipamiento para amantes de la naturaleza.{% endblock %}">
 <meta property="og:image" content="{% block og_image %}https://www.raratienda.cl{% static 'img/logo-og.png' %}{% endblock %}">
 <meta property="og:image:secure_url" content="{% block og_image_secure %}https://www.raratienda.cl{% static 'img/logo-og.png' %}{% endblock %}">
+<meta property="og:image:type" content="{% block og_image_type %}image/jpeg{% endblock %}">
+<meta property="og:image:width" content="{% block og_image_width %}600{% endblock %}">
+<meta property="og:image:height" content="{% block og_image_height %}600{% endblock %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
-<meta property="og:type" content="website">
+<meta property="og:type" content="{% block og_type %}website{% endblock %}">
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{% block twitter_title %}Rara Tienda{% endblock %}">
+<meta name="twitter:description" content="{% block twitter_desc %}Equipamiento para amantes de la naturaleza.{% endblock %}">
+<meta name="twitter:image" content="{% block twitter_image %}https://www.raratienda.cl{% static 'img/logo-og.png' %}{% endblock %}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <title>{% block title %}Rara Tienda{% endblock %}</title>
