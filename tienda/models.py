@@ -35,6 +35,19 @@ class Producto(models.Model):
         
     def get_absolute_url(self):
         return reverse('producto_detail', args=[str(self.id)])
+
+    @property
+    def get_imagen_url_absoluta(self):
+        if not self.imagen:
+            return ""
+        url = self.imagen.url
+        if url.startswith('http://') or url.startswith('https://'):
+            if url.startswith('http://'):
+                return 'https://' + url[7:]
+            return url
+        if not url.startswith('/'):
+            url = '/' + url
+        return f"https://www.raratienda.cl{url}"
     
     # Opcional: un método rápido para saber si hay stock
     def hay_stock(self):

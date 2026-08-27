@@ -15,7 +15,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="description" content="{% block meta_desc %}Equipamiento, guías y accesorios para amantes de la naturaleza y el pajareo. Todo para tus salidas a terreno.{% endblock %}">
 <meta property="og:title" content="{% block og_title %}Rara Tienda{% endblock %}">
 <meta property="og:description" content="{% block og_desc %}Equipamiento para amantes de la naturaleza.{% endblock %}">
-<meta property="og:image" content="{% block og_image %}{% static 'img/logo-og.png' %}{% endblock %}">
+<meta property="og:image" content="{% block og_image %}https://www.raratienda.cl{% static 'img/logo-og.png' %}{% endblock %}">
+<meta property="og:image:secure_url" content="{% block og_image_secure %}https://www.raratienda.cl{% static 'img/logo-og.png' %}{% endblock %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">

@@ -7,18 +7,19 @@
 
 {% block og_title %}{{ producto.nombre }} | Rara Tienda{% endblock %}
 {% block og_desc %}{{ producto.descripcion|truncatechars:100 }}{% endblock %}
-{% block og_image %}{% if producto.imagen %}{{ request.scheme }}://{{ request.get_host }}{{ producto.imagen.url }}{% endif %}{% endblock %}
+{% block og_image %}{% if producto.imagen %}{{ producto.get_imagen_url_absoluta }}{% endif %}{% endblock %}
+{% block og_image_secure %}{% if producto.imagen %}{{ producto.get_imagen_url_absoluta }}{% endif %}{% endblock %}
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org/",
   "@type": "Product",
   "name": "{{ producto.nombre|escapejs }}",
-  "image": "{% if producto.imagen %}{{ request.scheme }}://{{ request.get_host }}{{ producto.imagen.url }}{% endif %}",
+  "image": "{% if producto.imagen %}{{ producto.get_imagen_url_absoluta }}{% endif %}",
   "description": "{{ producto.descripcion|escapejs }}",
   "offers": {
     "@type": "Offer",
-    "url": "{{ request.scheme }}://{{ request.get_host }}{{ request.path }}",
+    "url": "{{ request.build_absolute_uri }}",
     "priceCurrency": "CLP",
     "price": "{{ producto.precio }}",
     "availability": "https://schema.org/{% if producto.disponible %}InStock{% else %}OutOfStock{% endif %}"
