@@ -111,17 +111,38 @@
 <!-- Catálogo -->
 <section id="catalogo" class="catalogo-seccion">
 
-  <div class="catalogo">
-    <h2>Nuestras colecciones</h2>
+  <div style="text-align: center; margin-bottom: 0.5rem;">
+    <h2 style="font-family: 'Quicksand', sans-serif; font-size: 1.6rem; font-weight: 700; color: #4a4a4a; margin: 0;">
+      Nuestras Colecciones
+    </h2>
+    <p style="color: #64748b; font-size: 0.9rem; margin-top: 2px;">Explora nuestros productos por categoría</p>
   </div>
 
-  <div class="catalogo">
-
-
+  <!-- Barra de Chips de Navegación Rápida -->
+  <div class="categoria-chips-bar">
+    <a href="#catalogo" class="chip-btn active">
+      <i class="fa-solid fa-border-all"></i> Todas
+    </a>
     {% for c in categorias %}
+      <a href="{% url 'categoria' c.slug %}" class="chip-btn">
+        {% if 'polera' in c.nombre.lower or 'ropa' in c.nombre.lower %}
+          <i class="fa-solid fa-shirt"></i>
+        {% elif 'taz' in c.nombre.lower or 'mug' in c.nombre.lower %}
+          <i class="fa-solid fa-mug-hot"></i>
+        {% elif 'libro' in c.nombre.lower or 'guia' in c.nombre.lower %}
+          <i class="fa-solid fa-book-open"></i>
+        {% else %}
+          <i class="fa-solid fa-leaf"></i>
+        {% endif %}
+        {{ c.nombre }}
+      </a>
+    {% endfor %}
+  </div>
 
-      <div class="producto">
-
+  <!-- Grilla de Categorías (2 columnas en celular) -->
+  <div class="catalogo-grid">
+    {% for c in categorias %}
+      <div class="producto" id="cat-{{ c.slug }}">
         {% if c.imagen %}
           <img src="{{ c.imagen.url }}" alt="{{ c.nombre }}">
         {% else %}
@@ -133,16 +154,12 @@
         <a href="{% url 'categoria' c.slug %}" class="btn-categoria">
           <i class="fa-solid fa-layer-group"></i> Ir a Colección
         </a>
-
       </div>
-
     {% empty %}
       <p>No hay categorías creadas aún.</p>
     {% endfor %}
-
   </div>
 
-  </div>
 </section>
 
 {% if config_sitio.mostrar_resenas and resenas %}
