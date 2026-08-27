@@ -48,3 +48,36 @@ class CuponForm(forms.ModelForm):
         if not codigo:
             raise forms.ValidationError("Ingresa un código de cupón válido.")
         return codigo
+
+
+from .models import BlogPost, ResenaProducto, ConfiguracionSitio
+
+class BlogPostForm(forms.ModelForm):
+    class Meta:
+        model = BlogPost
+        fields = ['titulo', 'resumen', 'contenido', 'imagen', 'publicado']
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Título del artículo'}),
+            'resumen': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Breve resumen para las tarjetas'}),
+            'contenido': forms.Textarea(attrs={'class': 'form-control', 'rows': 10, 'placeholder': 'Contenido completo del artículo...'}),
+        }
+
+class ResenaForm(forms.ModelForm):
+    class Meta:
+        model = ResenaProducto
+        fields = ['nombre_cliente', 'email_cliente', 'calificacion', 'comentario']
+        widgets = {
+            'nombre_cliente': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tu nombre'}),
+            'email_cliente': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Tu correo (opcional)'}),
+            'calificacion': forms.Select(choices=[(i, f"{i} Estrella{'s' if i > 1 else ''}") for i in range(5, 0, -1)], attrs={'class': 'form-control'}),
+            'comentario': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': '¿Qué te pareció este producto?'}),
+        }
+
+class ConfiguracionSitioForm(forms.ModelForm):
+    class Meta:
+        model = ConfiguracionSitio
+        fields = ['mostrar_blog', 'mostrar_resenas']
+        labels = {
+            'mostrar_blog': 'Activar Sección de Blog en la tienda (Navbar y menú)',
+            'mostrar_resenas': 'Activar Reseñas y Calificaciones con Estrellas en productos',
+        }

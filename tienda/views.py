@@ -5,8 +5,8 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Categoria, Producto, Pedido, ItemPedido, Cupon
-from .forms import CategoriaForm, ProductoForm, CuponForm
+from .models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio
+from .forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ResenaForm, ConfiguracionSitioForm
 from django.contrib.auth.views import LoginView
 from .carrito import Carrito
 from django.contrib import messages
@@ -154,8 +154,13 @@ def producto_detail(request, slug=None, id=None):
     else:
         return redirect('index')
 
+    resenas = producto.resenas.filter(aprobado=True)
+    resena_form = ResenaForm()
+
     return render(request, "producto_detail.html", {
-        "producto": producto
+        "producto": producto,
+        "resenas": resenas,
+        "resena_form": resena_form,
     })
 
 def producto_detail_by_id(request, id):
@@ -1163,3 +1168,119 @@ def aves_en_tu_zona(request):
 
 def radar_realtime(request):
     return render(request, "juegos/radar_realtime.html")
+
+
+#--------------------------------------
+# BLOG, RESEÑAS Y CONFIGURACIÓN SITIO
+#--------------------------------------
+
+def agregar_resena(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    if request.method == 'POST':
+        form = ResenaForm(request.POST)
+        if form.is_valid():
+            resena = form.save(commit=False)
+            resena.producto = producto
+            resena.save()
+            messages.success(request, "¡Gracias por tu reseña! Ha sido publicada.")
+        else:
+            messages.error(request, "Por favor revisa los campos ingresados en tu reseña.")
+    return redirect(producto.get_absolute_url())
+
+def blog_list(request):
+    posts_list = BlogPost.objects.filter(publicado=True)
+    paginator = Paginator(posts_list, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, "blog_list.html", {"page_obj": page_obj})
+
+def blog_detail(request, slug):
+    post = get_object_or_404(BlogPost, slug=slug, publicado=True)
+    otros_posts = BlogPost.objects.filter(publicado=True).exclude(id=post.id)[:3]
+    productos_destacados = Producto.objects.filter(disponible=True).order_by('?')[:4]
+    return render(request, "blog_detail.html", {
+        "post": post,
+        "otros_posts": otros_posts,
+        "productos_destacados": productos_destacados,
+    })
+
+def panel_configuracion(request):
+    if not request.user.is_staff:
+        return redirect('login')
+    config = ConfiguracionSitio.get_solo()
+    if request.method == 'POST':
+        form = ConfiguracionSitioForm(request.POST, instance=config)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Configuración del sitio actualizada correctamente.")
+            return redirect('panel_configuracion')
+    else:
+        form = ConfiguracionSitioForm(instance=config)
+    return render(request, "panel/configuracion.html", {"form": form, "config": config})
+
+def panel_blog(request):
+    if not request.user.is_staff:
+        return redirect('login')
+    posts = BlogPost.objects.all()
+    return render(request, "panel/blog_list.html", {"posts": posts})
+
+def crear_blog_post(request):
+    if not request.user.is_staff:
+        return redirect('login')
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Artículo publicado exitosamente.")
+            return redirect('panel_blog')
+    else:
+        form = BlogPostForm()
+    return render(request, "panel/blog_form.html", {"form": form, "titulo_pagina": "Nuevo Artículo del Blog"})
+
+def editar_blog_post(request, id):
+    if not request.user.is_staff:
+        return redirect('login')
+    post = get_object_or_404(BlogPost, id=id)
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Artículo actualizado correctamente.")
+            return redirect('panel_blog')
+    else:
+        form = BlogPostForm(instance=post)
+    return render(request, "panel/blog_form.html", {"form": form, "post": post, "titulo_pagina": "Editar Artículo"})
+
+def eliminar_blog_post(request, id):
+    if not request.user.is_staff:
+        return redirect('login')
+    post = get_object_or_404(BlogPost, id=id)
+    if request.method == 'POST':
+        post.delete()
+        messages.success(request, "Artículo eliminado.")
+    return redirect('panel_blog')
+
+def panel_resenas(request):
+    if not request.user.is_staff:
+        return redirect('login')
+    resenas = ResenaProducto.objects.select_related('producto').all()
+    return render(request, "panel/resenas.html", {"resenas": resenas})
+
+def toggle_resena(request, id):
+    if not request.user.is_staff:
+        return redirect('login')
+    resena = get_object_or_404(ResenaProducto, id=id)
+    resena.aprobado = not resena.aprobado
+    resena.save()
+    estado = "aprobada" if resena.aprobado else "ocultada"
+    messages.info(request, f"Reseña {estado}.")
+    return redirect('panel_resenas')
+
+def eliminar_resena(request, id):
+    if not request.user.is_staff:
+        return redirect('login')
+    resena = get_object_or_404(ResenaProducto, id=id)
+    if request.method == 'POST':
+        resena.delete()
+        messages.success(request, "Reseña eliminada.")
+    return redirect('panel_resenas')

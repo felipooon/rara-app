@@ -1,0 +1,84 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Configuración del Sitio — Panel Rara Tienda{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto; padding-top: 10px;">
+    
+    <div style="margin-bottom: 30px;">
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #2d3748; margin-bottom: 6px;">
+            ⚙️ Configuración del Sitio (Feature Flags)
+        </h1>
+        <p style="color: #718096; font-size: 0.95rem;">
+            Activa o desactiva las funciones especiales de tu tienda con estos interruptores.
+        </p>
+    </div>
+
+    <div style="background: white; border-radius: 16px; padding: 30px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="display: flex; flex-direction: column; gap: 24px; margin-bottom: 30px;">
+                
+                <div style="padding: 20px; border-radius: 12px; background: #f8fafc; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+                    <div>
+                        <div style="font-weight: 800; font-size: 1.05rem; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-newspaper" style="color: #ef9d71;"></i> Sección de Blog
+                        </div>
+                        <div style="font-size: 0.88rem; color: #64748b;">
+                            Muestra el botón "Blog" en el menú de navegación y permite a los visitantes acceder a la lista de artículos.
+                        </div>
+                    </div>
+                    <label style="position: relative; display: inline-block; width: 56px; height: 30px; flex-shrink: 0;">
+                        <input type="checkbox" name="mostrar_blog" {% if config.mostrar_blog %}checked{% endif %} style="opacity: 0; width: 0; height: 0;" id="toggle_blog">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 34px;" class="slider-bg"></span>
+                    </label>
+                </div>
+
+                <div style="padding: 20px; border-radius: 12px; background: #f8fafc; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+                    <div>
+                        <div style="font-weight: 800; font-size: 1.05rem; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-star" style="color: #f59e0b;"></i> Reseñas y Calificaciones
+                        </div>
+                        <div style="font-size: 0.88rem; color: #64748b;">
+                            Muestra el promedio de estrellas y la sección de comentarios de clientes en las páginas de detalle de cada producto.
+                        </div>
+                    </div>
+                    <label style="position: relative; display: inline-block; width: 56px; height: 30px; flex-shrink: 0;">
+                        <input type="checkbox" name="mostrar_resenas" {% if config.mostrar_resenas %}checked{% endif %} style="opacity: 0; width: 0; height: 0;" id="toggle_resenas">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 34px;" class="slider-bg"></span>
+                    </label>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn" style="background: #ef9d71; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 1rem; width: 100%; cursor: pointer;">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar Configuración
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<style>
+/* Swtich CSS Animation */
+input:checked + .slider-bg {
+    background-color: #65C18C !important;
+}
+.slider-bg:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+input:checked + .slider-bg:before {
+    transform: translateX(26px);
+}
+</style>
+{% endblock %}

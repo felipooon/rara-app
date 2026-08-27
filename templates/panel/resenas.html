@@ -1,0 +1,80 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Gestión de Reseñas — Panel Rara Tienda{% endblock %}
+
+{% block content %}
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+    <div>
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #2d3748; margin: 0 0 4px 0;">
+            ⭐ Moderación de Reseñas
+        </h1>
+        <p style="color: #718096; font-size: 0.95rem; margin: 0;">Revisa las calificaciones y opiniones dejadas por tus clientes en los productos.</p>
+    </div>
+</div>
+
+<div style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+    {% if resenas %}
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 800; text-transform: uppercase; font-size: 0.8rem;">
+                    <th style="padding: 14px 20px;">Producto</th>
+                    <th style="padding: 14px 20px;">Cliente</th>
+                    <th style="padding: 14px 20px;">Estrellas</th>
+                    <th style="padding: 14px 20px;">Comentario</th>
+                    <th style="padding: 14px 20px;">Estado</th>
+                    <th style="padding: 14px 20px; text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in resenas %}
+                    <tr style="border-bottom: 1px solid #edf2f7;">
+                        <td style="padding: 16px 20px; font-weight: 700; color: #1e293b;">
+                            <a href="{{ r.producto.get_absolute_url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                                {{ r.producto.nombre }}
+                            </a>
+                        </td>
+                        <td style="padding: 16px 20px;">
+                            <div style="font-weight: 700; color: #1e293b;">{{ r.nombre_cliente }}</div>
+                            {% if r.email_cliente %}<div style="font-size: 0.8rem; color: #94a3b8;">{{ r.email_cliente }}</div>{% endif %}
+                        </td>
+                        <td style="padding: 16px 20px; white-space: nowrap; color: #f59e0b; font-weight: 800;">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= r.calificacion %}★{% else %}<span style="color: #e2e8f0;">★</span>{% endif %}
+                            {% endfor %}
+                            <span style="color: #64748b; font-size: 0.85rem; margin-left: 4px;">({{ r.calificacion }}/5)</span>
+                        </td>
+                        <td style="padding: 16px 20px; color: #475569; max-width: 300px;">
+                            {{ r.comentario }}
+                            <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">{{ r.fecha|date:"d/m/Y H:i" }}</div>
+                        </td>
+                        <td style="padding: 16px 20px;">
+                            {% if r.aprobado %}
+                                <span style="background: #dcfce7; color: #15803d; font-weight: 800; font-size: 0.78rem; padding: 4px 10px; border-radius: 20px;">Visible</span>
+                            {% else %}
+                                <span style="background: #fee2e2; color: #b91c1c; font-weight: 800; font-size: 0.78rem; padding: 4px 10px; border-radius: 20px;">Oculta</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 16px 20px; text-align: right; white-space: nowrap;">
+                            <a href="{% url 'toggle_resena' r.id %}" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.85rem; margin-right: 6px;">
+                                {% if r.aprobado %}<i class="fa-solid fa-eye-slash"></i> Ocultar{% else %}<i class="fa-solid fa-eye"></i> Aprobar{% endif %}
+                            </a>
+                            <form action="{% url 'eliminar_resena' r.id %}" method="post" style="display: inline-block;" onsubmit="return confirm('¿Eliminar esta reseña?');">
+                                {% csrf_token %}
+                                <button type="submit" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 50px 20px; color: #64748b;">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">⭐</div>
+            <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 4px;">Aún no se han recibido reseñas en tus productos.</p>
+            <p style="font-size: 0.9rem; color: #94a3b8;">Las reseñas que dejen tus clientes aparecerán aquí para moderación.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

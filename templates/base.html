@@ -76,6 +76,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <li><a href="/#inicio">Inicio</a></li>
         <li><a href="/#catalogo">Catálogo</a></li>
         <li><a href="{% url 'menu_juegos' %}">Juegos</a></li>
+        {% if config_sitio.mostrar_blog %}
+        <li><a href="{% url 'blog_list' %}">Blog</a></li>
+        {% endif %}
         <li><a href="/#acerca">Acerca</a></li>
         <li><a href="/#contacto">Contacto</a></li>
     </ul>
@@ -96,6 +99,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li><a href="/#inicio"><span class="nav-icon"><i class="fa-solid fa-house"></i></span> Inicio</a></li>
             <li><a href="/#catalogo"><span class="nav-icon"><i class="fa-solid fa-shapes"></i></span> Catálogo</a></li>
             <li><a href="{% url 'menu_juegos' %}"><span class="nav-icon"><i class="fa-solid fa-gamepad"></i></span> Juegos</a></li>
+            {% if config_sitio.mostrar_blog %}
+            <li><a href="{% url 'blog_list' %}"><span class="nav-icon"><i class="fa-solid fa-newspaper"></i></span> Blog</a></li>
+            {% endif %}
             <li><a href="/#acerca"><span class="nav-icon"><i class="fa-solid fa-crow"></i></span> Acerca</a></li>
             <li><a href="/#contacto"><span class="nav-icon"><i class="fa-solid fa-envelope"></i></span> Contacto</a></li>
         </ul>

@@ -1,0 +1,78 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Gestión de Blog — Panel Rara Tienda{% endblock %}
+
+{% block content %}
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+    <div>
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #2d3748; margin: 0 0 4px 0;">
+            📰 Gestión del Blog
+        </h1>
+        <p style="color: #718096; font-size: 0.95rem; margin: 0;">Administra los artículos publicados en la bitácora de la tienda.</p>
+    </div>
+    
+    <a href="{% url 'crear_blog_post' %}" class="btn" style="background: #ef9d71; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-plus"></i> Nuevo Artículo
+    </a>
+</div>
+
+<div style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+    {% if posts %}
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 800; text-transform: uppercase; font-size: 0.8rem;">
+                    <th style="padding: 14px 20px;">Título</th>
+                    <th style="padding: 14px 20px;">Fecha</th>
+                    <th style="padding: 14px 20px;">Estado</th>
+                    <th style="padding: 14px 20px; text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                    <tr style="border-bottom: 1px solid #edf2f7;">
+                        <td style="padding: 16px 20px; font-weight: 700; color: #1e293b;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                {% if post.imagen %}
+                                    <img src="{{ post.get_imagen_url_absoluta }}" alt="{{ post.titulo }}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 8px;">
+                                {% else %}
+                                    <div style="width: 45px; height: 45px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📰</div>
+                                {% endif %}
+                                <div>
+                                    <a href="{{ post.get_absolute_url }}" target="_blank" style="text-decoration: none; color: inherit;">{{ post.titulo }}</a>
+                                    <div style="font-size: 0.8rem; color: #94a3b8; font-weight: 400;">/blog/{{ post.slug }}/</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 16px 20px; color: #64748b; white-space: nowrap;">
+                            {{ post.fecha_creacion|date:"d/m/Y H:i" }}
+                        </td>
+                        <td style="padding: 16px 20px;">
+                            {% if post.publicado %}
+                                <span style="background: #dcfce7; color: #15803d; font-weight: 800; font-size: 0.78rem; padding: 4px 10px; border-radius: 20px;">Publicado</span>
+                            {% else %}
+                                <span style="background: #f1f5f9; color: #64748b; font-weight: 800; font-size: 0.78rem; padding: 4px 10px; border-radius: 20px;">Borrador</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 16px 20px; text-align: right; white-space: nowrap;">
+                            <a href="{% url 'editar_blog_post' post.id %}" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.85rem; margin-right: 6px;">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </a>
+                            <form action="{% url 'eliminar_blog_post' post.id %}" method="post" style="display: inline-block;" onsubmit="return confirm('¿Seguro que deseas eliminar este artículo?');">
+                                {% csrf_token %}
+                                <button type="submit" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 50px 20px; color: #64748b;">
+            <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">No has creado ningún artículo de blog todavía.</p>
+            <a href="{% url 'crear_blog_post' %}" class="btn" style="background: #ef9d71; color: white; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 700; text-decoration: none;">Crear Primer Artículo</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

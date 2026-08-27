@@ -1,0 +1,79 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}{{ titulo_pagina }} — Panel Rara Tienda{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="margin-bottom: 25px;">
+        <a href="{% url 'panel_blog' %}" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+            <i class="fa-solid fa-arrow-left"></i> Volver a la lista de artículos
+        </a>
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #2d3748; margin: 0;">
+            {{ titulo_pagina }}
+        </h1>
+    </div>
+
+    <div style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Título del Artículo *</label>
+                {{ form.titulo }}
+                {% if form.titulo.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.titulo.errors }}</div>{% endif %}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Resumen Breve (Extracto para tarjetas)</label>
+                {{ form.resumen }}
+                {% if form.resumen.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.resumen.errors }}</div>{% endif %}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Contenido del Artículo *</label>
+                {{ form.contenido }}
+                {% if form.contenido.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.contenido.errors }}</div>{% endif %}
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Imagen de Portada</label>
+                {% if post.imagen %}
+                    <div style="margin-bottom: 10px;">
+                        <img src="{{ post.get_imagen_url_absoluta }}" alt="Portada actual" style="height: 100px; border-radius: 8px; object-fit: cover;">
+                    </div>
+                {% endif %}
+                {{ form.imagen }}
+            </div>
+
+            <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
+                {{ form.publicado }}
+                <label style="font-weight: 700; color: #1e293b; cursor: pointer;">Publicar inmediatamente en el blog</label>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{% url 'panel_blog' %}" style="background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 20px; border-radius: 10px; font-weight: 700;">Cancelar</a>
+                <button type="submit" class="btn" style="background: #ef9d71; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Artículo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.form-control:focus {
+    border-color: #ef9d71;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(239, 157, 113, 0.2);
+}
+</style>
+{% endblock %}

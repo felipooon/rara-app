@@ -66,6 +66,18 @@ class Producto(models.Model):
     def hay_stock(self):
         return self.stock > 0 and self.disponible
 
+    @property
+    def promedio_calificacion(self):
+        resenas = self.resenas.filter(aprobado=True)
+        if not resenas.exists():
+            return 0
+        total = sum(r.calificacion for r in resenas)
+        return round(total / resenas.count(), 1)
+
+    @property
+    def total_resenas(self):
+        return self.resenas.filter(aprobado=True).count()
+
     # --- LÓGICA DE AUTOMATIZACIÓN AL GUARDAR ---
     def save(self, *args, **kwargs):
         # 1. Si el stock es 0, forzamos 'disponible' a False (Agotado)
@@ -214,3 +226,93 @@ class ItemPedido(models.Model):
 
     def get_costo(self):
         return self.precio * self.cantidad
+
+
+class ConfiguracionSitio(models.Model):
+    mostrar_blog = models.BooleanField(default=False, help_text="Mostrar u ocultar la sección de Blog en la tienda")
+    mostrar_resenas = models.BooleanField(default=False, help_text="Mostrar u ocultar la sección de reseñas en los productos")
+
+    class Meta:
+        verbose_name = 'Configuración del Sitio'
+        verbose_name_plural = 'Configuración del Sitio'
+
+    def __str__(self):
+        return "Configuración del Sitio"
+
+    @classmethod
+    def get_solo(cls):
+        obj, created = cls.objects.get_or_create(id=1)
+        return obj
+
+
+class BlogPost(models.Model):
+    titulo = models.CharField(max_length=250)
+    slug = models.SlugField(max_length=270, unique=True, blank=True)
+    resumen = models.TextField(blank=True, help_text="Breve resumen para las tarjetas de blog")
+    contenido = models.TextField(help_text="Contenido completo del artículo")
+    imagen = models.ImageField(upload_to='blog/', blank=True, null=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    publicado = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+        verbose_name = 'Artículo del Blog'
+        verbose_name_plural = 'Artículos del Blog'
+
+    def __str__(self):
+        return self.titulo
+
+    def get_absolute_url(self):
+        return reverse('blog_detail', args=[self.slug])
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.titulo) or "articulo"
+            candidate = base_slug
+            counter = 1
+            while BlogPost.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
+                candidate = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = candidate
+        super().save(*args, **kwargs)
+
+    @property
+    def get_imagen_url_absoluta(self):
+        if not self.imagen:
+            return ""
+        url = self.imagen.url
+        if not url:
+            return ""
+        if 'cloudinary.com' in url:
+            if url.startswith('http://'):
+                url = 'https://' + url[7:]
+            if '/upload/' in url and '/f_jpg' not in url:
+                url = url.replace('/upload/', '/upload/f_jpg,q_auto,w_800/')
+            if not (url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png')):
+                url = url + '.jpg'
+            return url
+        if url.startswith('http://') or url.startswith('https://'):
+            if url.startswith('http://'):
+                return 'https://' + url[7:]
+            return url
+        if not url.startswith('/'):
+            url = '/' + url
+        return f"https://www.raratienda.cl{url}"
+
+
+class ResenaProducto(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='resenas')
+    nombre_cliente = models.CharField(max_length=100)
+    email_cliente = models.EmailField(blank=True)
+    calificacion = models.IntegerField(default=5, help_text="Calificación de 1 a 5 estrellas")
+    comentario = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+    aprobado = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Reseña de Producto'
+        verbose_name_plural = 'Reseñas de Productos'
+
+    def __str__(self):
+        return f"Reseña de {self.nombre_cliente} en {self.producto.nombre} ({self.calificacion}⭐)"
