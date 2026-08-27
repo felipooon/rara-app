@@ -1194,13 +1194,13 @@ def blog_list(request):
     paginator = Paginator(posts_list, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, "blog_list.html", {"page_obj": page_obj})
+    return render(request, "blog/blog_list.html", {"page_obj": page_obj})
 
 def blog_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug, publicado=True)
     otros_posts = BlogPost.objects.filter(publicado=True).exclude(id=post.id)[:3]
     productos_destacados = Producto.objects.filter(disponible=True).order_by('?')[:4]
-    return render(request, "blog_detail.html", {
+    return render(request, "blog/blog_detail.html", {
         "post": post,
         "otros_posts": otros_posts,
         "productos_destacados": productos_destacados,
@@ -1320,11 +1320,11 @@ def evaluar_compra(request, token):
                     resenas_creadas += 1
 
         if resenas_creadas > 0:
-            return render(request, "evaluar_exito.html", {"pedido": pedido, "resenas_creadas": resenas_creadas})
+            return render(request, "evaluaciones/evaluar_exito.html", {"pedido": pedido, "resenas_creadas": resenas_creadas})
         else:
             messages.warning(request, "Por favor escribe al menos un comentario en tu calificación.")
 
-    return render(request, "evaluar_compra.html", {"pedido": pedido, "items": items})
+    return render(request, "evaluaciones/evaluar_compra.html", {"pedido": pedido, "items": items})
 
 
 def enviar_resena_email(request, id):
@@ -1385,11 +1385,11 @@ def evaluar_producto_directo(request, id):
                 comprador_verificado=True,
                 aprobado=True
             )
-            return render(request, "evaluar_producto_exito.html", {"producto": producto, "nombre_cliente": nombre_cliente})
+            return render(request, "evaluaciones/evaluar_producto_exito.html", {"producto": producto, "nombre_cliente": nombre_cliente})
         else:
             messages.warning(request, "Por favor completa tu nombre y comentario.")
 
-    return render(request, "evaluar_producto_directo.html", {"producto": producto})
+    return render(request, "evaluaciones/evaluar_producto_directo.html", {"producto": producto})
 
 
 @staff_member_required(login_url='login')
