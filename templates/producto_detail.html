@@ -202,18 +202,13 @@
                     
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <!-- WhatsApp -->
-                        <a href="https://api.whatsapp.com/send?text={{ '¡Mira '|urlencode }}{{ producto.nombre|urlencode }}{{ ' en Rara Tienda! 🪺 '|urlencode }}{{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener noreferrer" style="flex: 1 1 auto; min-width: 110px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #25D366; color: white; padding: 9px 14px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 6px rgba(37, 211, 102, 0.2);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                            <i class="fa-brands fa-whatsapp" style="font-size: 1.05rem;"></i> WhatsApp
+                        <a href="https://api.whatsapp.com/send?text={{ '¡Mira '|urlencode }}{{ producto.nombre|urlencode }}{{ ' en Rara Tienda! 🪺 '|urlencode }}{{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener noreferrer" style="flex: 1 1 auto; min-width: 130px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #25D366; color: white; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 6px rgba(37, 211, 102, 0.2);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> WhatsApp
                         </a>
 
-                        <!-- Compartir Nativo / Instagram -->
-                        <button type="button" onclick="compartirNativo()" style="flex: 1 1 auto; min-width: 110px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(45deg, #405DE6, #833AB4, #E1306C, #FD1D1D); color: white; border: none; padding: 9px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 6px rgba(225, 48, 108, 0.2);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                            <i class="fa-brands fa-instagram" style="font-size: 1.05rem;"></i> Compartir
-                        </button>
-
-                        <!-- Copiar Enlace -->
-                        <button type="button" onclick="copiarEnlace()" style="flex: 1 1 auto; min-width: 110px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #ffffff; color: #444; border: 1px solid #ddd; padding: 9px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#ffffff'">
-                            <i class="fa-solid fa-link" style="color: #666;"></i> <span id="text-copiar">Copiar Link</span>
+                        <!-- Compartir Nativo -->
+                        <button type="button" onclick="compartirNativo()" style="flex: 1 1 auto; min-width: 130px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #334155; color: white; border: none; padding: 10px 16px; border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 6px rgba(51, 65, 85, 0.2);" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#334155'">
+                            <i class="fa-solid fa-share-nodes" style="font-size: 1rem;"></i> Compartir
                         </button>
                     </div>
                 </div>
@@ -337,25 +332,10 @@
         if (navigator.share) {
             navigator.share(shareData).catch(() => {});
         } else {
-            copiarEnlace();
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('¡Enlace del producto copiado al portapapeles!');
+            }).catch(() => {});
         }
-    }
-
-    function copiarEnlace() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            const btnText = document.getElementById('text-copiar');
-            if (btnText) {
-                const textOriginal = btnText.innerText;
-                btnText.innerText = '¡Copiado! ✓';
-                btnText.style.color = '#27ae60';
-                setTimeout(() => {
-                    btnText.innerText = textOriginal;
-                    btnText.style.color = '';
-                }, 2500);
-            }
-        }).catch(err => {
-            console.error('Error al copiar: ', err);
-        });
     }
 </script>
 
