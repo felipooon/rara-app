@@ -87,5 +87,6 @@ urlpatterns = [
     path('panel/resenas/<int:id>/toggle/', views.toggle_resena, name='toggle_resena'),
     path('panel/resenas/<int:id>/eliminar/', views.eliminar_resena, name='eliminar_resena'),
     path('panel/pedidos/<int:id>/enviar-resena/', views.enviar_resena_email, name='enviar_resena_email'),
+    path('panel/guia/', views.panel_guia, name='panel_guia'),
 
 ]  

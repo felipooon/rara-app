@@ -1390,3 +1390,8 @@ def evaluar_producto_directo(request, id):
             messages.warning(request, "Por favor completa tu nombre y comentario.")
 
     return render(request, "evaluar_producto_directo.html", {"producto": producto})
+
+
+@staff_member_required(login_url='login')
+def panel_guia(request):
+    return render(request, "panel/guia.html", {"titulo_pagina": "Guía y Ayuda del Panel"})

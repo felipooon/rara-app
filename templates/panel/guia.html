@@ -1,0 +1,211 @@
+{% extends 'panel/base_panel.html' %}
+
+{% block title %}Guía y Ayuda del Panel — Rara Tienda{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding-bottom: 60px;">
+
+    <!-- Encabezado Principal -->
+    <div style="margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <span style="background: rgba(101, 193, 140, 0.15); color: #15803d; font-weight: 800; font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">
+                ❓ Centro de Ayuda
+            </span>
+        </div>
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: #1e293b; margin: 0;">
+            Manual y Guía del Panel de Administración
+        </h1>
+        <p style="color: #64748b; font-size: 1.05rem; margin-top: 6px;">
+            Consulta rápidamente el funcionamiento de cada módulo, botones y herramientas de Rara Tienda.
+        </p>
+    </div>
+
+    <!-- 📌 Índice de Navegación Rápida -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 18px; padding: 22px 26px; margin-bottom: 35px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: #334155; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-list-ul" style="color: #ef9d71;"></i> Índice de Navegación Rápida
+        </h3>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <a href="#seccion-productos" style="background: #f8fafc; color: #334155; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; border: 1px solid #cbd5e1; transition: all 0.2s;" onmouseover="this.style.background='#ef9d71'; this.style.color='white'; this.style.borderColor='#ef9d71';" onmouseout="this.style.background='#f8fafc'; this.style.color='#334155'; this.style.borderColor='#cbd5e1';">
+                📦 Productos & Links ⭐
+            </a>
+            <a href="#seccion-pedidos" style="background: #f8fafc; color: #334155; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; border: 1px solid #cbd5e1; transition: all 0.2s;" onmouseover="this.style.background='#ef9d71'; this.style.color='white'; this.style.borderColor='#ef9d71';" onmouseout="this.style.background='#f8fafc'; this.style.color='#334155'; this.style.borderColor='#cbd5e1';">
+                🚚 Pedidos y Envíos
+            </a>
+            <a href="#seccion-blog" style="background: #f8fafc; color: #334155; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; border: 1px solid #cbd5e1; transition: all 0.2s;" onmouseover="this.style.background='#ef9d71'; this.style.color='white'; this.style.borderColor='#ef9d71';" onmouseout="this.style.background='#f8fafc'; this.style.color='#334155'; this.style.borderColor='#cbd5e1';">
+                ✍️ Editor Blog & YouTube
+            </a>
+            <a href="#seccion-resenas" style="background: #f8fafc; color: #334155; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; border: 1px solid #cbd5e1; transition: all 0.2s;" onmouseover="this.style.background='#ef9d71'; this.style.color='white'; this.style.borderColor='#ef9d71';" onmouseout="this.style.background='#f8fafc'; this.style.color='#334155'; this.style.borderColor='#cbd5e1';">
+                ⭐ Reseñas Verificadas
+            </a>
+            <a href="#seccion-cupones" style="background: #f8fafc; color: #334155; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; border: 1px solid #cbd5e1; transition: all 0.2s;" onmouseover="this.style.background='#ef9d71'; this.style.color='white'; this.style.borderColor='#ef9d71';" onmouseout="this.style.background='#f8fafc'; this.style.color='#334155'; this.style.borderColor='#cbd5e1';">
+                🏷️ Cupones de Descuento
+            </a>
+            <a href="#seccion-configuracion" style="background: #f8fafc; color: #334155; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; border: 1px solid #cbd5e1; transition: all 0.2s;" onmouseover="this.style.background='#ef9d71'; this.style.color='white'; this.style.borderColor='#ef9d71';" onmouseout="this.style.background='#f8fafc'; this.style.color='#334155'; this.style.borderColor='#cbd5e1';">
+                ⚙️ Ajustes del Sitio
+            </a>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 1: PRODUCTOS -->
+    <div id="seccion-productos" style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+            <div style="font-size: 1.8rem;">📦</div>
+            <div>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">1. Gestión de Productos & Generador de Enlaces</h2>
+                <span style="color: #64748b; font-size: 0.88rem;">Catálogo, inventario y solicitudes de opiniones individuales.</span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-plus-circle" style="color: #65C18C;"></i> Crear y Editar Productos</h4>
+                <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    Define el nombre, categoría, precio y stock disponible. Puedes subir una foto de portada de alta calidad.
+                </p>
+            </div>
+
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-box-archive" style="color: #ef9d71;"></i> Manejo de Stock Agotado</h4>
+                <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    Si un producto queda en stock 0 o es marcado como inactivo, se oculta automáticamente del catálogo público pero <strong>no se elimina</strong> de la base de datos.
+                </p>
+            </div>
+
+            <div style="background: #fffbeb; padding: 18px; border-radius: 12px; border: 1px solid #fef3c7; grid-column: 1 / -1;">
+                <h4 style="margin: 0 0 8px 0; color: #92400e; font-size: 1rem;"><i class="fa-solid fa-star" style="color: #f59e0b;"></i> Botón ⭐ "Generar Link de Valoración"</h4>
+                <p style="color: #78350f; font-size: 0.9rem; line-height: 1.5; margin: 0 0 10px 0;">
+                    En la lista de productos y dentro del formulario de edición encontrarás el botón ⭐. Al presionarlo se abre un modal sutil con un link directo para solicitar opiniones sobre ese producto específico a compradores anteriores.
+                </p>
+                <div style="font-size: 0.85rem; color: #92400e; font-weight: 700; background: white; padding: 8px 12px; border-radius: 8px; display: inline-block; border: 1px solid #fde68a;">
+                    💡 Incluye botón directo para copiar el link y enviar por WhatsApp.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: PEDIDOS -->
+    <div id="seccion-pedidos" style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+            <div style="font-size: 1.8rem;">🚚</div>
+            <div>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">2. Gestión de Pedidos & Envíos</h2>
+                <span style="color: #64748b; font-size: 0.88rem;">Control de ventas, despachos y reseñas de compra.</span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-list-check" style="color: #3b82f6;"></i> Estados del Pedido</h4>
+                <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    Actualiza el estado de las compras: <em>Pendiente, Pagado, Enviado, Entregado o Cancelado</em>.
+                </p>
+            </div>
+
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-truck" style="color: #65C18C;"></i> Datos de Despacho</h4>
+                <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    Registra la empresa de transporte (Starken, Chilexpress, Blue Express) y asigna el código de seguimiento.
+                </p>
+            </div>
+
+            <div style="background: #fffaf7; padding: 18px; border-radius: 12px; border: 1px solid #fbd5c0; grid-column: 1 / -1;">
+                <h4 style="margin: 0 0 8px 0; color: #c26332; font-size: 1rem;"><i class="fa-solid fa-copy" style="color: #ef9d71;"></i> Link de Evaluación de Compra Completa</h4>
+                <p style="color: #9c4221; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    En el detalle de cada pedido contarás con botones para copiar el enlace único de evaluación del cliente o enviárselo por <strong>WhatsApp</strong> o <strong>Correo</strong> con un mensaje pre-redactado.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: BLOG -->
+    <div id="seccion-blog" style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+            <div style="font-size: 1.8rem;">✍️</div>
+            <div>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">3. Editor del Blog, Formato & Videos de YouTube</h2>
+                <span style="color: #64748b; font-size: 0.88rem;">Publicación de artículos didácticos y contenido multimedia.</span>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 6px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-feather" style="color: #65C18C;"></i> Autoría Personalizada</h4>
+                <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    Puedes indicar opcionalmente el nombre del autor real (ej: <em>Constanza, Felipe, etc.</em>). Si se deja por defecto como <strong>Rara Tienda</strong>, conservará el distintivo ícono de pluma 🪶.
+                </p>
+            </div>
+
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 10px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-wrench" style="color: #ef9d71;"></i> Barra de Herramientas de Edición HTML</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                    <span style="background: white; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;"><b>B</b> Negrita</span>
+                    <span style="background: white; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 6px; font-style: italic; font-size: 0.85rem;">I Cursiva</span>
+                    <span style="background: white; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">H2 / H3 Subtítulos</span>
+                    <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">🖼️ + Imagen</span>
+                    <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">🎬 + Video YouTube</span>
+                    <span style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">🔗 Enlace</span>
+                </div>
+                <ul style="color: #475569; font-size: 0.9rem; line-height: 1.6; margin: 0; padding-left: 20px;">
+                    <li><strong>Insertar Imágenes</strong>: Te pide la URL e inserta la imagen en medio del texto con bordes redondeados.</li>
+                    <li><strong>Insertar YouTube</strong>: Pegas cualquier link de YouTube y genera automáticamente un reproductor responsivo en 16:9 adaptable a celulares.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 4: RESEÑAS -->
+    <div id="seccion-resenas" style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+            <div style="font-size: 1.8rem;">⭐</div>
+            <div>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">4. Moderación de Reseñas & Compradores Verificados</h2>
+                <span style="color: #64748b; font-size: 0.88rem;">Aprobación de opiniones y garantía de autenticidad.</span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-circle-check" style="color: #16a34a;"></i> Insignia "✓ Verificado"</h4>
+                <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    Las reseñas enviadas a través de los enlaces generados obtienen automáticamente el sello verde <strong>✓ Verificado</strong> para dar máxima confianza.
+                </p>
+            </div>
+
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1rem;"><i class="fa-solid fa-eye-slash" style="color: #ef9d71;"></i> Moderación & Visibilidad</h4>
+                <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    Puedes ocultar o mostrar libremente cualquier comentario desde `/panel/resenas/`. Las reseñas públicas se muestran en el index debajo de categorías.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 5 Y 6: CUPONES Y CONFIGURACIÓN -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px;">
+        
+        <div id="seccion-cupones" style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <div style="font-size: 1.5rem;">🏷️</div>
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0;">5. Cupones de Descuento</h3>
+            </div>
+            <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                Crea cupones promocionales indicando el porcentaje (%) o monto fijo ($), límite de uso por cliente y fecha límite de expiración.
+            </p>
+        </div>
+
+        <div id="seccion-configuracion" style="background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <div style="font-size: 1.5rem;">⚙️</div>
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0;">6. Ajustes del Sitio</h3>
+            </div>
+            <p style="color: #475569; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                Con un solo clic puedes encender o apagar la visibilidad del <strong>Blog</strong> o la sección de <strong>Reseñas</strong> en la tienda pública.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
