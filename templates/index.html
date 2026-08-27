@@ -44,25 +44,27 @@
 
 <!-- Destacados -->
 <section id="destacados" class="catalogo-seccion" style="background: none; padding-top: 1rem;">
-  <div class="catalogo">
-    <h2>Novedades Destacadas</h2>
+  <div style="text-align: center;">
+    <h2 style="font-family: 'Quicksand', sans-serif; font-size: 1.6rem; font-weight: 700; color: #4a4a4a; margin-bottom: 0.5rem;">Novedades Destacadas</h2>
   </div>
-  <div class="catalogo">
+  <div class="catalogo-destacados">
     {% for p in productos_destacados %}
-      <div class="producto">
-        {% if p.imagen %}
-          <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
-        {% endif %}
-        {% if not p.disponible %}
-          <span class="agotado">Agotado</span>
-        {% endif %}
+      <div class="producto-destacado">
+        <div style="position: relative;">
+          {% if p.imagen %}
+            <img src="{{ p.get_imagen_url_absoluta }}" alt="{{ p.nombre }}">
+          {% endif %}
+          {% if not p.disponible %}
+            <span class="agotado">Agotado</span>
+          {% endif %}
+        </div>
         <h3>{{ p.nombre }}</h3>
         <p>${{ p.precio }}</p>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 10px 10px 20px 10px;">
-          <a href="{% url 'producto_detail' p.id %}" class="btn-categoria" style="margin: 0; padding: 8px 14px; font-size: 14px;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 6px; margin: 6px 8px 14px 8px;">
+          <a href="{{ p.get_absolute_url }}" class="btn-categoria" style="margin: 0; padding: 6px 10px; font-size: 12px;">
             <i class="fa-solid fa-eye"></i> Ver
           </a>
-          <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria" style="margin: 0; padding: 8px 14px; font-size: 14px; background-color: var(--acento);">
+          <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria" style="margin: 0; padding: 6px 10px; font-size: 12px; background-color: var(--acento);">
             <i class="fa-solid fa-cart-plus"></i> Añadir
           </a>
         </div>

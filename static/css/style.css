@@ -507,6 +507,62 @@ section:nth-of-type(4) {
   align-self: center;
 }
 
+/* =========================
+   DESTACADOS COMPACTOS
+========================= */
+.catalogo-destacados {
+  padding: 1rem 0.5rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+.producto-destacado {
+  background-color: var(--blanco);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #edf2f7;
+  overflow: hidden;
+  width: 190px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.producto-destacado:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.producto-destacado img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.producto-destacado:hover img {
+  transform: scale(1.05);
+}
+
+.producto-destacado h3 {
+  margin: 0.6rem 0.5rem 0.2rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1.3;
+}
+
+.producto-destacado p {
+  color: var(--acento);
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+
 .catalogo .producto {
   background-color: var(--blanco);
   border-radius: 20px;
