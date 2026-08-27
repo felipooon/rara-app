@@ -42,25 +42,30 @@
         /* NAVEGACIÓN Y CONTROLES FLOTANTES UNIFICADOS */
         .top-app-bar {
             position: absolute; top: 10px; left: 10px; right: 10px;
-            z-index: 1005; display: flex; align-items: center; justify-content: space-between;
-            gap: 6px; pointer-events: none;
+            z-index: 1005; display: flex; flex-direction: column;
+            gap: 8px; pointer-events: none;
         }
 
         .top-bar-left, .top-bar-right {
-            display: flex; align-items: center; gap: 6px; pointer-events: auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 8px; pointer-events: auto; width: 100%;
+        }
+
+        .top-bar-right {
+            justify-content: flex-end;
         }
 
         .reg-select { 
             border: 1px solid var(--border-light); background: var(--panel); 
-            padding: 6px 10px; border-radius: 12px; font-weight: 800; 
-            font-size: 12px; color: var(--accent); outline: none; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            padding: 8px 12px; border-radius: 12px; font-weight: 800; 
+            font-size: 13px; color: var(--accent); outline: none; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .species-count-badge {
-            background: var(--panel); padding: 5px 10px; border-radius: 12px;
-            font-size: 11px; font-weight: 700; color: var(--text-muted);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); border: 1px solid var(--border-light);
+            background: var(--panel); padding: 7px 12px; border-radius: 12px;
+            font-size: 12px; font-weight: 700; color: var(--text-muted);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-light);
             white-space: nowrap; display: flex; align-items: center; gap: 6px;
         }
 
@@ -69,7 +74,7 @@
         }
 
         .species-count-badge .badge-num {
-            color: var(--accent); font-weight: 800; font-size: 12px;
+            color: var(--accent); font-weight: 800; font-size: 13px;
         }
 
         .species-count-badge .badge-divider {
@@ -78,20 +83,19 @@
 
         @media (max-width: 520px) {
             .species-count-badge .lbl-text { display: none; }
-            .species-count-badge { padding: 5px 8px; gap: 5px; }
+            .species-count-badge { padding: 6px 10px; gap: 6px; }
         }
 
-
         .btn-app-nav {
-            background: var(--panel); padding: 6px 10px; border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); border: 1px solid var(--border-light);
-            text-decoration: none; font-weight: 800; font-size: 11px; color: var(--text-main);
-            white-space: nowrap; transition: all 0.2s ease;
+            background: var(--panel); padding: 8px 14px; border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-light);
+            text-decoration: none; font-weight: 800; font-size: 12px; color: var(--text-main);
+            white-space: nowrap; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;
         }
 
         .btn-app-nav:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.15);
         }
 
         .btn-app-store {
@@ -164,7 +168,8 @@
         @media (min-width: 1024px) {
             .main-view { flex-direction: row; }
             .overlay-panel { width: 400px; height: 100%; border-left: 1px solid var(--border-light); }
-            .top-app-bar { top: 16px; left: 16px; right: 416px; }
+            .top-app-bar { top: 16px; left: 16px; right: 416px; flex-direction: row; justify-content: space-between; }
+            .top-bar-left, .top-bar-right { width: auto; }
             .ads-floating { bottom: 20px; right: 420px; }
         }
     </style>
