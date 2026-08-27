@@ -28,8 +28,8 @@
     <a href="/"><i class="fa-solid fa-store"></i> Ver tienda</a>
     
     <div style="margin-top: auto; padding-top: 15px; display: flex; flex-direction: column; gap: 6px;">
-        <a href="{% url 'panel_guia' %}" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.06); padding: 5px 10px; border-radius: 6px; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.75)';">
-            <i class="fa-solid fa-circle-question" style="font-size: 0.75rem; color: #65C18C;"></i> Guía del Panel
+        <a href="{% url 'panel_guia' %}" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; font-weight: 500; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 8px; text-decoration: none; border: 1px solid rgba(255,255,255,0.18); white-space: nowrap; box-sizing: border-box; width: 100%; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='rgba(255,255,255,0.85)';">
+            <i class="fa-solid fa-circle-question" style="font-size: 0.85rem; color: #65C18C; margin: 0;"></i> Guía del Panel
         </a>
         
         {% if user.is_authenticated %}
