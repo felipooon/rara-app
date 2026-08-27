@@ -312,7 +312,7 @@
             try {
                 let resObs = await fetch(`/api/ebird/data/obs/${REGION}/historic/${y}/${m}/${d}?sppLocale=es_CL`);
                 if (!resObs.ok) {
-                    resObs = await fetch(`/api/ebird/data/obs/${REGION}/recent?sppLocale=es_CL`);
+                    resObs = await fetch(`/api/ebird/data/obs/${REGION}/recent?sppLocale=es_CL&back=1`);
                 }
                 const obsData = await resObs.json();
                 
