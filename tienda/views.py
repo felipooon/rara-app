@@ -945,6 +945,8 @@ def generar_avistamientos_fallback(ebird_path):
     
     fallback_data = []
     import random
+    from django.utils import timezone
+    ahora_str = timezone.now().strftime("%Y-%m-%d %H:%M")
     
     for idx, (code, com, sci) in enumerate(especies_muestra):
         num_obs = random.randint(1, 3)
@@ -959,7 +961,7 @@ def generar_avistamientos_fallback(ebird_path):
                 "sciName": sci,
                 "locId": f"L{idx}{o}",
                 "locName": lugar,
-                "obsDt": "2026-08-26 14:30",
+                "obsDt": ahora_str,
                 "howMany": random.randint(1, 6),
                 "lat": round(base_lat + offset_lat, 4),
                 "lng": round(base_lng + offset_lng, 4),

@@ -260,7 +260,7 @@
     {% verbatim %}
     <script>
         let REGION = "CL-LL";
-        let rawListas = [], diaH = "";
+        let rawListas = [], rawObsData = [], diaH = "";
         let diccEspecies = {};
 
         const coordsRegiones = {
@@ -315,17 +315,17 @@
                     resObs = await fetch(`/api/ebird/data/obs/${REGION}/recent?sppLocale=es_CL&back=1`);
                 }
                 const obsData = await resObs.json();
+                rawObsData = Array.isArray(obsData) ? obsData : [];
                 
-                document.getElementById('s-sp').innerText = obsData.length;
+                document.getElementById('s-sp').innerText = rawObsData.length;
                 
-                const htmlEspecies = obsData.map(o => {
+                const htmlEspecies = rawObsData.map(o => {
                     const codigo = o.speciesCode; 
                     let nombreFinal = (diccEspecies && diccEspecies[codigo] && diccEspecies[codigo].es) || o.comName || o.sciName;
 
-
                     return `
                         <tr>
-                            <td><b>${nombreFinal}</b></td>
+                            <td onclick="if(${o.lat} && ${o.lng}) map.flyTo([${o.lat}, ${o.lng}], 14)" style="cursor:pointer"><b>${nombreFinal}</b></td>
                             <td>${(o.locName || '').substring(0,12)}..</td>
                             <td>${(o.obsDt && o.obsDt.split(' ')[1]) || '--'}</td>
                             <td style="text-align:center">
@@ -344,7 +344,10 @@
             }
             
             try {
-                const resList = await fetch(`/api/ebird/product/lists/${REGION}?maxResults=200`);
+                let resList = await fetch(`/api/ebird/product/lists/${REGION}/${y}/${m}/${d}`);
+                if (!resList.ok) {
+                    resList = await fetch(`/api/ebird/product/lists/${REGION}?maxResults=200`);
+                }
                 if (resList.ok) {
                     rawListas = await resList.json();
                 }
@@ -376,38 +379,88 @@
             const fu = document.getElementById('f-user').value.toLowerCase();
             markers.clearLayers();
             
-            const filtradas = Array.isArray(rawListas) ? rawListas.filter(l => 
-                l.userDisplayName && 
-                l.userDisplayName.toLowerCase().includes(fu)
-            ) : [];
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-            document.getElementById('tbody-listas').innerHTML = filtradas.map(l => `
+            // 1. Filtrar y renderizar listas
+            const filtradasListas = Array.isArray(rawListas) ? rawListas.filter(l => {
+                const matchUser = !fu || (l.userDisplayName && l.userDisplayName.toLowerCase().includes(fu));
+                const dateStr = l.isoObsDate || l.obsDt || '';
+                const isToday = !dateStr || dateStr.startsWith(todayStr) || dateStr.includes(todayStr);
+                return matchUser && isToday;
+            }) : [];
+
+            document.getElementById('tbody-listas').innerHTML = filtradasListas.map(l => {
+                const lat = l.lat || (l.loc && l.loc.latitude);
+                const lng = l.lng || (l.loc && l.loc.longitude);
+                const name = l.locName || (l.loc && l.loc.name) || '';
+                return `
                 <tr>
-                    <td onclick="map.flyTo([${l.loc.latitude}, ${l.loc.longitude}], 14)" style="cursor:pointer">
-                        <b>${formatName(l.userDisplayName)}</b> <br> <span style="font-size:9px; color:#666">${(l.loc.name || '').substring(0,25)}</span>
+                    <td onclick="if(${lat} && ${lng}) map.flyTo([${lat}, ${lng}], 14)" style="cursor:pointer">
+                        <b>${formatName(l.userDisplayName)}</b> <br> <span style="font-size:9px; color:#666">${name.substring(0,25)}</span>
                     </td>
-                    <td style="text-align:center"><span style="background:var(--green); color:white; padding:2px 5px; border-radius:10px">${l.numSpecies}</span></td>
+                    <td style="text-align:center"><span style="background:var(--green); color:white; padding:2px 5px; border-radius:10px">${l.numSpecies || 1}</span></td>
                     <td style="text-align:center"><a href="https://ebird.org/checklist/${l.subId}" target="_blank" style="color:var(--accent)"><i class="fas fa-external-link-alt"></i></a></td>
                 </tr>
-            `).join('');
+            `}).join('');
 
-            filtradas.forEach(l => {
-                const popupContent = `
-                    <div class="popup-card">
-                        <b>${l.userDisplayName}</b>
-                        <small><i class="fas fa-map-marker-alt"></i> ${l.loc.name}</small><br>
-                        <small><i class="fas fa-dove"></i> Especies: <b>${l.numSpecies}</b></small>
-                        <a href="https://ebird.org/checklist/${l.subId}" target="_blank" class="btn-ver">VER LISTA</a>
-                    </div>
-                `;
-                L.circleMarker([l.loc.latitude, l.loc.longitude], { 
-                    radius: 9, 
-                    fillColor: '#ef9d71', 
-                    color: 'white', 
-                    weight: 2, 
-                    fillOpacity: 0.9 
-                }).addTo(markers).bindPopup(popupContent);
-            });
+            // 2. Trazar puntos del mapa desde las observaciones de HOY
+            const locSeen = new Set();
+
+            if (Array.isArray(rawObsData) && rawObsData.length > 0) {
+                rawObsData.forEach(o => {
+                    const lat = o.lat || (o.loc && o.loc.latitude);
+                    const lng = o.lng || (o.loc && o.loc.longitude);
+                    if (!lat || !lng) return;
+
+                    const locKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+                    if (locSeen.has(locKey)) return;
+                    locSeen.add(locKey);
+
+                    const codigo = o.speciesCode;
+                    let nombreFinal = (diccEspecies && diccEspecies[codigo] && diccEspecies[codigo].es) || o.comName || o.sciName;
+                    const lugar = o.locName || (o.loc && o.loc.name) || 'Ubicación';
+
+                    const popupContent = `
+                        <div class="popup-card">
+                            <b>${nombreFinal}</b> ${o.howMany ? '(' + o.howMany + ' indiv.)' : ''}
+                            <small><i class="fas fa-map-marker-alt"></i> ${lugar}</small><br>
+                            <small><i class="fas fa-clock"></i> ${o.obsDt || 'Hoy'}</small>
+                            <a href="https://ebird.org/checklist/${o.subId}" target="_blank" class="btn-ver">VER LISTA</a>
+                        </div>
+                    `;
+                    L.circleMarker([lat, lng], { 
+                        radius: 9, 
+                        fillColor: '#ef9d71', 
+                        color: 'white', 
+                        weight: 2, 
+                        fillOpacity: 0.9 
+                    }).addTo(markers).bindPopup(popupContent);
+                });
+            } else if (filtradasListas.length > 0) {
+                filtradasListas.forEach(l => {
+                    const lat = l.lat || (l.loc && l.loc.latitude);
+                    const lng = l.lng || (l.loc && l.loc.longitude);
+                    if (!lat || !lng) return;
+
+                    const name = l.locName || (l.loc && l.loc.name) || 'Ubicación';
+                    const popupContent = `
+                        <div class="popup-card">
+                            <b>${formatName(l.userDisplayName)}</b>
+                            <small><i class="fas fa-map-marker-alt"></i> ${name}</small><br>
+                            <small><i class="fas fa-dove"></i> Especies: <b>${l.numSpecies || 1}</b></small>
+                            <a href="https://ebird.org/checklist/${l.subId}" target="_blank" class="btn-ver">VER LISTA</a>
+                        </div>
+                    `;
+                    L.circleMarker([lat, lng], { 
+                        radius: 9, 
+                        fillColor: '#ef9d71', 
+                        color: 'white', 
+                        weight: 2, 
+                        fillOpacity: 0.9 
+                    }).addTo(markers).bindPopup(popupContent);
+                });
+            }
         }
 
         function setTab(t) {
