@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
@@ -178,6 +179,13 @@ class Pedido(models.Model):
     actualizado = models.DateTimeField(auto_now=True)
     pagado = models.BooleanField(default=False)
     id_transaccion = models.CharField(max_length=100, blank=True, null=True, help_text="ID de MercadoPago o Webpay")
+    token_resena = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
+
+    def get_enlace_resena(self):
+        if not self.token_resena:
+            self.token_resena = uuid.uuid4()
+            self.save()
+        return f"https://www.raratienda.cl/evaluar-compra/{self.token_resena}/"
 
     class Meta:
         ordering = ['-creado'] # Los pedidos más nuevos saldrán primero en tu panel
@@ -302,12 +310,14 @@ class BlogPost(models.Model):
 
 class ResenaProducto(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='resenas')
+    pedido = models.ForeignKey(Pedido, on_delete=models.SET_NULL, null=True, blank=True, related_name='resenas_pedido')
     nombre_cliente = models.CharField(max_length=100)
     email_cliente = models.EmailField(blank=True)
     calificacion = models.IntegerField(default=5, help_text="Calificación de 1 a 5 estrellas")
     comentario = models.TextField()
     fecha = models.DateTimeField(auto_now_add=True)
     aprobado = models.BooleanField(default=True)
+    comprador_verificado = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['-fecha']

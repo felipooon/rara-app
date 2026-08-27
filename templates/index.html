@@ -43,7 +43,7 @@
 </section>
 
 <!-- Destacados -->
-<section id="destacados" class="catalogo-seccion" style="background: none; padding-top: 1rem;">
+<section id="destacados" class="catalogo-seccion" style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 2.5rem 1rem 3rem;">
   <div style="text-align: center;">
     <h2 style="font-family: 'Quicksand', sans-serif; font-size: 1.6rem; font-weight: 700; color: #4a4a4a; margin-bottom: 0.5rem;">Novedades Destacadas</h2>
   </div>
@@ -111,6 +111,83 @@
 
   </div>
 </section>
+
+{% if config_sitio.mostrar_resenas and resenas %}
+<!-- Reseñas de Compradores Verificados -->
+<section id="resenas-compradores" style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 50px 20px 60px; border-top: 1px solid #e2ece5;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    
+    <div style="text-align: center; margin-bottom: 36px;">
+      <span style="background: rgba(239, 157, 113, 0.18); color: #c26332; font-weight: 800; font-size: 0.85rem; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">
+        ⭐ Opiniones Reales
+      </span>
+      <h2 style="font-family: 'Quicksand', sans-serif; font-size: 2.1rem; font-weight: 700; color: #4a4a4a; margin-top: 10px; margin-bottom: 8px;">
+        Lo que dicen nuestros Compradores Verificados
+      </h2>
+      <p style="color: #718096; font-size: 0.98rem; max-width: 600px; margin: 0 auto;">
+        Opiniones auténticas de clientes que han comprado en Rara Tienda.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+      {% for r in resenas %}
+        <div style="background: #ffffff; border-radius: 18px; padding: 22px; border: 1px solid #e2ece5; box-shadow: 0 6px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between;">
+          
+          <div>
+            <!-- Header: Producto Imagen + Nombre + Estrellas -->
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+              {% if r.producto.imagen %}
+                <img src="{{ r.producto.get_imagen_url_absoluta }}" alt="{{ r.producto.nombre }}" style="width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+              {% else %}
+                <div style="width: 52px; height: 52px; background: #e2e8f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">🛍️</div>
+              {% endif %}
+              
+              <div style="overflow: hidden;">
+                {% if r.producto.disponible %}
+                  <a href="{{ r.producto.get_absolute_url }}" style="text-decoration: none; font-weight: 800; font-size: 0.95rem; color: #2d3748; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ r.producto.nombre }}
+                  </a>
+                {% else %}
+                  <span style="font-weight: 800; font-size: 0.95rem; color: #2d3748; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ r.producto.nombre }}
+                  </span>
+                {% endif %}
+                
+                <div style="color: #f59e0b; font-size: 0.88rem; margin-top: 2px;">
+                  {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= r.calificacion %}★{% else %}☆{% endif %}
+                  {% endfor %}
+                  <span style="color: #718096; font-size: 0.78rem; margin-left: 4px; font-weight: 600;">({{ r.calificacion }}/5)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comentario -->
+            <p style="color: #475569; font-size: 0.93rem; line-height: 1.55; margin: 0 0 16px 0; font-style: italic;">
+              "{{ r.comentario }}"
+            </p>
+          </div>
+
+          <!-- Footer: Cliente + Medalla Verificado + Fecha -->
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #f1f5f9; padding-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="color: #1e293b;">{{ r.nombre_cliente }}</strong>
+              {% if r.comprador_verificado %}
+                <span style="background: #e6f4ea; color: #137333; font-weight: 800; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3px;">
+                  <i class="fa-solid fa-circle-check"></i> Verificado
+                </span>
+              {% endif %}
+            </div>
+            <span>{{ r.fecha|date:"d \d\e M, Y" }}</span>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+{% endif %}
 
 
 

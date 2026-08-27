@@ -44,11 +44,13 @@ def index(request):
     productos = Producto.objects.filter(disponible=True)
     productos = aplicar_ordenamiento(productos, orden)
     productos_destacados = Producto.objects.filter(disponible=True).order_by('-id')[:4]
+    resenas = ResenaProducto.objects.filter(aprobado=True).select_related('producto')[:8]
 
     return render(request, "index.html", {
         "categorias": categorias,
         "productos": productos,
         "productos_destacados": productos_destacados,
+        "resenas": resenas,
         "orden_actual": orden
     })
 
@@ -1284,3 +1286,78 @@ def eliminar_resena(request, id):
         resena.delete()
         messages.success(request, "Reseña eliminada.")
     return redirect('panel_resenas')
+
+
+def evaluar_compra(request, token):
+    pedido = get_object_or_404(Pedido, token_resena=token)
+    items = pedido.items.select_related('producto').all()
+    
+    if request.method == 'POST':
+        resenas_creadas = 0
+        for item in items:
+            prod_id = item.producto.id
+            calif_key = f"calificacion_{prod_id}"
+            coment_key = f"comentario_{prod_id}"
+            
+            if calif_key in request.POST:
+                try:
+                    calificacion = int(request.POST.get(calif_key, 5))
+                except ValueError:
+                    calificacion = 5
+                comentario = request.POST.get(coment_key, '').strip()
+                
+                if comentario:
+                    ResenaProducto.objects.create(
+                        producto=item.producto,
+                        pedido=pedido,
+                        nombre_cliente=pedido.nombre_completo,
+                        email_cliente=pedido.email,
+                        calificacion=calificacion,
+                        comentario=comentario,
+                        comprador_verificado=True,
+                        aprobado=True
+                    )
+                    resenas_creadas += 1
+
+        if resenas_creadas > 0:
+            return render(request, "evaluar_exito.html", {"pedido": pedido, "resenas_creadas": resenas_creadas})
+        else:
+            messages.warning(request, "Por favor escribe al menos un comentario en tu calificación.")
+
+    return render(request, "evaluar_compra.html", {"pedido": pedido, "items": items})
+
+
+def enviar_resena_email(request, id):
+    if not request.user.is_staff:
+        return redirect('login')
+    pedido = get_object_or_404(Pedido, id=id)
+    url_resena = pedido.get_enlace_resena()
+    
+    asunto = f"¡Cuéntanos tu experiencia con el Pedido #{pedido.codigo_orden}! 🌟 — Rara Tienda"
+    mensaje = f"""Hola {pedido.nombre_completo},
+
+¡Esperamos que estés disfrutando tus productos de Rara Tienda!
+
+Nos encantaría saber tu opinión sobre tu compra. Tu valoración ayuda a otros amantes de la naturaleza a conocer nuestros productos:
+
+👉 Evalúa tus productos aquí: {url_resena}
+
+¡Muchas gracias por apoyar nuestra tienda!
+
+Con cariño,
+El equipo de Rara Tienda
+https://www.raratienda.cl/
+"""
+    try:
+        send_mail(
+            asunto,
+            mensaje,
+            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'contacto@raratienda.cl',
+            [pedido.email],
+            fail_silently=False
+        )
+        messages.success(request, f"Correo de reseña enviado con éxito a {pedido.email}.")
+    except Exception as e:
+        messages.error(request, f"Error al enviar el correo: {e}")
+        
+    return redirect('detalle_pedido', id=pedido.id)

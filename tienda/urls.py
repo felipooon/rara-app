@@ -70,12 +70,13 @@ urlpatterns = [
     path('juegos/aves-en-tu-zona/', views.aves_en_tu_zona, name='aves_en_tu_zona'),
     path('juegos/radar-realtime/', views.radar_realtime, name='radar_realtime'),
 
-    # Blog y Reseñas Públicas
+    # Blog y Reseñas Públicas Tokenizadas
     path('blog/', views.blog_list, name='blog_list'),
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
+    path('evaluar-compra/<uuid:token>/', views.evaluar_compra, name='evaluar_compra'),
     path('producto/<int:producto_id>/resena/', views.agregar_resena, name='agregar_resena'),
 
-    # Panel Admin - Configuración, Blog y Reseñas
+    # Panel Admin - Configuración, Blog, Reseñas y Solicitud por Email
     path('panel/configuracion/', views.panel_configuracion, name='panel_configuracion'),
     path('panel/blog/', views.panel_blog, name='panel_blog'),
     path('panel/blog/crear/', views.crear_blog_post, name='crear_blog_post'),
@@ -84,5 +85,6 @@ urlpatterns = [
     path('panel/resenas/', views.panel_resenas, name='panel_resenas'),
     path('panel/resenas/<int:id>/toggle/', views.toggle_resena, name='toggle_resena'),
     path('panel/resenas/<int:id>/eliminar/', views.eliminar_resena, name='eliminar_resena'),
+    path('panel/pedidos/<int:id>/enviar-resena/', views.enviar_resena_email, name='enviar_resena_email'),
 
 ]  
