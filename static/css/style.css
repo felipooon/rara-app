@@ -725,7 +725,9 @@ section:nth-of-type(4) {
 
 .nosotros {
   position: relative;
-  height: 50vh;
+  min-height: 50vh;
+  height: auto;
+  padding: 4rem 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -764,13 +766,14 @@ section:nth-of-type(4) {
 ========================= */
 
 .contacto {
-  height: 50vh;
+  min-height: 50vh;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 4rem 1rem;
 
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.7)),

@@ -181,8 +181,76 @@ document.addEventListener("DOMContentLoaded", function() {
 {% endblock %}
 </main>
 
-<footer class="footer">
-<p>&copy; 2026 Rara Tienda</p>
+<footer class="footer-section" style="background-color: #fdfaf6; color: #4a4a4a; border-top: 3px solid #ef9d71; padding: 3.5rem 1rem 1.5rem 1rem; font-family: 'Nunito', sans-serif;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    
+    <!-- Fila Superior: Marca, Enlaces Rápidos y Redes -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; margin-bottom: 2.5rem; text-align: left;">
+      
+      <!-- Columna 1: Marca & Descripción -->
+      <div>
+        <h3 style="font-family: 'Quicksand', sans-serif; font-size: 1.4rem; font-weight: 700; color: #2d3748; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+          Rara Tienda
+        </h3>
+        <p style="color: #64748b; font-size: 0.9rem; line-height: 1.6; margin: 0 0 15px 0;">
+          Ilustración de autor y productos inspirados en la fauna y biodiversidad nativa de Chile.
+        </p>
+        <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.85rem; font-weight: 600;">
+          <i class="fa-solid fa-location-dot" style="color: #ef9d71;"></i> Región de Los Lagos, Chile
+        </div>
+      </div>
+
+      <!-- Columna 2: Enlaces Rápidos (Navegación) -->
+      <div>
+        <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 800; color: #2d3748; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+          Navegación
+        </h4>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px;">
+          <li><a href="{% url 'index' %}" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Inicio</a></li>
+          <li><a href="{% url 'index' %}#catalogo" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Catálogo de Productos</a></li>
+          <li><a href="{% url 'menu_juegos' %}" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Juegos & Trivia</a></li>
+          {% if configuracion_sitio.mostrar_blog %}
+            <li><a href="{% url 'blog_list' %}" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Blog</a></li>
+          {% endif %}
+          <li><a href="{% url 'index' %}#contacto" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Atención al Cliente</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 3: Redes & Canales -->
+      <div>
+        <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 800; color: #2d3748; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+          Comunidad
+        </h4>
+        <p style="color: #64748b; font-size: 0.88rem; line-height: 1.5; margin: 0 0 12px 0;">
+          Síguenos en redes sociales o contáctanos directamente para consultas:
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <a href="https://wa.me/56930027170" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #25D366; color: white; padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: opacity 0.2s; box-shadow: 0 2px 6px rgba(37, 211, 102, 0.2);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </a>
+          <a href="https://www.instagram.com/lararatienda/" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(45deg, #405DE6, #833AB4, #E1306C, #FD1D1D); color: white; padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: opacity 0.2s; box-shadow: 0 2px 6px rgba(225, 48, 108, 0.2);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <i class="fab fa-instagram"></i> Instagram
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Separador sutil -->
+    <div style="border-top: 1px solid #e2e8f0; margin-bottom: 1.5rem;"></div>
+
+    <!-- Fila Inferior (Sub-footer): Copyright & Firma de Desarrollo -->
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; color: #64748b;">
+      <div>
+        &copy; {% now "Y" %} Rara Tienda. Todos los derechos reservados.
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #64748b; font-weight: 600;">
+        <i class="fa-solid fa-code" style="color: #ef9d71;"></i> Desarrollado por Felipe
+      </div>
+    </div>
+
+  </div>
 </footer>
 
 <script>

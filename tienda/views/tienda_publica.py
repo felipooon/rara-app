@@ -222,6 +222,7 @@ def agregar_resena(request, producto_id):
 def api_destacados_random(request):
     import random
     badges_pool = ['✨ Recomendado', '🔥 Tendencia', '🌟 Selección Rara', '🌿 Favorito', '🎨 Arte Local', '🦉 Novedad Rara', '💖 Destacado', '⭐ Recomendación']
+    random.shuffle(badges_pool)
     productos = Producto.objects.filter(disponible=True).order_by('?')[:8]
     
     data = []
@@ -231,7 +232,7 @@ def api_destacados_random(request):
             'nombre': p.nombre,
             'precio': f"{p.precio:,}".replace(',', '.'),
             'url': p.get_absolute_url(),
-            'imagen': p.get_imagen_url_absoluta(),
+            'imagen': p.get_imagen_url_absoluta,
             'badge': badges_pool[idx % len(badges_pool)]
         })
     return JsonResponse({'productos': data})
