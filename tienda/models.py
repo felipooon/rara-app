@@ -30,7 +30,15 @@ class Producto(models.Model):
 
     # Nuevo campo para el control de inventario
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en inventario")
-    disponible = models.BooleanField(default=True) 
+    disponible = models.BooleanField(default=True)
+
+    # Ficha de Especie / Dato Curioso (Opcional por producto)
+    tiene_ficha_especie = models.BooleanField(default=False, help_text="Marcar para incluir Ficha de Especie en la vista del producto")
+    especie_nombre_comun = models.CharField(max_length=150, blank=True, help_text="Ej: Cometocino Patagónico, Amanita muscaria")
+    especie_nombre_cientifico = models.CharField(max_length=150, blank=True, help_text="Ej: Phrygilus patagonicus")
+    especie_habitat = models.CharField(max_length=200, blank=True, help_text="Ej: Bosques templados y cordillera del sur de Chile")
+    especie_estado_conservacion = models.CharField(max_length=100, blank=True, help_text="Ej: Preocupación menor (LC), Vulnerable (VU)")
+    especie_dato_curioso = models.TextField(blank=True, help_text="Dato curioso o reseña educativa sobre la especie")
 
     def __str__(self):
         return self.nombre

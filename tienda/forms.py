@@ -9,6 +9,21 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         exclude = ['slug']
+        widgets = {
+            'especie_nombre_comun': forms.TextInput(attrs={'placeholder': 'Ej: Cometocino Patagónico, Amanita muscaria'}),
+            'especie_nombre_cientifico': forms.TextInput(attrs={'placeholder': 'Ej: Phrygilus patagonicus'}),
+            'especie_habitat': forms.TextInput(attrs={'placeholder': 'Ej: Bosques templados y cordillera del sur de Chile'}),
+            'especie_estado_conservacion': forms.TextInput(attrs={'placeholder': 'Ej: Preocupación menor (LC), Vulnerable (VU)'}),
+            'especie_dato_curioso': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Ej: Ave muy sociable que suele acompañar las excursiones...'}),
+        }
+        labels = {
+            'tiene_ficha_especie': 'Incluir Ficha de Especie / Dato Curioso sobre esta especie',
+            'especie_nombre_comun': 'Nombre Común de la Especie',
+            'especie_nombre_cientifico': 'Nombre Científico',
+            'especie_habitat': 'Hábitat / Distribución',
+            'especie_estado_conservacion': 'Estado de Conservación',
+            'especie_dato_curioso': 'Dato Curioso / Reseña Educativa',
+        }
 
     def clean_precio(self):
         data = self.cleaned_data.get('precio')

@@ -97,6 +97,71 @@
         color: #2c3e50;
     }
 
+    /* Estilos del Toggle Switch */
+    .switch-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .switch-wrapper:hover {
+        background: #e6f4ea;
+    }
+    .switch-label-text {
+        font-weight: 700;
+        color: #166534;
+        font-size: 1.02rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        user-select: none;
+    }
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 52px;
+        height: 28px;
+        flex-shrink: 0;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #cbd5e1;
+        transition: .3s;
+        border-radius: 34px;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .toggle-switch input:checked + .toggle-slider {
+        background-color: #22c55e;
+    }
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+
     .form-actions {
         display: flex;
         justify-content: flex-end;
@@ -242,6 +307,73 @@ function ejecutarCopiaFormModal() {
                 El producto está disponible para la venta en la tienda
             </label>
         </div>
+
+        <!-- Toggle Switch para Ficha de Especie -->
+        <label for="{{ form.tiene_ficha_especie.id_for_label }}" class="switch-wrapper">
+            <span class="switch-label-text">
+                🦜 Incluir Ficha de Especie / Dato Curioso sobre esta especie
+            </span>
+            <span class="toggle-switch">
+                {{ form.tiene_ficha_especie }}
+                <span class="toggle-slider"></span>
+            </span>
+        </label>
+
+        <!-- Campos de la Ficha de Especie (Desplegable dinámicamente) -->
+        <div id="sec-ficha-especie" style="display: none; background: #fafaf9; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 22px; margin-bottom: 25px;">
+            <div style="margin-bottom: 15px; font-weight: 800; color: #334155; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                <span>🪶 Información Educativa de la Especie</span>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="{{ form.especie_nombre_comun.id_for_label }}">{{ form.especie_nombre_comun.label }}</label>
+                    {{ form.especie_nombre_comun }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.especie_nombre_cientifico.id_for_label }}">{{ form.especie_nombre_cientifico.label }}</label>
+                    {{ form.especie_nombre_cientifico }}
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="{{ form.especie_habitat.id_for_label }}">{{ form.especie_habitat.label }}</label>
+                    {{ form.especie_habitat }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.especie_estado_conservacion.id_for_label }}">{{ form.especie_estado_conservacion.label }}</label>
+                    {{ form.especie_estado_conservacion }}
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="{{ form.especie_dato_curioso.id_for_label }}">{{ form.especie_dato_curioso.label }}</label>
+                {{ form.especie_dato_curioso }}
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var chkFicha = document.getElementById("{{ form.tiene_ficha_especie.id_for_label }}");
+            var secFicha = document.getElementById("sec-ficha-especie");
+
+            function toggleFicha() {
+                if (chkFicha && secFicha) {
+                    if (chkFicha.checked) {
+                        secFicha.style.display = "block";
+                    } else {
+                        secFicha.style.display = "none";
+                    }
+                }
+            }
+
+            if (chkFicha) {
+                chkFicha.addEventListener("change", toggleFicha);
+                toggleFicha();
+            }
+        });
+        </script>
 
         <div class="form-actions">
             <a href="{% if next %}{{ next }}{% else %}{% url 'panel_productos' %}{% endif %}" style="padding: 10px 20px; text-decoration: none; color: #555; border: 1px solid #ccc; border-radius: 6px; font-weight: bold;">
