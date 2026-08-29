@@ -67,15 +67,7 @@
       {% for p in productos_destacados %}
         <div class="producto-destacado-card">
           <div class="img-box">
-            {% if forloop.counter == 1 %}
-              <span class="badge-glass">✨ Recomendado</span>
-            {% elif forloop.counter == 2 %}
-              <span class="badge-glass">🔥 Tendencia</span>
-            {% elif forloop.counter == 3 %}
-              <span class="badge-glass">🦉 Novedad Rara</span>
-            {% else %}
-              <span class="badge-glass">🌟 Selección Rara</span>
-            {% endif %}
+
 
             {% if p.imagen %}
               <img src="{{ p.get_imagen_url_absoluta }}" alt="{{ p.nombre }}">
@@ -468,7 +460,6 @@ async function shuffleDestacados() {
         const cardHtml = `
           <div class="producto-destacado-card">
             <div class="img-box">
-              <span class="badge-glass">${p.badge}</span>
               ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}">` : ''}
             </div>
             <h3 style="font-size: 1rem; font-weight: 700; color: #334155; margin: 0 0 4px 0; font-family: 'Quicksand', sans-serif;">${p.nombre}</h3>
