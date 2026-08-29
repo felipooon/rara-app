@@ -106,15 +106,29 @@ function insertarYouTube() {
     abrirModalBlog('modalInsertarYouTube');
 }
 
+function extraerYouTubeId(url) {
+    if (!url) return null;
+    url = url.trim();
+    
+    // Si pegaron el iframe completo de YouTube (<iframe src="...">)
+    var iframeMatch = url.match(/src=["']([^"']+)["']/i);
+    if (iframeMatch) {
+        url = iframeMatch[1];
+    }
+    
+    // Soporte amplio: watch?v=, shorts/, embed/, live/, youtu.be/, etc.
+    var regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    var match = url.match(regExp);
+    return match ? match[1] : null;
+}
+
 function confirmarInsertarYouTube() {
     var url = document.getElementById('blog_yt_url').value.trim();
     if (url) {
-        var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        var match = url.match(regExp);
-        var videoId = (match && match[2].length === 11) ? match[2] : null;
+        var videoId = extraerYouTubeId(url);
         
         if (videoId) {
-            var htmlVideo = '\n<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 18px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e2ece5;">\n  <iframe src="https://www.youtube-nocookie.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>\n</div>\n';
+            var htmlVideo = '\n<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 18px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e2ece5;">\n  <iframe src="https://www.youtube.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>\n</div>\n';
             insertarEtiqueta(htmlVideo, '');
             cerrarModalBlog('modalInsertarYouTube');
         } else {
