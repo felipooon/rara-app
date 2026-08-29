@@ -198,6 +198,9 @@ class Pedido(models.Model):
     def get_total_cost(self):
         # Calcula el total sumando el costo de cada item
         return sum(item.get_costo() for item in self.items.all())
+        
+    def get_total_final(self):
+        return max(0, self.get_total_cost() - self.descuento_aplicado)
     
     def confirmar_pago(self):
         # 1. Marcamos el pedido como pagado

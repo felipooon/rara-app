@@ -206,7 +206,7 @@ function ejecutarCopiaPedidoModal() {
         {% endif %}
 
         <div style="text-align: right; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
-            <h2 style="margin: 0;">Total del Pedido: <span style="color: #fca311;">${{ pedido.get_total_cost|add:"-"|add:pedido.descuento_aplicado }}</span></h2>
+            <h2 style="margin: 0;">Total del Pedido: <span style="color: #fca311;">${{ pedido.get_total_final }}</span></h2>
         </div>
     </div>
 

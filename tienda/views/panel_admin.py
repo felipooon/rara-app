@@ -26,9 +26,17 @@ def panel_home(request):
     inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     pedidos_pagados = Pedido.objects.filter(pagado=True)
-    ventas_mes = ItemPedido.objects.filter(pedido__pagado=True, pedido__creado__gte=inicio_mes).aggregate(
+    # Suma de items
+    suma_items = ItemPedido.objects.filter(pedido__pagado=True, pedido__creado__gte=inicio_mes).aggregate(
         total=models.Sum(models.F('precio') * models.F('cantidad'))
     )['total'] or 0
+
+    # Suma de descuentos de esos mismos pedidos
+    suma_descuentos = Pedido.objects.filter(pagado=True, creado__gte=inicio_mes).aggregate(
+        total=models.Sum('descuento_aplicado')
+    )['total'] or 0
+
+    ventas_mes = max(0, suma_items - suma_descuentos)
 
     top_productos = Producto.objects.filter(items_pedido__pedido__pagado=True).annotate(
         total_vendidos=models.Sum('items_pedido__cantidad')
