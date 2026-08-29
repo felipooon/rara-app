@@ -532,10 +532,16 @@ section:nth-of-type(4) {
   border-radius: 16px;
 
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 280px));
   justify-content: center;
   gap: 1.5rem;
   align-self: center;
+}
+
+.catalogo2 .producto {
+  width: 100%;
+  max-width: 280px;
+  box-sizing: border-box;
 }
 
 /* =========================
@@ -1396,6 +1402,10 @@ section:nth-of-type(4) {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
     padding: 1rem 0.4rem;
+  }
+
+  .catalogo2 .producto {
+    max-width: 100%;
   }
 
   .catalogo2 .producto img {
