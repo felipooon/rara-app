@@ -154,6 +154,72 @@
 
 </section>
 
+{% if config_sitio.mostrar_blog and ultimas_entradas_blog %}
+<!-- Sección de la Bitácora / Blog en el Index -->
+<section id="blog-index" style="background-color: #FFF9F6; background-image: radial-gradient(#fcd7c4 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 60px 20px; border-top: 1px solid #f9e2d5;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px; flex-wrap: wrap; gap: 15px;">
+      <div>
+        <span style="background: rgba(239, 157, 113, 0.18); color: #c26332; font-weight: 800; font-size: 0.85rem; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">
+          📖 Bitácora Rara
+        </span>
+        <h2 style="font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 700; color: #2d3748; margin-top: 10px; margin-bottom: 4px;">
+          Últimas publicaciones del Blog
+        </h2>
+        <p style="color: #718096; font-size: 0.95rem; margin: 0;">
+          Historias, guías y contenido didáctico sobre nuestra fauna nativa.
+        </p>
+      </div>
+
+      <a href="{% url 'blog_list' %}" class="btn" style="background: #ef9d71; color: white; border-radius: 12px; padding: 10px 20px; font-weight: 700; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+        Ver todas las entradas <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+      {% for post in ultimas_entradas_blog %}
+        <article style="background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 6px 22px rgba(0,0,0,0.05); border: 1px solid #e2ece5; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; display: flex; flex-direction: column;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 14px 30px rgba(101, 193, 140, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 22px rgba(0,0,0,0.05)';">
+          
+          <div style="margin: 12px 12px 0 12px; border-radius: 14px; overflow: hidden;">
+            <a href="{{ post.get_absolute_url }}" style="text-decoration: none; color: inherit; display: block; overflow: hidden; position: relative; aspect-ratio: 16/9; background: #f7fafc;">
+              {% if post.imagen %}
+                <img src="{{ post.get_imagen_url_absoluta }}" alt="{{ post.titulo }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+              {% else %}
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ef9d71 0%, #65C18C 100%); color: white; font-size: 2.5rem;">
+                  🦜
+                </div>
+              {% endif %}
+            </a>
+          </div>
+          
+          <div style="padding: 20px 22px 22px; flex: 1; display: flex; flex-direction: column;">
+            <span style="font-size: 0.8rem; color: #a0aec0; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-regular fa-calendar" style="color: #ef9d71;"></i> {{ post.fecha_creacion|date:"d \d\e F, Y" }}
+            </span>
+            
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700; color: #2d3748; margin: 0 0 10px 0; line-height: 1.35;">
+              <a href="{{ post.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+                {{ post.titulo }}
+              </a>
+            </h3>
+            
+            <p style="color: #4a5568; font-size: 0.9rem; line-height: 1.5; margin: 0 0 18px 0; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+              {% if post.resumen %}{{ post.resumen }}{% else %}{{ post.contenido|striptags|truncatewords:20 }}{% endif %}
+            </p>
+            
+            <a href="{{ post.get_absolute_url }}" style="font-weight: 800; font-size: 0.88rem; color: #ef9d71; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              Leer artículo <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+            </a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
 {% if config_sitio.mostrar_resenas and resenas %}
 <!-- Reseñas de Compradores Verificados -->
 <section id="resenas-compradores" style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 50px 20px 60px; border-top: 1px solid #e2ece5;">

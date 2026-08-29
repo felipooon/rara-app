@@ -28,12 +28,14 @@ def index(request):
     productos = aplicar_ordenamiento(productos, orden)
     productos_destacados = Producto.objects.filter(disponible=True).order_by('?')[:8]
     resenas = ResenaProducto.objects.filter(aprobado=True).select_related('producto')[:8]
+    ultimas_entradas_blog = BlogPost.objects.filter(publicado=True).order_by('-fecha_creacion')[:3]
 
     return render(request, "index.html", {
         "categorias": categorias,
         "productos": productos,
         "productos_destacados": productos_destacados,
         "resenas": resenas,
+        "ultimas_entradas_blog": ultimas_entradas_blog,
         "orden_actual": orden
     })
 
