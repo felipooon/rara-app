@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.db import models
+from django.utils.html import strip_tags
+import unicodedata
 
 from ..models import Categoria, Producto, BlogPost, ResenaProducto, Pedido, MetricaProducto
 from ..forms import ResenaForm
@@ -138,21 +140,46 @@ def blog_list(request):
     return render(request, "blog/blog_list.html", {"page_obj": page_obj})
 
 
+def quitar_tildes(s):
+    if not s:
+        return ""
+    return ''.join(c for c in unicodedata.normalize('NFD', str(s)) if unicodedata.category(c) != 'Mn')
+
+
 def blog_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug, publicado=True)
     otros_posts = BlogPost.objects.filter(publicado=True).exclude(id=post.id)[:3]
     
-    # Búsqueda inteligente de productos relacionados por palabras clave en título y resumen
-    texto_busqueda = f"{post.titulo} {post.resumen}".lower()
-    stop_words = {'para', 'como', 'esta', 'este', 'entre', 'sobre', 'desde', 'hasta', 'nuestra', 'nuestro', 'chile', 'artesanal', 'con', 'del', 'los', 'las', 'que', 'por', 'una', 'uno', 'unos', 'unas'}
-    palabras = [p.strip('.,;:!?()""\'') for p in texto_busqueda.split() if len(p.strip('.,;:!?()""\'')) > 3]
-    palabras_clave = [p for p in palabras if p not in stop_words]
+    # Búsqueda inteligente de productos relacionados por palabras clave en título, resumen y contenido completo
+    contenido_limpio = strip_tags(post.contenido or '')
+    texto_completo = f"{post.titulo} {post.resumen or ''} {contenido_limpio}".lower()
+    
+    stop_words = {'para', 'como', 'esta', 'este', 'entre', 'sobre', 'desde', 'hasta', 'nuestra', 'nuestro', 'chile', 'artesanal', 'con', 'del', 'los', 'las', 'que', 'por', 'una', 'uno', 'unos', 'unas', 'donde', 'pero', 'mas', 'menos', 'cada', 'todo', 'todos', 'toda', 'todas', 'tambien', 'estos', 'estas', 'este', 'esta'}
+    
+    palabras_raw = [p.strip('.,;:!?()""\'«»-') for p in texto_completo.split() if len(p.strip('.,;:!?()""\'«»-')) > 3]
+    
+    # Colección de palabras clave en original y sin tildes
+    palabras_clave = set()
+    for p in palabras_raw:
+        if p not in stop_words:
+            palabras_clave.add(p)
+            p_sin_tilde = quitar_tildes(p)
+            if p_sin_tilde and p_sin_tilde not in stop_words:
+                palabras_clave.add(p_sin_tilde)
 
     productos_relacionados = []
     if palabras_clave:
         q_obj = models.Q()
         for palabra in palabras_clave:
-            q_obj |= models.Q(nombre__icontains=palabra) | models.Q(descripcion__icontains=palabra) | models.Q(categoria__nombre__icontains=palabra)
+            q_obj |= (
+                models.Q(nombre__icontains=palabra) |
+                models.Q(descripcion__icontains=palabra) |
+                models.Q(categoria__nombre__icontains=palabra) |
+                models.Q(especie_nombre_comun__icontains=palabra) |
+                models.Q(especie_nombre_cientifico__icontains=palabra) |
+                models.Q(especie_habitat__icontains=palabra) |
+                models.Q(especie_dato_curioso__icontains=palabra)
+            )
         
         productos_coincidentes = list(Producto.objects.filter(disponible=True).filter(q_obj).distinct()[:4])
         productos_relacionados.extend(productos_coincidentes)
