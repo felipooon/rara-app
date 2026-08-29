@@ -71,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'tienda.middleware.AnaliticasMiddleware',
 ]
 
 ROOT_URLCONF = 'rara_app.urls'

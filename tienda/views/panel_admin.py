@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.db import models, transaction
 from django.utils import timezone
 
-from ..models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido
+from ..models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido, MetricaDiaria, MetricaProducto
 from ..forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ConfiguracionSitioForm
 
 
@@ -33,6 +33,23 @@ def panel_home(request):
     top_productos = Producto.objects.filter(items_pedido__pedido__pagado=True).annotate(
         total_vendidos=models.Sum('items_pedido__cantidad')
     ).order_by('-total_vendidos')[:5]
+    
+    hoy = timezone.localdate()
+    metrica_hoy = MetricaDiaria.objects.filter(fecha=hoy).first()
+    visitas_humanos_hoy = metrica_hoy.visitas_humanos if metrica_hoy else 0
+    visitas_bots_hoy = metrica_hoy.visitas_bots if metrica_hoy else 0
+    
+    inicio_mes_date = inicio_mes.date()
+    visitas_mes = MetricaDiaria.objects.filter(fecha__gte=inicio_mes_date).aggregate(
+        humanos=models.Sum('visitas_humanos'),
+        bots=models.Sum('visitas_bots')
+    )
+    humanos_mes = visitas_mes['humanos'] or 0
+    bots_mes = visitas_mes['bots'] or 0
+    
+    top_vistos = Producto.objects.annotate(
+        total_vistas=models.Sum('metricas__vistas')
+    ).exclude(total_vistas=None).order_by('-total_vistas')[:5]
 
     context = {
         'pedidos_pendientes': Pedido.objects.filter(pagado=False).count(),
@@ -40,6 +57,11 @@ def panel_home(request):
         'productos_agotados': Producto.objects.filter(stock=0).count(),
         'ventas_mes': ventas_mes,
         'top_productos': top_productos,
+        'top_vistos': top_vistos,
+        'visitas_humanos_hoy': visitas_humanos_hoy,
+        'visitas_bots_hoy': visitas_bots_hoy,
+        'humanos_mes': humanos_mes,
+        'bots_mes': bots_mes,
         'ultimos_pedidos': Pedido.objects.all().order_by('-fecha_creacion')[:5],
     }
     return render(request, 'panel/dashboard.html', context)

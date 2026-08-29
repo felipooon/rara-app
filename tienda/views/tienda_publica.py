@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.db import models
 
-from ..models import Categoria, Producto, BlogPost, ResenaProducto, Pedido
+from ..models import Categoria, Producto, BlogPost, ResenaProducto, Pedido, MetricaProducto
 from ..forms import ResenaForm
 
 
@@ -101,6 +101,11 @@ def producto_detail(request, slug=None, id=None):
     resenas = producto.resenas.filter(aprobado=True)
     resena_form = ResenaForm()
 
+    from django.utils import timezone
+    hoy = timezone.localdate()
+    metrica_prod, created = MetricaProducto.objects.get_or_create(producto=producto, fecha=hoy)
+    MetricaProducto.objects.filter(id=metrica_prod.id).update(vistas=models.F('vistas') + 1)
+
     return render(request, "producto_detail.html", {
         "producto": producto,
         "resenas": resenas,
@@ -112,6 +117,12 @@ def producto_detail_by_id(request, id):
     producto = get_object_or_404(Producto, id=id)
     if producto.slug:
         return redirect(producto.get_absolute_url(), permanent=True)
+        
+    from django.utils import timezone
+    hoy = timezone.localdate()
+    metrica_prod, created = MetricaProducto.objects.get_or_create(producto=producto, fecha=hoy)
+    MetricaProducto.objects.filter(id=metrica_prod.id).update(vistas=models.F('vistas') + 1)
+
     return render(request, "producto_detail.html", {
         "producto": producto
     })

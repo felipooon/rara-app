@@ -380,3 +380,32 @@ class LogPedido(models.Model):
 
     def __str__(self):
         return f"{self.get_accion_display()} - Pedido #{self.codigo_orden} ({self.cliente_nombre})"
+
+
+class MetricaDiaria(models.Model):
+    fecha = models.DateField(auto_now_add=True, unique=True)
+    visitas_humanos = models.PositiveIntegerField(default=0)
+    visitas_bots = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Métrica Diaria'
+        verbose_name_plural = 'Métricas Diarias'
+
+    def __str__(self):
+        return f"Métricas del {self.fecha}"
+
+
+class MetricaProducto(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='metricas')
+    fecha = models.DateField(auto_now_add=True)
+    vistas = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-fecha', '-vistas']
+        unique_together = ('producto', 'fecha')
+        verbose_name = 'Métrica de Producto'
+        verbose_name_plural = 'Métricas de Productos'
+
+    def __str__(self):
+        return f"{self.producto.nombre} - {self.fecha} ({self.vistas} vistas)"
