@@ -71,17 +71,43 @@ function insertarEtiqueta(inicio, fin) {
     txt.focus();
 }
 
+function abrirModalBlog(id) {
+    document.getElementById(id).style.display = 'flex';
+}
+
+function cerrarModalBlog(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
 function insertarImagen() {
-    var url = prompt("Ingresa la URL completa de la imagen que deseas insertar en medio del texto:");
+    var txt = document.getElementById('editor-contenido');
+    var start = txt.selectionStart;
+    var end = txt.selectionEnd;
+    var selected = txt.value.substring(start, end);
+    
+    document.getElementById('blog_img_url').value = '';
+    document.getElementById('blog_img_alt').value = selected || '';
+    abrirModalBlog('modalInsertarImagen');
+}
+
+function confirmarInsertarImagen() {
+    var url = document.getElementById('blog_img_url').value.trim();
+    var alt = document.getElementById('blog_img_alt').value.trim() || "Imagen del blog";
     if (url) {
-        var alt = prompt("Descripción breve de la imagen (opcional):") || "Imagen del blog";
         var htmlImg = '\n<img src="' + url + '" alt="' + alt + '" style="width: 100%; border-radius: 16px; margin: 25px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">\n';
         insertarEtiqueta(htmlImg, '');
+        cerrarModalBlog('modalInsertarImagen');
     }
 }
 
 function insertarYouTube() {
-    var url = prompt("Ingresa el enlace del video de YouTube (ej: https://www.youtube.com/watch?v=... o https://youtu.be/...):");
+    document.getElementById('blog_yt_url').value = '';
+    document.getElementById('blog_yt_error').style.display = 'none';
+    abrirModalBlog('modalInsertarYouTube');
+}
+
+function confirmarInsertarYouTube() {
+    var url = document.getElementById('blog_yt_url').value.trim();
     if (url) {
         var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         var match = url.match(regExp);
@@ -90,19 +116,45 @@ function insertarYouTube() {
         if (videoId) {
             var htmlVideo = '\n<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 18px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e2ece5;">\n  <iframe src="https://www.youtube-nocookie.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>\n</div>\n';
             insertarEtiqueta(htmlVideo, '');
+            cerrarModalBlog('modalInsertarYouTube');
         } else {
-            alert("No pudimos reconocer el ID del video de YouTube. Asegúrate de pegar un enlace válido.");
+            document.getElementById('blog_yt_error').style.display = 'block';
         }
     }
 }
 
 function insertarEnlace() {
-    var url = prompt("Ingresa la URL del enlace:");
+    var txt = document.getElementById('editor-contenido');
+    var start = txt.selectionStart;
+    var end = txt.selectionEnd;
+    var selected = txt.value.substring(start, end);
+    
+    document.getElementById('blog_link_url').value = '';
+    document.getElementById('blog_link_text').value = selected || '';
+    abrirModalBlog('modalInsertarEnlace');
+}
+
+function confirmarInsertarEnlace() {
+    var url = document.getElementById('blog_link_url').value.trim();
+    var texto = document.getElementById('blog_link_text').value.trim() || "Ver enlace";
     if (url) {
-        var texto = prompt("Texto del enlace:") || "Ver enlace";
         insertarEtiqueta('<a href="' + url + '" target="_blank" style="color: #ef9d71; font-weight: 800;">' + texto + '</a>', '');
+        cerrarModalBlog('modalInsertarEnlace');
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    ['modalInsertarImagen', 'modalInsertarYouTube', 'modalInsertarEnlace'].forEach(function(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    cerrarModalBlog(id);
+                }
+            });
+        }
+    });
+});
 
 function insertarLista() {
     var listaHtml = '\n<ul>\n  <li>Primer elemento</li>\n  <li>Segundo elemento</li>\n</ul>\n';
@@ -137,6 +189,77 @@ function insertarCita() {
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Modal 1: Insertar Imagen -->
+<div id="modalInsertarImagen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2500; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 20px; padding: 28px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #bae6fd;">
+        <button type="button" onclick="cerrarModalBlog('modalInsertarImagen')" style="position: absolute; top: 15px; right: 18px; background: #f1f5f9; border: none; font-size: 14px; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #64748b;">✕</button>
+        
+        <div style="font-size: 2.2rem; margin-bottom: 8px; text-align: center;">🖼️</div>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #1e293b; margin: 0 0 18px 0; text-align: center;">Insertar Imagen en el Texto</h3>
+        
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 6px; font-size: 0.9rem;">URL de la imagen *</label>
+            <input type="url" id="blog_img_url" placeholder="https://ejemplo.com/imagen.jpg" class="form-control">
+        </div>
+
+        <div style="margin-bottom: 22px;">
+            <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 6px; font-size: 0.9rem;">Descripción breve (Alt)</label>
+            <input type="text" id="blog_img_alt" placeholder="Ej: Ave volando sobre el bosque" class="form-control">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="cerrarModalBlog('modalInsertarImagen')" style="background: #f1f5f9; color: #64748b; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer;">Cancelar</button>
+            <button type="button" onclick="confirmarInsertarImagen()" style="background: #0284c7; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer;">Insertar Imagen</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Insertar Video de YouTube -->
+<div id="modalInsertarYouTube" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2500; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 20px; padding: 28px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #fecaca;">
+        <button type="button" onclick="cerrarModalBlog('modalInsertarYouTube')" style="position: absolute; top: 15px; right: 18px; background: #f1f5f9; border: none; font-size: 14px; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #64748b;">✕</button>
+        
+        <div style="font-size: 2.2rem; margin-bottom: 8px; text-align: center;">🎬</div>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #1e293b; margin: 0 0 18px 0; text-align: center;">Insertar Video de YouTube</h3>
+        
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 6px; font-size: 0.9rem;">Enlace del Video de YouTube *</label>
+            <input type="url" id="blog_yt_url" placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..." class="form-control">
+            <div id="blog_yt_error" style="display: none; color: #dc2626; font-size: 0.85rem; margin-top: 6px; font-weight: 600;">No se pudo reconocer el enlace. Ingresa una URL válida de YouTube.</div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="cerrarModalBlog('modalInsertarYouTube')" style="background: #f1f5f9; color: #64748b; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer;">Cancelar</button>
+            <button type="button" onclick="confirmarInsertarYouTube()" style="background: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer;">Insertar Video</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Insertar Enlace -->
+<div id="modalInsertarEnlace" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2500; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 20px; padding: 28px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #bbf7d0;">
+        <button type="button" onclick="cerrarModalBlog('modalInsertarEnlace')" style="position: absolute; top: 15px; right: 18px; background: #f1f5f9; border: none; font-size: 14px; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #64748b;">✕</button>
+        
+        <div style="font-size: 2.2rem; margin-bottom: 8px; text-align: center;">🔗</div>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #1e293b; margin: 0 0 18px 0; text-align: center;">Insertar Enlace</h3>
+        
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 6px; font-size: 0.9rem;">URL de destino *</label>
+            <input type="url" id="blog_link_url" placeholder="https://ejemplo.com" class="form-control">
+        </div>
+
+        <div style="margin-bottom: 22px;">
+            <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 6px; font-size: 0.9rem;">Texto a mostrar</label>
+            <input type="text" id="blog_link_text" placeholder="Ej: Ver guía completa" class="form-control">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="cerrarModalBlog('modalInsertarEnlace')" style="background: #f1f5f9; color: #64748b; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer;">Cancelar</button>
+            <button type="button" onclick="confirmarInsertarEnlace()" style="background: #15803d; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer;">Insertar Enlace</button>
+        </div>
     </div>
 </div>
 
