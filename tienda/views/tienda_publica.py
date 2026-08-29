@@ -141,11 +141,33 @@ def blog_list(request):
 def blog_detail(request, slug):
     post = get_object_or_404(BlogPost, slug=slug, publicado=True)
     otros_posts = BlogPost.objects.filter(publicado=True).exclude(id=post.id)[:3]
-    productos_destacados = Producto.objects.filter(disponible=True).order_by('?')[:4]
+    
+    # Búsqueda inteligente de productos relacionados por palabras clave en título y resumen
+    texto_busqueda = f"{post.titulo} {post.resumen}".lower()
+    stop_words = {'para', 'como', 'esta', 'este', 'entre', 'sobre', 'desde', 'hasta', 'nuestra', 'nuestro', 'chile', 'artesanal', 'con', 'del', 'los', 'las', 'que', 'por', 'una', 'uno', 'unos', 'unas'}
+    palabras = [p.strip('.,;:!?()""\'') for p in texto_busqueda.split() if len(p.strip('.,;:!?()""\'')) > 3]
+    palabras_clave = [p for p in palabras if p not in stop_words]
+
+    productos_relacionados = []
+    if palabras_clave:
+        q_obj = models.Q()
+        for palabra in palabras_clave:
+            q_obj |= models.Q(nombre__icontains=palabra) | models.Q(descripcion__icontains=palabra) | models.Q(categoria__nombre__icontains=palabra)
+        
+        productos_coincidentes = list(Producto.objects.filter(disponible=True).filter(q_obj).distinct()[:4])
+        productos_relacionados.extend(productos_coincidentes)
+
+    # Si hay menos de 4 productos relacionados, completar con productos al azar sin repetir
+    if len(productos_relacionados) < 4:
+        ids_existentes = [p.id for p in productos_relacionados]
+        faltantes = 4 - len(productos_relacionados)
+        productos_azar = list(Producto.objects.filter(disponible=True).exclude(id__in=ids_existentes).order_by('?')[:faltantes])
+        productos_relacionados.extend(productos_azar)
+
     return render(request, "blog/blog_detail.html", {
         "post": post,
         "otros_posts": otros_posts,
-        "productos_destacados": productos_destacados,
+        "productos_destacados": productos_relacionados,
     })
 
 
