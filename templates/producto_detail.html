@@ -37,12 +37,18 @@
 <div class="producto-detalle">
 <div class="producto-detalle-container">
     
-    <!-- Migas de Pan / Breadcrumbs -->
-    <nav style="margin-bottom: 20px; font-size: 0.9rem; color: #777; word-break: break-word; padding: 0 4px;">
-        <a href="/" style="color: #666; text-decoration: none;">Inicio</a> &nbsp;›&nbsp;
-        <a href="{% url 'categoria' producto.categoria.slug %}" style="color: #666; text-decoration: none;">{{ producto.categoria.nombre }}</a> &nbsp;›&nbsp;
-        <span style="color: #fca311; font-weight: 600;">{{ producto.nombre }}</span>
-    </nav>
+    <!-- Header superior: Migas de Pan y Botón Volver -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; width: 100%;">
+        <nav style="font-size: 0.9rem; color: #777; word-break: break-word; padding: 0 4px;">
+            <a href="/" style="color: #666; text-decoration: none;">Inicio</a> &nbsp;›&nbsp;
+            <a href="{% url 'categoria' producto.categoria.slug %}" style="color: #666; text-decoration: none;">{{ producto.categoria.nombre }}</a> &nbsp;›&nbsp;
+            <span style="color: #fca311; font-weight: 600;">{{ producto.nombre }}</span>
+        </nav>
+        
+        <a href="javascript:history.back()" class="btn-volver" style="margin: 0;">
+            ← Volver
+        </a>
+    </div>
 
     <style>
         .producto-detalle-container {
@@ -177,13 +183,9 @@
                     </div>
 
                     <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <button type="submit" style="flex-grow: 1; padding: 16px 25px; background: linear-gradient(135deg, #fca311, #ff8c00); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 18px rgba(252, 163, 17, 0.35); transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <button type="submit" style="width: 100%; padding: 16px 25px; background: linear-gradient(135deg, #fca311, #ff8c00); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 18px rgba(252, 163, 17, 0.35); transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                             <i class="fa-solid fa-cart-plus"></i> Agregar a mi Nido 🪹
                         </button>
-                        
-                        <a href="javascript:history.back()" style="padding: 16px 20px; background: #f5f5f5; color: #555; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f5f5f5'">
-                            ← Volver
-                        </a>
                     </div>
                 </form>
                 {% else %}
