@@ -176,3 +176,23 @@ class ApiBusquedaTests(TestCase):
         data = response.json()
         self.assertEqual(len(data['productos']), 1)
         self.assertIn("Polera Chucao", data['productos'][0]['nombre'])
+
+
+class CategoriaIndexTests(TestCase):
+    def test_index_oculta_categorias_sin_productos_disponibles(self):
+        """La vista de inicio solo debe mostrar categorías con al menos un producto disponible."""
+        cat_activa = Categoria.objects.create(nombre="Categoría Activa")
+        cat_sin_stock = Categoria.objects.create(nombre="Categoría Sin Stock")
+        cat_vacia = Categoria.objects.create(nombre="Categoría Vacía")
+
+        Producto.objects.create(categoria=cat_activa, nombre="Producto Disponible", precio=1000, stock=5, disponible=True)
+        Producto.objects.create(categoria=cat_sin_stock, nombre="Producto Agotado", precio=1000, stock=0, disponible=False)
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        categorias_en_contexto = list(response.context['categorias'])
+        
+        self.assertIn(cat_activa, categorias_en_contexto)
+        self.assertNotIn(cat_sin_stock, categorias_en_contexto)
+        self.assertNotIn(cat_vacia, categorias_en_contexto)
+

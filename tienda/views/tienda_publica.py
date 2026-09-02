@@ -24,7 +24,7 @@ def aplicar_ordenamiento(queryset, orden):
 
 
 def index(request):
-    categorias = Categoria.objects.all()
+    categorias = Categoria.objects.filter(producto__disponible=True).distinct()
     orden = request.GET.get('orden', '')
     productos = Producto.objects.filter(disponible=True)
     productos = aplicar_ordenamiento(productos, orden)
