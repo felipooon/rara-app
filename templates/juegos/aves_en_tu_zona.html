@@ -668,8 +668,9 @@
                 ], { padding: [30, 30], maxZoom: 14 });
             }
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                attribution: '&copy; Google Maps'
             }).addTo(currentMap);
 
             observations.forEach(o => {

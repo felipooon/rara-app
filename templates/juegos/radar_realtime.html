@@ -278,8 +278,8 @@
         };
 
         const map = L.map('map', { zoomControl: false }).setView([-41.47, -72.94], 9);
-        const sat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}').addTo(map);
-        const streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
+        const sat = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}').addTo(map);
+        const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' });
         L.control.layers({"Satélite": sat, "Mapa": streets}, null, {position:'bottomleft'}).addTo(map);
         const markers = L.layerGroup().addTo(map);
 
