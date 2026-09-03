@@ -27,6 +27,19 @@ class Categoria(models.Model):
     def get_imagen_url(self, width=600):
         return get_cloudinary_url(self.imagen, width=width)
 
+    @property
+    def get_imagen_url_300(self):
+        return get_cloudinary_url(self.imagen, width=300)
+
+    @property
+    def get_imagen_url_600(self):
+        return get_cloudinary_url(self.imagen, width=600)
+
+    @property
+    def get_imagen_url_1200(self):
+        return get_cloudinary_url(self.imagen, width=1200)
+
+
 
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
@@ -365,8 +378,17 @@ class BlogPost(models.Model):
         return get_cloudinary_url(self.imagen, width=1200)
 
     @property
+    def get_imagen_url_300(self):
+        return get_cloudinary_url(self.imagen, width=300)
+
+    @property
     def get_imagen_url_600(self):
         return get_cloudinary_url(self.imagen, width=600)
+
+    @property
+    def get_imagen_url_1200(self):
+        return get_cloudinary_url(self.imagen, width=1200)
+
 
 
 

@@ -76,6 +76,18 @@ class CloudinaryUrlTests(TestCase):
         res = cloudinary_url(raw_url, 1200)
         self.assertEqual(res, "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_1200/v12345/sample.png")
 
+    def test_categoria_y_blog_image_properties(self):
+        """Verifica que Categoria y BlogPost dispongan de get_imagen_url_600 y propiedades de tamaño."""
+        cat = Categoria.objects.create(nombre="Aves Test", imagen="categorias/test.jpg")
+        self.assertIsNotNone(cat.get_imagen_url_600)
+        self.assertIsNotNone(cat.get_imagen_url_300)
+
+        from .models import BlogPost
+        post = BlogPost.objects.create(titulo="Blog Test", contenido="Test content", imagen="blog/test.jpg")
+        self.assertIsNotNone(post.get_imagen_url_600)
+        self.assertIsNotNone(post.get_imagen_url_1200)
+
+
 
 
 
