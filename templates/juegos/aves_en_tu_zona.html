@@ -513,19 +513,34 @@
             birdsGrid.style.display = 'none';
 
             try {
-                let res = await fetch(`/api/ebird/data/obs/${regionCode}/recent?sppLocale=es_CL&back=1`);
+                const now = new Date();
+                const y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+                const todayStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+                let res = await fetch(`/api/ebird/data/obs/${regionCode}/historic/${y}/${m}/${d}?sppLocale=es_CL`);
+                if (!res.ok) {
+                    res = await fetch(`/api/ebird/data/obs/${regionCode}/recent?sppLocale=es_CL&back=1`);
+                }
                 if (!res.ok) {
                     res = await fetch(`https://api.ebird.org/v2/data/obs/${regionCode}/recent?sppLocale=es_CL&back=1`);
                 }
 
-
                 if (!res.ok) throw new Error('No se pudieron obtener avistamientos');
 
                 const rawObs = await res.json();
+                const obsList = Array.isArray(rawObs) ? rawObs : [];
+
+                // Filtrado estricto por avistamientos de HOY
+                const obsHoy = obsList.filter(obs => {
+                    const dt = obs.obsDt || '';
+                    return !dt || dt.startsWith(todayStr) || dt.includes(todayStr);
+                });
+
+                const datasetToUse = obsHoy.length > 0 ? obsHoy : obsList;
 
                 // Group by species
                 const mapGroups = {};
-                rawObs.forEach(obs => {
+                datasetToUse.forEach(obs => {
                     const code = obs.speciesCode;
                     if (!mapGroups[code]) {
                         const comName = (speciesDict[code] && speciesDict[code].es) || obs.comName || obs.sciName;

@@ -313,6 +313,7 @@
         async function update() {
             const h = new Date();
             const y = h.getFullYear(), m = h.getMonth() + 1, d = h.getDate();
+            const todayStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             
             try {
                 let resObs = await fetch(`/api/ebird/data/obs/${REGION}/historic/${y}/${m}/${d}?sppLocale=es_CL`);
@@ -320,9 +321,19 @@
                     resObs = await fetch(`/api/ebird/data/obs/${REGION}/recent?sppLocale=es_CL&back=1`);
                 }
                 const obsData = await resObs.json();
-                rawObsData = Array.isArray(obsData) ? obsData : [];
+                const obsList = Array.isArray(obsData) ? obsData : [];
                 
-                document.getElementById('s-sp').innerText = rawObsData.length;
+                // Filtrado estricto por avistamientos de HOY
+                const obsHoy = obsList.filter(o => {
+                    const dt = o.obsDt || '';
+                    return !dt || dt.startsWith(todayStr) || dt.includes(todayStr);
+                });
+
+                rawObsData = obsHoy.length > 0 ? obsHoy : obsList;
+                
+                // Número de especies ÚNICAS registradas hoy
+                const especiesUnicas = new Set(rawObsData.map(o => o.speciesCode)).size;
+                document.getElementById('s-sp').innerText = especiesUnicas;
                 
                 const htmlEspecies = rawObsData.map(o => {
                     const codigo = o.speciesCode; 
@@ -385,9 +396,10 @@
             markers.clearLayers();
             
             const now = new Date();
-            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+            const todayStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
-            // 1. Filtrar y renderizar listas
+            // 1. Filtrar y renderizar listas de HOY
             const filtradasListas = Array.isArray(rawListas) ? rawListas.filter(l => {
                 const matchUser = !fu || (l.userDisplayName && l.userDisplayName.toLowerCase().includes(fu));
                 const dateStr = l.isoObsDate || l.obsDt || '';
@@ -412,8 +424,13 @@
             // 2. Trazar puntos del mapa desde las observaciones de HOY
             const locSeen = new Set();
 
-            if (Array.isArray(rawObsData) && rawObsData.length > 0) {
-                rawObsData.forEach(o => {
+            const obsFiltradasMapa = Array.isArray(rawObsData) ? rawObsData.filter(o => {
+                const dt = o.obsDt || '';
+                return !dt || dt.startsWith(todayStr) || dt.includes(todayStr);
+            }) : [];
+
+            if (obsFiltradasMapa.length > 0) {
+                obsFiltradasMapa.forEach(o => {
                     const lat = o.lat || (o.loc && o.loc.latitude);
                     const lng = o.lng || (o.loc && o.loc.longitude);
                     if (!lat || !lng) return;
