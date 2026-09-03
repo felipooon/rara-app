@@ -114,8 +114,20 @@ def crear_producto(request):
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
             producto = form.save()
+
+            # Guardar imágenes adicionales de galería si se enviaron
+            imagenes_extra = request.FILES.getlist('imagenes_adicionales')
+            for idx, file in enumerate(imagenes_extra):
+                ImagenProducto.objects.create(
+                    producto=producto,
+                    imagen=file,
+                    orden=idx
+                )
+
             usuario_log = request.user if request.user.is_authenticated else None
             detalles_str = f"Precio inicial: ${producto.precio} | Stock inicial: {producto.stock} | Categoría: {producto.categoria.nombre if producto.categoria else 'Sin categoría'}"
+            if imagenes_extra:
+                detalles_str += f" | {len(imagenes_extra)} imágenes adicionales subidas"
             LogProducto.objects.create(
                 producto_id=producto.id,
                 nombre_producto=producto.nombre,
@@ -191,6 +203,26 @@ def editar_producto(request, id):
     if request.method == 'POST' and form.is_valid():
         prod_editado = form.save()
         cambios = []
+
+        # Eliminar imágenes seleccionadas para borrar
+        eliminar_ids = request.POST.getlist('eliminar_imagenes')
+        if eliminar_ids:
+            borradas_count = ImagenProducto.objects.filter(producto=prod_editado, id__in=eliminar_ids).delete()[0]
+            if borradas_count > 0:
+                cambios.append(f"{borradas_count} imágenes de galería eliminadas")
+
+        # Subir nuevas imágenes adicionales
+        imagenes_extra = request.FILES.getlist('imagenes_adicionales')
+        if imagenes_extra:
+            orden_base = ImagenProducto.objects.filter(producto=prod_editado).count()
+            for idx, file in enumerate(imagenes_extra):
+                ImagenProducto.objects.create(
+                    producto=prod_editado,
+                    imagen=file,
+                    orden=orden_base + idx
+                )
+            cambios.append(f"{len(imagenes_extra)} nuevas imágenes agregadas a la galería")
+
         if nombre_ant != prod_editado.nombre:
             cambios.append(f"Nombre: '{nombre_ant}' ➔ '{prod_editado.nombre}'")
         if precio_ant != prod_editado.precio:

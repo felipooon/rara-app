@@ -84,8 +84,23 @@ class Producto(models.Model):
         return round(total / resenas.count(), 1)
 
     @property
-    def total_resenas(self):
-        return self.resenas.filter(aprobado=True).count()
+    def todas_las_imagenes(self):
+        imgs = []
+        if self.imagen:
+            imgs.append({
+                'id': 'main',
+                'url': self.imagen.url,
+                'get_imagen_url_absoluta': self.get_imagen_url_absoluta,
+                'es_principal': True
+            })
+        for img_extra in self.imagenes_adicionales.all():
+            imgs.append({
+                'id': img_extra.id,
+                'url': img_extra.imagen.url,
+                'get_imagen_url_absoluta': img_extra.get_imagen_url_absoluta,
+                'es_principal': False
+            })
+        return imgs
 
     # --- LÓGICA DE AUTOMATIZACIÓN AL GUARDAR ---
     def save(self, *args, **kwargs):
@@ -104,6 +119,45 @@ class Producto(models.Model):
             self.slug = slug_candidate
             
         super().save(*args, **kwargs)
+
+
+class ImagenProducto(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes_adicionales')
+    imagen = models.ImageField(upload_to='productos/galeria/')
+    orden = models.PositiveIntegerField(default=0)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['orden', 'id']
+        verbose_name = 'Imagen de Producto'
+        verbose_name_plural = 'Imágenes de Producto'
+
+    def __str__(self):
+        return f"Imagen de {self.producto.nombre}"
+
+    @property
+    def get_imagen_url_absoluta(self):
+        if not self.imagen:
+            return ""
+        url = self.imagen.url
+        if not url:
+            return ""
+        if 'cloudinary.com' in url:
+            if url.startswith('http://'):
+                url = 'https://' + url[7:]
+            if '/upload/' in url and '/f_jpg' not in url:
+                url = url.replace('/upload/', '/upload/f_jpg,q_auto,w_600/')
+            if not (url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png')):
+                url = url + '.jpg'
+            return url
+        if url.startswith('http://') or url.startswith('https://'):
+            if url.startswith('http://'):
+                return 'https://' + url[7:]
+            return url
+        if not url.startswith('/'):
+            url = '/' + url
+        return f"https://www.raratienda.cl{url}"
+
     
 
     

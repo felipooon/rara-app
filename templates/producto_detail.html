@@ -107,21 +107,178 @@
 
     <div class="producto-grid-layout">
         
-        <!-- COLUMNA IZQUIERDA: Imagen del Producto -->
-        <div style="position: relative; text-align: center;">
-            <div style="position: relative; border-radius: 16px; overflow: hidden; background: #fafafa; border: 1px solid #eee;">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 100%; max-height: 480px; object-fit: contain; display: block; transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-                {% else %}
-                    <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #aaa;">Sin Imagen</div>
-                {% endif %}
+        <!-- COLUMNA IZQUIERDA: Galería / Imagen del Producto -->
+        <div style="position: relative; text-align: center; width: 100%;">
+            {% with imagenes=producto.todas_las_imagenes %}
+            {% if imagenes|length > 1 %}
+                <!-- Galería Carrusel con Slide / Puntitos -->
+                <div class="product-gallery-wrapper" style="position: relative; width: 100%;">
+                    <div class="product-main-image-box" style="position: relative; border-radius: 16px; overflow: hidden; background: #fafafa; border: 1px solid #eee; height: 420px; display: flex; align-items: center; justify-content: center;">
+                        {% for img_item in imagenes %}
+                            <img src="{{ img_item.url }}" alt="{{ producto.nombre }}" class="gallery-slide-img {% if forloop.first %}active{% endif %}" id="slide-img-{{ forloop.counter0 }}" style="max-height: 400px; width: 100%; object-fit: contain; display: {% if forloop.first %}block{% else %}none{% endif %}; transition: opacity 0.3s ease-in-out;">
+                        {% endfor %}
 
-                {% if not producto.disponible %}
-                    <span style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">Agotado</span>
-                {% elif producto.stock <= 3 and producto.stock > 0 %}
-                    <span style="position: absolute; top: 15px; right: 15px; background: #e67e22; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">¡Solo {{ producto.stock }} disponible{% if producto.stock > 1 %}s{% endif %}!</span>
-                {% endif %}
-            </div>
+                        <!-- Flechas de navegación -->
+                        <button type="button" class="gallery-arrow arrow-left" onclick="cambiarSlide(-1)" aria-label="Imagen anterior">❮</button>
+                        <button type="button" class="gallery-arrow arrow-right" onclick="cambiarSlide(1)" aria-label="Siguiente imagen">❯</button>
+
+                        <!-- Badges de Stock -->
+                        {% if not producto.disponible %}
+                            <span style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 5;">Agotado</span>
+                        {% elif producto.stock <= 3 and producto.stock > 0 %}
+                            <span style="position: absolute; top: 15px; right: 15px; background: #e67e22; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 5;">¡Solo {{ producto.stock }} disponible{% if producto.stock > 1 %}s{% endif %}!</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Puntitos Indicadores (Dots) estilo E-commerce -->
+                    <div class="gallery-dots-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 14px;">
+                        {% for img_item in imagenes %}
+                            <button type="button" class="gallery-dot {% if forloop.first %}active{% endif %}" id="dot-{{ forloop.counter0 }}" onclick="irASlide({{ forloop.counter0 }})" aria-label="Ir a imagen {{ forloop.counter }}"></button>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Fila de Miniaturas (Thumbnails) -->
+                    <div class="gallery-thumbnails-row" style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 12px; overflow-x: auto; padding: 4px 0;">
+                        {% for img_item in imagenes %}
+                            <div class="gallery-thumb-item {% if forloop.first %}active{% endif %}" id="thumb-{{ forloop.counter0 }}" onclick="irASlide({{ forloop.counter0 }})">
+                                <img src="{{ img_item.url }}" alt="Vista previa {{ forloop.counter }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <style>
+                    .gallery-arrow {
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        background: rgba(255, 255, 255, 0.85);
+                        border: 1px solid rgba(0, 0, 0, 0.08);
+                        color: #222;
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        width: 38px;
+                        height: 38px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                        transition: all 0.2s ease;
+                        z-index: 4;
+                    }
+                    .gallery-arrow:hover {
+                        background: #ffffff;
+                        transform: translateY(-50%) scale(1.1);
+                        color: #fca311;
+                    }
+                    .arrow-left { left: 12px; }
+                    .arrow-right { right: 12px; }
+
+                    .gallery-dot {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: #cbd5e1;
+                        border: none;
+                        padding: 0;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    }
+                    .gallery-dot.active {
+                        background: #fca311;
+                        width: 26px;
+                        border-radius: 12px;
+                    }
+
+                    .gallery-thumb-item {
+                        width: 58px;
+                        height: 58px;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        border: 2px solid #e2e8f0;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        background: #fafafa;
+                        flex-shrink: 0;
+                    }
+                    .gallery-thumb-item img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                    .gallery-thumb-item.active,
+                    .gallery-thumb-item:hover {
+                        border-color: #fca311;
+                        transform: scale(1.05);
+                        box-shadow: 0 3px 8px rgba(252, 163, 17, 0.25);
+                    }
+                </style>
+
+                <script>
+                    (function() {
+                        var currentSlide = 0;
+                        var totalSlides = {{ imagenes|length }};
+
+                        window.irASlide = function(index) {
+                            if (index < 0) index = totalSlides - 1;
+                            if (index >= totalSlides) index = 0;
+                            currentSlide = index;
+
+                            for (var i = 0; i < totalSlides; i++) {
+                                var img = document.getElementById('slide-img-' + i);
+                                var dot = document.getElementById('dot-' + i);
+                                var thumb = document.getElementById('thumb-' + i);
+
+                                if (img) img.style.display = (i === currentSlide) ? 'block' : 'none';
+                                if (dot) dot.classList.toggle('active', i === currentSlide);
+                                if (thumb) thumb.classList.toggle('active', i === currentSlide);
+                            }
+                        };
+
+                        window.cambiarSlide = function(direction) {
+                            irASlide(currentSlide + direction);
+                        };
+
+                        // Deslizar con Touch (Swipe) en celulares
+                        var mainBox = document.querySelector('.product-main-image-box');
+                        if (mainBox) {
+                            var touchStartX = 0;
+                            var touchEndX = 0;
+
+                            mainBox.addEventListener('touchstart', function(e) {
+                                touchStartX = e.changedTouches[0].screenX;
+                            }, {passive: true});
+
+                            mainBox.addEventListener('touchend', function(e) {
+                                touchEndX = e.changedTouches[0].screenX;
+                                if (touchStartX - touchEndX > 40) {
+                                    cambiarSlide(1); // Swipe Izquierda
+                                } else if (touchEndX - touchStartX > 40) {
+                                    cambiarSlide(-1); // Swipe Derecha
+                                }
+                            }, {passive: true});
+                        }
+                    })();
+                </script>
+            {% else %}
+                <!-- Vista única (1 sola imagen) -->
+                <div style="position: relative; border-radius: 16px; overflow: hidden; background: #fafafa; border: 1px solid #eee;">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 100%; max-height: 480px; object-fit: contain; display: block; transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                    {% else %}
+                        <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #aaa;">Sin Imagen</div>
+                    {% endif %}
+
+                    {% if not producto.disponible %}
+                        <span style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">Agotado</span>
+                    {% elif producto.stock <= 3 and producto.stock > 0 %}
+                        <span style="position: absolute; top: 15px; right: 15px; background: #e67e22; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">¡Solo {{ producto.stock }} disponible{% if producto.stock > 1 %}s{% endif %}!</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% endwith %}
         </div>
 
         <!-- COLUMNA DERECHA: Información y Compra -->

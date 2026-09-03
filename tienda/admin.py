@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import Categoria, Producto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido
+from .models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido
+
+class ImagenProductoInline(admin.TabularInline):
+    model = ImagenProducto
+    extra = 1
 
 # --- Configuración de Categorías ---
 @admin.register(Categoria)
@@ -14,6 +18,8 @@ class ProductoAdmin(admin.ModelAdmin):
     list_editable = ('stock', 'disponible') 
     list_filter = ('categoria', 'disponible')
     search_fields = ('nombre',)
+    inlines = [ImagenProductoInline]
+
 
 # --- Configuración de Cupones ---
 @admin.register(Cupon)
