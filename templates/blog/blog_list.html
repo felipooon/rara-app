@@ -28,7 +28,7 @@
                         <div style="margin: 12px 12px 0 12px; border-radius: 14px; overflow: hidden;">
                             <a href="{{ post.get_absolute_url }}" style="text-decoration: none; color: inherit; display: block; overflow: hidden; position: relative; aspect-ratio: 16/9; background: #f7fafc;">
                                 {% if post.imagen %}
-                                    <img src="{{ post.get_imagen_url_absoluta }}" alt="{{ post.titulo }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+                                    <img src="{{ post.get_imagen_url_600 }}" alt="{{ post.titulo }}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
                                 {% else %}
                                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ef9d71 0%, #65C18C 100%); color: white; font-size: 2.5rem;">
                                         🦜

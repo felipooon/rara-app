@@ -115,7 +115,7 @@
                 <div class="product-gallery-wrapper" style="position: relative; width: 100%;">
                     <div class="product-main-image-box" style="position: relative; border-radius: 16px; overflow: hidden; background: #fafafa; border: 1px solid #eee; height: 420px; display: flex; align-items: center; justify-content: center;">
                         {% for img_item in imagenes %}
-                            <img src="{{ img_item.url }}" alt="{{ producto.nombre }}" class="gallery-slide-img {% if forloop.first %}active{% endif %}" id="slide-img-{{ forloop.counter0 }}" style="max-height: 400px; width: 100%; object-fit: contain; display: {% if forloop.first %}block{% else %}none{% endif %}; transition: opacity 0.3s ease-in-out;">
+                            <img src="{{ img_item.url_1200 }}" alt="{{ producto.nombre }}" class="gallery-slide-img {% if forloop.first %}active{% endif %}" id="slide-img-{{ forloop.counter0 }}" {% if not forloop.first %}loading="lazy"{% endif %} style="max-height: 400px; width: 100%; object-fit: contain; display: {% if forloop.first %}block{% else %}none{% endif %}; transition: opacity 0.3s ease-in-out;">
                         {% endfor %}
 
                         <!-- Flechas de navegación -->
@@ -141,7 +141,7 @@
                     <div class="gallery-thumbnails-row" style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 12px; overflow-x: auto; padding: 4px 0;">
                         {% for img_item in imagenes %}
                             <div class="gallery-thumb-item {% if forloop.first %}active{% endif %}" id="thumb-{{ forloop.counter0 }}" onclick="irASlide({{ forloop.counter0 }})">
-                                <img src="{{ img_item.url }}" alt="Vista previa {{ forloop.counter }}">
+                                <img src="{{ img_item.url_300 }}" alt="Vista previa {{ forloop.counter }}" loading="lazy">
                             </div>
                         {% endfor %}
                     </div>
@@ -266,7 +266,7 @@
                 <!-- Vista única (1 sola imagen) -->
                 <div style="position: relative; border-radius: 16px; overflow: hidden; background: #fafafa; border: 1px solid #eee;">
                     {% if producto.imagen %}
-                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 100%; max-height: 480px; object-fit: contain; display: block; transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="{{ producto.get_imagen_url_1200 }}" alt="{{ producto.nombre }}" style="width: 100%; max-height: 480px; object-fit: contain; display: block; transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
                     {% else %}
                         <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #aaa;">Sin Imagen</div>
                     {% endif %}

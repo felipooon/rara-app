@@ -37,7 +37,7 @@
     <div class="producto" style="position: relative;">
 
       {% if p.imagen %}
-        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+        <img src="{{ p.get_imagen_url_600 }}" alt="{{ p.nombre }}" loading="lazy">
       {% endif %}
 
       {% if not p.disponible %}

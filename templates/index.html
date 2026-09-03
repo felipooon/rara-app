@@ -70,7 +70,7 @@
 
 
             {% if p.imagen %}
-              <img src="{{ p.get_imagen_url_absoluta }}" alt="{{ p.nombre }}">
+              <img src="{{ p.get_imagen_url_600 }}" alt="{{ p.nombre }}" loading="lazy">
             {% endif %}
             {% if not p.disponible %}
               <span class="agotado">Agotado</span>
@@ -136,7 +136,7 @@
     {% for c in categorias %}
       <div class="producto" id="cat-{{ c.slug }}">
         {% if c.imagen %}
-          <img src="{{ c.imagen.url }}" alt="{{ c.nombre }}">
+          <img src="{{ c.get_imagen_url_600 }}" alt="{{ c.nombre }}" loading="lazy">
         {% else %}
           <img src="{% static 'img/default-category.png' %}" alt="Sin imagen">
         {% endif %}
@@ -184,7 +184,7 @@
           <div style="margin: 12px 12px 0 12px; border-radius: 14px; overflow: hidden;">
             <a href="{{ post.get_absolute_url }}" style="text-decoration: none; color: inherit; display: block; overflow: hidden; position: relative; aspect-ratio: 16/9; background: #f7fafc;">
               {% if post.imagen %}
-                <img src="{{ post.get_imagen_url_absoluta }}" alt="{{ post.titulo }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+                <img src="{{ post.get_imagen_url_600 }}" alt="{{ post.titulo }}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
               {% else %}
                 <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ef9d71 0%, #65C18C 100%); color: white; font-size: 2.5rem;">
                   🦜
@@ -245,7 +245,7 @@
             <!-- Header: Producto Imagen + Nombre + Estrellas -->
             <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
               {% if r.producto.imagen %}
-                <img src="{{ r.producto.get_imagen_url_absoluta }}" alt="{{ r.producto.nombre }}" style="width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                <img src="{{ r.producto.get_imagen_url_300 }}" alt="{{ r.producto.nombre }}" loading="lazy" style="width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; flex-shrink: 0;">
               {% else %}
                 <div style="width: 52px; height: 52px; background: #e2e8f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">🛍️</div>
               {% endif %}

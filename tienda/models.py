@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
+from .utils import get_cloudinary_url
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -18,6 +19,13 @@ class Categoria(models.Model):
 
     def get_absolute_url(self):
         return reverse('categoria', args=[self.slug])
+
+    @property
+    def get_imagen_url_absoluta(self):
+        return get_cloudinary_url(self.imagen, width=600)
+
+    def get_imagen_url(self, width=600):
+        return get_cloudinary_url(self.imagen, width=width)
 
 
 class Producto(models.Model):
@@ -48,28 +56,24 @@ class Producto(models.Model):
             return reverse('producto_detail_slug', args=[self.slug])
         return reverse('producto_detail', args=[str(self.id)])
 
+    def get_imagen_url(self, width=600):
+        return get_cloudinary_url(self.imagen, width=width)
+
     @property
     def get_imagen_url_absoluta(self):
-        if not self.imagen:
-            return ""
-        url = self.imagen.url
-        if not url:
-            return ""
-        if 'cloudinary.com' in url:
-            if url.startswith('http://'):
-                url = 'https://' + url[7:]
-            if '/upload/' in url and '/f_jpg' not in url:
-                url = url.replace('/upload/', '/upload/f_jpg,q_auto,w_600/')
-            if not (url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png')):
-                url = url + '.jpg'
-            return url
-        if url.startswith('http://') or url.startswith('https://'):
-            if url.startswith('http://'):
-                return 'https://' + url[7:]
-            return url
-        if not url.startswith('/'):
-            url = '/' + url
-        return f"https://www.raratienda.cl{url}"
+        return get_cloudinary_url(self.imagen, width=1200)
+
+    @property
+    def get_imagen_url_300(self):
+        return get_cloudinary_url(self.imagen, width=300)
+
+    @property
+    def get_imagen_url_600(self):
+        return get_cloudinary_url(self.imagen, width=600)
+
+    @property
+    def get_imagen_url_1200(self):
+        return get_cloudinary_url(self.imagen, width=1200)
     
     # Opcional: un método rápido para saber si hay stock
     def hay_stock(self):
@@ -89,15 +93,21 @@ class Producto(models.Model):
         if self.imagen:
             imgs.append({
                 'id': 'main',
-                'url': self.imagen.url,
-                'get_imagen_url_absoluta': self.get_imagen_url_absoluta,
+                'url': get_cloudinary_url(self.imagen, width=600),
+                'url_300': get_cloudinary_url(self.imagen, width=300),
+                'url_600': get_cloudinary_url(self.imagen, width=600),
+                'url_1200': get_cloudinary_url(self.imagen, width=1200),
+                'get_imagen_url_absoluta': get_cloudinary_url(self.imagen, width=1200),
                 'es_principal': True
             })
         for img_extra in self.imagenes_adicionales.all():
             imgs.append({
                 'id': img_extra.id,
-                'url': img_extra.imagen.url,
-                'get_imagen_url_absoluta': img_extra.get_imagen_url_absoluta,
+                'url': get_cloudinary_url(img_extra.imagen, width=600),
+                'url_300': get_cloudinary_url(img_extra.imagen, width=300),
+                'url_600': get_cloudinary_url(img_extra.imagen, width=600),
+                'url_1200': get_cloudinary_url(img_extra.imagen, width=1200),
+                'get_imagen_url_absoluta': get_cloudinary_url(img_extra.imagen, width=1200),
                 'es_principal': False
             })
         return imgs
@@ -135,28 +145,25 @@ class ImagenProducto(models.Model):
     def __str__(self):
         return f"Imagen de {self.producto.nombre}"
 
+    def get_imagen_url(self, width=600):
+        return get_cloudinary_url(self.imagen, width=width)
+
     @property
     def get_imagen_url_absoluta(self):
-        if not self.imagen:
-            return ""
-        url = self.imagen.url
-        if not url:
-            return ""
-        if 'cloudinary.com' in url:
-            if url.startswith('http://'):
-                url = 'https://' + url[7:]
-            if '/upload/' in url and '/f_jpg' not in url:
-                url = url.replace('/upload/', '/upload/f_jpg,q_auto,w_600/')
-            if not (url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png')):
-                url = url + '.jpg'
-            return url
-        if url.startswith('http://') or url.startswith('https://'):
-            if url.startswith('http://'):
-                return 'https://' + url[7:]
-            return url
-        if not url.startswith('/'):
-            url = '/' + url
-        return f"https://www.raratienda.cl{url}"
+        return get_cloudinary_url(self.imagen, width=1200)
+
+    @property
+    def get_imagen_url_300(self):
+        return get_cloudinary_url(self.imagen, width=300)
+
+    @property
+    def get_imagen_url_600(self):
+        return get_cloudinary_url(self.imagen, width=600)
+
+    @property
+    def get_imagen_url_1200(self):
+        return get_cloudinary_url(self.imagen, width=1200)
+
 
     
 
@@ -350,28 +357,17 @@ class BlogPost(models.Model):
             self.slug = candidate
         super().save(*args, **kwargs)
 
+    def get_imagen_url(self, width=1200):
+        return get_cloudinary_url(self.imagen, width=width)
+
     @property
     def get_imagen_url_absoluta(self):
-        if not self.imagen:
-            return ""
-        url = self.imagen.url
-        if not url:
-            return ""
-        if 'cloudinary.com' in url:
-            if url.startswith('http://'):
-                url = 'https://' + url[7:]
-            if '/upload/' in url and '/f_jpg' not in url:
-                url = url.replace('/upload/', '/upload/f_jpg,q_auto,w_800/')
-            if not (url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png')):
-                url = url + '.jpg'
-            return url
-        if url.startswith('http://') or url.startswith('https://'):
-            if url.startswith('http://'):
-                return 'https://' + url[7:]
-            return url
-        if not url.startswith('/'):
-            url = '/' + url
-        return f"https://www.raratienda.cl{url}"
+        return get_cloudinary_url(self.imagen, width=1200)
+
+    @property
+    def get_imagen_url_600(self):
+        return get_cloudinary_url(self.imagen, width=600)
+
 
 
 class ResenaProducto(models.Model):

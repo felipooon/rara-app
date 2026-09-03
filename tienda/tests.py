@@ -48,6 +48,36 @@ class ProductoModelTests(TestCase):
         self.assertEqual(producto.todas_las_imagenes[0]['id'], img_extra.id)
 
 
+class CloudinaryUrlTests(TestCase):
+    def test_get_cloudinary_url_local(self):
+        """Verifica que las URLs locales se formateen correctamente en entorno dev."""
+        from .utils import get_cloudinary_url
+        url = get_cloudinary_url("/media/productos/foto.png", width=600)
+        self.assertEqual(url, "https://www.raratienda.cl/media/productos/foto.png")
+
+    def test_get_cloudinary_url_transformations(self):
+        """Verifica que se aplique f_auto, q_auto y w_{width} sin forzar extensión .jpg."""
+        from .utils import get_cloudinary_url
+        raw_url = "https://res.cloudinary.com/demo/image/upload/v12345/sample.png"
+        url = get_cloudinary_url(raw_url, width=600)
+        self.assertEqual(url, "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_600/v12345/sample.png")
+
+    def test_get_cloudinary_url_reemplaza_f_jpg(self):
+        """Verifica que reemplace f_jpg por f_auto y elimine transformaciones obsoletas."""
+        from .utils import get_cloudinary_url
+        old_url = "https://res.cloudinary.com/demo/image/upload/f_jpg,q_auto,w_600/v12345/sample.png"
+        url = get_cloudinary_url(old_url, width=300)
+        self.assertEqual(url, "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_300/v12345/sample.png")
+
+    def test_templatetag_cloudinary_url(self):
+        """Verifica el funcionamiento del template filter cloudinary_url."""
+        from .templatetags.imagen_tags import cloudinary_url
+        raw_url = "https://res.cloudinary.com/demo/image/upload/v12345/sample.png"
+        res = cloudinary_url(raw_url, 1200)
+        self.assertEqual(res, "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_1200/v12345/sample.png")
+
+
+
 
 class CarritoTests(TestCase):
     def setUp(self):
