@@ -30,6 +30,24 @@ class ProductoModelTests(TestCase):
         )
         self.assertTrue(producto.disponible)
 
+    def test_producto_galeria_imagenes(self):
+        """Un producto puede tener imágenes adicionales asociadas."""
+        from .models import ImagenProducto
+        producto = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Polera Ilustrada",
+            precio=18000,
+            stock=5,
+            disponible=True
+        )
+        img_extra = ImagenProducto.objects.create(
+            producto=producto,
+            imagen="productos/galeria/test.jpg"
+        )
+        self.assertEqual(len(producto.todas_las_imagenes), 1)
+        self.assertEqual(producto.todas_las_imagenes[0]['id'], img_extra.id)
+
+
 
 class CarritoTests(TestCase):
     def setUp(self):
