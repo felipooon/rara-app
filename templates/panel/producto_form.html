@@ -279,7 +279,17 @@ function ejecutarCopiaFormModal() {
             
             <div class="form-group">
                 <label for="{{ form.stock.id_for_label }}">Stock (Unidades)</label>
-                {{ form.stock }}
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <button type="button" onclick="modificarStock(-1)" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; width: 44px; height: 44px; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" title="Disminuir stock">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <div style="flex: 1;">
+                        {{ form.stock }}
+                    </div>
+                    <button type="button" onclick="modificarStock(1)" style="background: #ef9d71; border: 1px solid #e08b5e; border-radius: 8px; width: 44px; height: 44px; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;" onmouseover="this.style.background='#e08b5e'" onmouseout="this.style.background='#ef9d71'" title="Aumentar stock">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -386,6 +396,16 @@ function ejecutarCopiaFormModal() {
         </div>
 
         <script>
+        function modificarStock(delta) {
+            var stockInput = document.getElementById("{{ form.stock.id_for_label }}") || document.querySelector('input[name="stock"]');
+            if (stockInput) {
+                var actual = parseInt(stockInput.value, 10) || 0;
+                var nuevo = actual + delta;
+                if (nuevo < 0) nuevo = 0;
+                stockInput.value = nuevo;
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             var chkFicha = document.getElementById("{{ form.tiene_ficha_especie.id_for_label }}");
             var secFicha = document.getElementById("sec-ficha-especie");

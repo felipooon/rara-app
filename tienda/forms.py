@@ -6,10 +6,16 @@ class ProductoForm(forms.ModelForm):
     # Sobreescribimos el campo precio para recibirlo como texto primero
     precio = forms.CharField(widget=forms.TextInput(attrs={'type': 'text'}))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk and self.initial.get('stock') is None:
+            self.initial['stock'] = 1
+
     class Meta:
         model = Producto
         exclude = ['slug']
         widgets = {
+            'stock': forms.NumberInput(attrs={'min': '0', 'style': 'text-align: center; font-weight: 700; font-size: 1.05rem;'}),
             'especie_nombre_comun': forms.TextInput(attrs={'placeholder': 'Ej: Cometocino Patagónico, Amanita muscaria'}),
             'especie_nombre_cientifico': forms.TextInput(attrs={'placeholder': 'Ej: Phrygilus patagonicus'}),
             'especie_habitat': forms.TextInput(attrs={'placeholder': 'Ej: Bosques templados y cordillera del sur de Chile'}),

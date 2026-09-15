@@ -1,10 +1,9 @@
-import re
 from django.utils import timezone
 from django.db.models import F
+from crawlerdetect import CrawlerDetect
 from .models import MetricaDiaria
 
-# Lista básica de cadenas en User-Agent comunes para bots
-BOT_REGEX = re.compile(r'(bot|spider|crawl|slurp|google|bing|yandex|yahoo|baidu)', re.IGNORECASE)
+crawler_detector = CrawlerDetect()
 
 class AnaliticasMiddleware:
     def __init__(self, get_response):
@@ -13,7 +12,7 @@ class AnaliticasMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         
-        # Solo registrar rutas públicas (ignorar admin, estáticos, media)
+        # Solo registrar rutas públicas (ignorar admin, estáticos, media, panel)
         if request.path.startswith('/admin/') or request.path.startswith('/static/') or request.path.startswith('/media/') or request.path.startswith('/panel/'):
             return response
             
@@ -22,16 +21,21 @@ class AnaliticasMiddleware:
             return response
 
         user_agent = request.META.get('HTTP_USER_AGENT', '')
-        es_bot = bool(BOT_REGEX.search(user_agent))
+        
+        # 1. Detección avanzada de bots con base de datos amplia de User-Agents
+        es_bot = crawler_detector.isCrawler(user_agent)
         
         hoy = timezone.localdate()
-        
         metrica, created = MetricaDiaria.objects.get_or_create(fecha=hoy)
         
-        # Usamos update con F() para evitar condiciones de carrera (race conditions)
         if es_bot:
             MetricaDiaria.objects.filter(id=metrica.id).update(visitas_bots=F('visitas_bots') + 1)
         else:
-            MetricaDiaria.objects.filter(id=metrica.id).update(visitas_humanos=F('visitas_humanos') + 1)
+            # 2. Visitantes humanos únicos por día mediante cookie
+            cookie_key = f'v_h_{hoy.strftime("%Y%m%d")}'
+            if not request.COOKIES.get(cookie_key):
+                MetricaDiaria.objects.filter(id=metrica.id).update(visitas_humanos=F('visitas_humanos') + 1)
+                response.set_cookie(cookie_key, '1', max_age=86400, httponly=True, samesite='Lax')
             
         return response
+

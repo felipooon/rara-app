@@ -3,206 +3,137 @@
 {% block title %}{{ titulo_pagina }} — Panel Rara Tienda{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
-    <div style="margin-bottom: 25px;">
-        <a href="{% url 'panel_blog' %}" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px;">
-            <i class="fa-solid fa-arrow-left"></i> Volver a la lista de artículos
-        </a>
-        <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #2d3748; margin: 0;">
-            {{ titulo_pagina }}
-        </h1>
+<div id="blog-editor-wrapper" style="max-width: 1250px; margin: 0 auto; transition: max-width 0.3s ease;">
+    <!-- Encabezado y Control de Modos -->
+    <div style="margin-bottom: 25px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px;">
+        <div>
+            <a href="{% url 'panel_blog' %}" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="fa-solid fa-arrow-left"></i> Volver a la lista de artículos
+            </a>
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #2d3748; margin: 0;">
+                {{ titulo_pagina }}
+            </h1>
+        </div>
+
+        <!-- Selector de Modo de Vista -->
+        <div style="background: white; padding: 5px; border-radius: 12px; border: 1px solid #e2e8f0; display: inline-flex; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <button type="button" id="btn-modo-editor" class="modo-btn" onclick="setModoVista('editor')" title="Mostrar solo el formulario de edición">
+                <i class="fa-solid fa-pen-to-square"></i> Solo Editor
+            </button>
+            <button type="button" id="btn-modo-split" class="modo-btn active" onclick="setModoVista('split')" title="Mostrar formulario y vista previa lado a lado">
+                <i class="fa-solid fa-columns"></i> En Vivo (Dividido)
+            </button>
+            <button type="button" id="btn-modo-preview" class="modo-btn" onclick="setModoVista('preview')" title="Mostrar solo la vista previa final">
+                <i class="fa-solid fa-eye"></i> Solo Vista Previa
+            </button>
+        </div>
     </div>
 
-    <div style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Título del Artículo *</label>
-                {{ form.titulo }}
-                {% if form.titulo.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.titulo.errors }}</div>{% endif %}
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Autor del Artículo (Opcional)</label>
-                {{ form.autor }}
-                <span style="font-size: 0.8rem; color: #64748b;">Si lo dejas en blanco o como "Rara Tienda", aparecerá con el ícono de pluma de Rara Tienda.</span>
-                {% if form.autor.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.autor.errors }}</div>{% endif %}
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Resumen Breve (Extracto para tarjetas)</label>
-                {{ form.resumen }}
-                {% if form.resumen.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.resumen.errors }}</div>{% endif %}
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Contenido del Artículo (Formato HTML Enriquecido) *</label>
+    <!-- Contenedor Principal Grid -->
+    <div id="blog-grid" class="blog-grid modo-split">
+        <!-- Columna 1: Formulario de Edición -->
+        <div id="panel-form-col" style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
                 
-                <!-- Barra de Herramientas HTML -->
-                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-bottom: none; border-top-left-radius: 10px; border-top-right-radius: 10px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-                    <span style="font-size: 0.8rem; font-weight: 800; color: #64748b; margin-right: 4px;">🛠️ Insertar HTML:</span>
-                    <button type="button" onclick="insertarEtiqueta('<b>', '</b>')" title="Negrita" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;"><b>B</b></button>
-                    <button type="button" onclick="insertarEtiqueta('<i>', '</i>')" title="Cursiva" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-style: italic; cursor: pointer;">I</button>
-                    <button type="button" onclick="insertarEtiqueta('<h2>', '</h2>')" title="Subtítulo H2" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">H2</button>
-                    <button type="button" onclick="insertarEtiqueta('<h3>', '</h3>')" title="Subtítulo H3" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">H3</button>
-                    <button type="button" onclick="insertarImagen()" title="Insertar Imagen en Medio" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🖼️ + Imagen</button>
-                    <button type="button" onclick="insertarYouTube()" title="Insertar Video de YouTube" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🎬 + Video YouTube</button>
-                    <button type="button" onclick="insertarEnlace()" title="Insertar Enlace" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🔗 Enlace</button>
-                    <button type="button" onclick="insertarLista()" title="Insertar Lista" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer;">📋 Lista</button>
-                    <button type="button" onclick="insertarCita()" title="Insertar Cita" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer;">💬 Cita</button>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Título del Artículo *</label>
+                    {{ form.titulo }}
+                    {% if form.titulo.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.titulo.errors }}</div>{% endif %}
                 </div>
 
-                {{ form.contenido }}
-                {% if form.contenido.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.contenido.errors }}</div>{% endif %}
-            </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Autor del Artículo (Opcional)</label>
+                    {{ form.autor }}
+                    <span style="font-size: 0.8rem; color: #64748b;">Si lo dejas en blanco o como "Rara Tienda", aparecerá con el ícono de pluma de Rara Tienda.</span>
+                    {% if form.autor.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.autor.errors }}</div>{% endif %}
+                </div>
 
-<script>
-function insertarEtiqueta(inicio, fin) {
-    var txt = document.getElementById('editor-contenido');
-    var start = txt.selectionStart;
-    var end = txt.selectionEnd;
-    var val = txt.value;
-    var selected = val.substring(start, end);
-    if (!selected && fin !== '') {
-        selected = 'Texto aquí';
-    }
-    txt.value = val.substring(0, start) + inicio + selected + fin + val.substring(end);
-    txt.focus();
-}
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Resumen Breve (Extracto para tarjetas)</label>
+                    {{ form.resumen }}
+                    {% if form.resumen.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.resumen.errors }}</div>{% endif %}
+                </div>
 
-function abrirModalBlog(id) {
-    document.getElementById(id).style.display = 'flex';
-}
-
-function cerrarModalBlog(id) {
-    document.getElementById(id).style.display = 'none';
-}
-
-function insertarImagen() {
-    var txt = document.getElementById('editor-contenido');
-    var start = txt.selectionStart;
-    var end = txt.selectionEnd;
-    var selected = txt.value.substring(start, end);
-    
-    document.getElementById('blog_img_url').value = '';
-    document.getElementById('blog_img_alt').value = selected || '';
-    abrirModalBlog('modalInsertarImagen');
-}
-
-function confirmarInsertarImagen() {
-    var url = document.getElementById('blog_img_url').value.trim();
-    var alt = document.getElementById('blog_img_alt').value.trim() || "Imagen del blog";
-    if (url) {
-        var htmlImg = '\n<img src="' + url + '" alt="' + alt + '" style="width: 100%; border-radius: 16px; margin: 25px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">\n';
-        insertarEtiqueta(htmlImg, '');
-        cerrarModalBlog('modalInsertarImagen');
-    }
-}
-
-function insertarYouTube() {
-    document.getElementById('blog_yt_url').value = '';
-    document.getElementById('blog_yt_error').style.display = 'none';
-    abrirModalBlog('modalInsertarYouTube');
-}
-
-function extraerYouTubeId(url) {
-    if (!url) return null;
-    url = url.trim();
-    
-    // Si pegaron el iframe completo de YouTube (<iframe src="...">)
-    var iframeMatch = url.match(/src=["']([^"']+)["']/i);
-    if (iframeMatch) {
-        url = iframeMatch[1];
-    }
-    
-    // Soporte amplio: watch?v=, shorts/, embed/, live/, youtu.be/, etc.
-    var regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    var match = url.match(regExp);
-    return match ? match[1] : null;
-}
-
-function confirmarInsertarYouTube() {
-    var url = document.getElementById('blog_yt_url').value.trim();
-    if (url) {
-        var videoId = extraerYouTubeId(url);
-        
-        if (videoId) {
-            var htmlVideo = '\n<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 18px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e2ece5;">\n  <iframe src="https://www.youtube.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>\n</div>\n';
-            insertarEtiqueta(htmlVideo, '');
-            cerrarModalBlog('modalInsertarYouTube');
-        } else {
-            document.getElementById('blog_yt_error').style.display = 'block';
-        }
-    }
-}
-
-function insertarEnlace() {
-    var txt = document.getElementById('editor-contenido');
-    var start = txt.selectionStart;
-    var end = txt.selectionEnd;
-    var selected = txt.value.substring(start, end);
-    
-    document.getElementById('blog_link_url').value = '';
-    document.getElementById('blog_link_text').value = selected || '';
-    abrirModalBlog('modalInsertarEnlace');
-}
-
-function confirmarInsertarEnlace() {
-    var url = document.getElementById('blog_link_url').value.trim();
-    var texto = document.getElementById('blog_link_text').value.trim() || "Ver enlace";
-    if (url) {
-        insertarEtiqueta('<a href="' + url + '" target="_blank" style="color: #ef9d71; font-weight: 800;">' + texto + '</a>', '');
-        cerrarModalBlog('modalInsertarEnlace');
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    ['modalInsertarImagen', 'modalInsertarYouTube', 'modalInsertarEnlace'].forEach(function(id) {
-        var modal = document.getElementById(id);
-        if (modal) {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    cerrarModalBlog(id);
-                }
-            });
-        }
-    });
-});
-
-function insertarLista() {
-    var listaHtml = '\n<ul>\n  <li>Primer elemento</li>\n  <li>Segundo elemento</li>\n</ul>\n';
-    insertarEtiqueta(listaHtml, '');
-}
-
-function insertarCita() {
-    var citaHtml = '\n<blockquote style="border-left: 4px solid #ef9d71; padding-left: 18px; margin: 20px 0; font-style: italic; color: #4a5568;">\n  Cita o texto destacado...\n</blockquote>\n';
-    insertarEtiqueta(citaHtml, '');
-}
-</script>
-
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Imagen de Portada</label>
-                {% if post.imagen %}
-                    <div style="margin-bottom: 10px;">
-                        <img src="{{ post.get_imagen_url_absoluta }}" alt="Portada actual" style="height: 100px; border-radius: 8px; object-fit: cover;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Contenido del Artículo (Formato HTML Enriquecido) *</label>
+                    
+                    <!-- Barra de Herramientas HTML -->
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-bottom: none; border-top-left-radius: 10px; border-top-right-radius: 10px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                        <span style="font-size: 0.8rem; font-weight: 800; color: #64748b; margin-right: 4px;">🛠️ Insertar HTML:</span>
+                        <button type="button" onclick="insertarEtiqueta('<b>', '</b>')" title="Negrita" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;"><b>B</b></button>
+                        <button type="button" onclick="insertarEtiqueta('<i>', '</i>')" title="Cursiva" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-style: italic; cursor: pointer;">I</button>
+                        <button type="button" onclick="insertarEtiqueta('<h2>', '</h2>')" title="Subtítulo H2" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">H2</button>
+                        <button type="button" onclick="insertarEtiqueta('<h3>', '</h3>')" title="Subtítulo H3" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">H3</button>
+                        <button type="button" onclick="insertarImagen()" title="Insertar Imagen en Medio" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🖼️ + Imagen</button>
+                        <button type="button" onclick="insertarYouTube()" title="Insertar Video de YouTube" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🎬 + Video YouTube</button>
+                        <button type="button" onclick="insertarEnlace()" title="Insertar Enlace" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">🔗 Enlace</button>
+                        <button type="button" onclick="insertarLista()" title="Insertar Lista" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer;">📋 Lista</button>
+                        <button type="button" onclick="insertarCita()" title="Insertar Cita" style="background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer;">💬 Cita</button>
                     </div>
-                {% endif %}
-                {{ form.imagen }}
-            </div>
 
-            <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
-                {{ form.publicado }}
-                <label style="font-weight: 700; color: #1e293b; cursor: pointer;">Publicar inmediatamente en el blog</label>
-            </div>
+                    {{ form.contenido }}
+                    {% if form.contenido.errors %}<div style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">{{ form.contenido.errors }}</div>{% endif %}
+                </div>
 
-            <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <a href="{% url 'panel_blog' %}" style="background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 20px; border-radius: 10px; font-weight: 700;">Cancelar</a>
-                <button type="submit" class="btn" style="background: #ef9d71; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; cursor: pointer;">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar Artículo
-                </button>
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Imagen de Portada</label>
+                    {% if post.imagen %}
+                        <div style="margin-bottom: 10px;">
+                            <img src="{{ post.get_imagen_url_absoluta }}" alt="Portada actual" style="height: 90px; border-radius: 8px; object-fit: cover;">
+                        </div>
+                    {% endif %}
+                    {{ form.imagen }}
+                </div>
+
+                <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
+                    {{ form.publicado }}
+                    <label style="font-weight: 700; color: #1e293b; cursor: pointer;">Publicar inmediatamente en el blog</label>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <a href="{% url 'panel_blog' %}" style="background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 20px; border-radius: 10px; font-weight: 700;">Cancelar</a>
+                    <button type="submit" class="btn" style="background: #ef9d71; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 800; cursor: pointer;">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Artículo
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Columna 2: Vista Previa en Vivo -->
+        <div id="panel-preview-col" style="position: sticky; top: 20px;">
+            <div style="background: white; border-radius: 20px; border: 1px solid #e2ece5; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px dashed #e2e8f0;">
+                    <span style="font-weight: 800; color: #ef9d71; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span style="display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite;"></span>
+                        Vista Previa en Vivo
+                    </span>
+                    <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600; background: #f8fafc; padding: 4px 10px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        Vista pública real
+                    </span>
+                </div>
+                
+                <article style="background: #ffffff;">
+                    <h1 id="pv-titulo" style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #1a202c; line-height: 1.25; margin-top: 0; margin-bottom: 12px; word-break: break-word;">
+                        {% if post.titulo %}{{ post.titulo }}{% else %}Título del Artículo{% endif %}
+                    </h1>
+                    
+                    <div style="display: flex; align-items: center; gap: 12px; color: #718096; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #edf2f7; padding-bottom: 14px; margin-bottom: 20px;">
+                        <span><i class="fa-regular fa-calendar" style="color: #ef9d71;"></i> <span id="pv-fecha">{% if post %}{{ post.fecha_creacion|date:"d \d\e F, Y" }}{% else %}Hoy{% endif %}</span></span>
+                        <span>•</span>
+                        <span><i class="fa-solid fa-feather" style="color: #65C18C;"></i> <span id="pv-autor">{% if post.autor %}{{ post.autor }}{% else %}Rara Tienda{% endif %}</span></span>
+                    </div>
+                    
+                    <div id="pv-imagen-wrapper" style="border-radius: 14px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); background: #f7fafc; border: 1px solid #edf2f7; {% if not post.imagen %}display: none;{% endif %}">
+                        <img id="pv-imagen" src="{% if post.imagen %}{{ post.get_imagen_url_absoluta }}{% endif %}" alt="Portada" style="width: 100%; max-height: 380px; object-fit: cover; display: block;">
+                    </div>
+
+                    <div id="pv-contenido" class="blog-body" style="font-size: 1.05rem; line-height: 1.8; color: #2d3748; font-family: 'Inter', sans-serif; word-break: break-word; min-height: 120px;">
+                        {% if post.contenido %}{{ post.contenido|safe }}{% else %}<em style="color: #a0aec0;">El contenido de tu artículo se irá mostrando aquí en tiempo real...</em>{% endif %}
+                    </div>
+                </article>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -277,7 +208,262 @@ function insertarCita() {
     </div>
 </div>
 
+<script>
+function setModoVista(modo) {
+    var wrapper = document.getElementById('blog-editor-wrapper');
+    var grid = document.getElementById('blog-grid');
+    var btns = {
+        'editor': document.getElementById('btn-modo-editor'),
+        'split': document.getElementById('btn-modo-split'),
+        'preview': document.getElementById('btn-modo-preview')
+    };
+
+    Object.keys(btns).forEach(function(m) {
+        if (btns[m]) btns[m].classList.remove('active');
+    });
+    if (btns[modo]) btns[modo].classList.add('active');
+
+    grid.className = 'blog-grid modo-' + modo;
+
+    if (modo === 'split') {
+        wrapper.style.maxWidth = '1250px';
+    } else if (modo === 'editor') {
+        wrapper.style.maxWidth = '800px';
+    } else if (modo === 'preview') {
+        wrapper.style.maxWidth = '860px';
+    }
+}
+
+function actualizarVistaPrevia() {
+    // Título
+    var tituloInput = document.getElementById('id_titulo');
+    var pvTitulo = document.getElementById('pv-titulo');
+    if (tituloInput && pvTitulo) {
+        pvTitulo.textContent = tituloInput.value.trim() || 'Título del Artículo';
+    }
+
+    // Autor
+    var autorInput = document.getElementById('id_autor');
+    var pvAutor = document.getElementById('pv-autor');
+    if (autorInput && pvAutor) {
+        pvAutor.textContent = autorInput.value.trim() || 'Rara Tienda';
+    }
+
+    // Contenido
+    var contenidoInput = document.getElementById('editor-contenido');
+    var pvContenido = document.getElementById('pv-contenido');
+    if (contenidoInput && pvContenido) {
+        var val = contenidoInput.value.trim();
+        if (val) {
+            pvContenido.innerHTML = val;
+        } else {
+            pvContenido.innerHTML = '<em style="color: #a0aec0;">El contenido de tu artículo se irá mostrando aquí en tiempo real...</em>';
+        }
+    }
+}
+
+function insertarEtiqueta(inicio, fin) {
+    var txt = document.getElementById('editor-contenido');
+    var start = txt.selectionStart;
+    var end = txt.selectionEnd;
+    var val = txt.value;
+    var selected = val.substring(start, end);
+    if (!selected && fin !== '') {
+        selected = 'Texto aquí';
+    }
+    txt.value = val.substring(0, start) + inicio + selected + fin + val.substring(end);
+    txt.focus();
+    actualizarVistaPrevia();
+}
+
+function abrirModalBlog(id) {
+    document.getElementById(id).style.display = 'flex';
+}
+
+function cerrarModalBlog(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+function insertarImagen() {
+    var txt = document.getElementById('editor-contenido');
+    var start = txt.selectionStart;
+    var end = txt.selectionEnd;
+    var selected = txt.value.substring(start, end);
+    
+    document.getElementById('blog_img_url').value = '';
+    document.getElementById('blog_img_alt').value = selected || '';
+    abrirModalBlog('modalInsertarImagen');
+}
+
+function confirmarInsertarImagen() {
+    var url = document.getElementById('blog_img_url').value.trim();
+    var alt = document.getElementById('blog_img_alt').value.trim() || "Imagen del blog";
+    if (url) {
+        var htmlImg = '\n<img src="' + url + '" alt="' + alt + '" style="width: 100%; border-radius: 16px; margin: 25px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">\n';
+        insertarEtiqueta(htmlImg, '');
+        cerrarModalBlog('modalInsertarImagen');
+    }
+}
+
+function insertarYouTube() {
+    document.getElementById('blog_yt_url').value = '';
+    document.getElementById('blog_yt_error').style.display = 'none';
+    abrirModalBlog('modalInsertarYouTube');
+}
+
+function extraerYouTubeId(url) {
+    if (!url) return null;
+    url = url.trim();
+    
+    var iframeMatch = url.match(/src=["']([^"']+)["']/i);
+    if (iframeMatch) {
+        url = iframeMatch[1];
+    }
+    
+    var regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    var match = url.match(regExp);
+    return match ? match[1] : null;
+}
+
+function confirmarInsertarYouTube() {
+    var url = document.getElementById('blog_yt_url').value.trim();
+    if (url) {
+        var videoId = extraerYouTubeId(url);
+        
+        if (videoId) {
+            var htmlVideo = '\n<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 18px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e2ece5;">\n  <iframe src="https://www.youtube.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>\n</div>\n';
+            insertarEtiqueta(htmlVideo, '');
+            cerrarModalBlog('modalInsertarYouTube');
+        } else {
+            document.getElementById('blog_yt_error').style.display = 'block';
+        }
+    }
+}
+
+function insertarEnlace() {
+    var txt = document.getElementById('editor-contenido');
+    var start = txt.selectionStart;
+    var end = txt.selectionEnd;
+    var selected = txt.value.substring(start, end);
+    
+    document.getElementById('blog_link_url').value = '';
+    document.getElementById('blog_link_text').value = selected || '';
+    abrirModalBlog('modalInsertarEnlace');
+}
+
+function confirmarInsertarEnlace() {
+    var url = document.getElementById('blog_link_url').value.trim();
+    var texto = document.getElementById('blog_link_text').value.trim() || "Ver enlace";
+    if (url) {
+        insertarEtiqueta('<a href="' + url + '" target="_blank" style="color: #ef9d71; font-weight: 800;">' + texto + '</a>', '');
+        cerrarModalBlog('modalInsertarEnlace');
+    }
+}
+
+function insertarLista() {
+    var listaHtml = '\n<ul>\n  <li>Primer elemento</li>\n  <li>Segundo elemento</li>\n</ul>\n';
+    insertarEtiqueta(listaHtml, '');
+}
+
+function insertarCita() {
+    var citaHtml = '\n<blockquote style="border-left: 4px solid #ef9d71; padding-left: 18px; margin: 20px 0; font-style: italic; color: #4a5568;">\n  Cita o texto destacado...\n</blockquote>\n';
+    insertarEtiqueta(citaHtml, '');
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    ['modalInsertarImagen', 'modalInsertarYouTube', 'modalInsertarEnlace'].forEach(function(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    cerrarModalBlog(id);
+                }
+            });
+        }
+    });
+
+    // Escuchadores para sincronización en tiempo real
+    var inputs = ['id_titulo', 'id_autor', 'editor-contenido'];
+    inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', actualizarVistaPrevia);
+            el.addEventListener('keyup', actualizarVistaPrevia);
+            el.addEventListener('change', actualizarVistaPrevia);
+        }
+    });
+
+    // Escuchador de archivo de portada
+    var imgInput = document.getElementById('id_imagen');
+    if (imgInput) {
+        imgInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    var pvImg = document.getElementById('pv-imagen');
+                    var pvImgWrapper = document.getElementById('pv-imagen-wrapper');
+                    if (pvImg && pvImgWrapper) {
+                        pvImg.src = evt.target.result;
+                        pvImgWrapper.style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    }
+
+    // Inicializar vista previa al cargar la página
+    actualizarVistaPrevia();
+});
+</script>
+
 <style>
+.blog-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+.blog-grid.modo-editor {
+    grid-template-columns: 1fr;
+}
+.blog-grid.modo-editor #panel-preview-col {
+    display: none;
+}
+
+.blog-grid.modo-preview {
+    grid-template-columns: 1fr;
+}
+.blog-grid.modo-preview #panel-form-col {
+    display: none;
+}
+
+.modo-btn {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.modo-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+.modo-btn.active {
+    background: #ef9d71;
+    color: white;
+    border-color: #ef9d71;
+    box-shadow: 0 2px 6px rgba(239, 157, 113, 0.3);
+}
+
 .form-control {
     width: 100%;
     padding: 10px 14px;
@@ -292,5 +478,57 @@ function insertarCita() {
     outline: none;
     box-shadow: 0 0 0 3px rgba(239, 157, 113, 0.2);
 }
+
+.blog-body h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1a202c;
+    margin-top: 1.4em;
+    margin-bottom: 0.5em;
+}
+.blog-body h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-top: 1.2em;
+    margin-bottom: 0.4em;
+}
+.blog-body p {
+    margin-bottom: 1em;
+}
+.blog-body ul, .blog-body ol {
+    margin-bottom: 1em;
+    padding-left: 1.5em;
+}
+.blog-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+.blog-body blockquote {
+    border-left: 4px solid #ef9d71;
+    padding-left: 18px;
+    margin: 20px 0;
+    font-style: italic;
+    color: #4a5568;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+@media (max-width: 992px) {
+    .blog-grid {
+        grid-template-columns: 1fr !important;
+    }
+    #panel-preview-col {
+        position: static !important;
+    }
+}
 </style>
 {% endblock %}
+
