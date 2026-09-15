@@ -58,30 +58,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <header>
 <nav class="navbar">
-    <div class="navbar-brand">
-        <button class="menu-toggle" id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
-        <h1><a href="/" class="logo">
-            <img src="{% static 'img/logo_rara.png' %}" alt="Logo Rara Tienda" class="logo-img">
-            Rara Tienda
-        </a></h1>
-    <div class="search-container">
-        <input type="text" id="live-search-input" placeholder="Buscar..." autocomplete="off">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        
-        <div id="live-search-results" class="live-search-dropdown"></div>
-    </div>
+    <div class="navbar-container">
+        <div class="navbar-brand">
+            <button class="menu-toggle" id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+            <h1><a href="/" class="logo">
+                <img src="{% static 'img/logo_rara.png' %}" alt="Logo Rara Tienda" class="logo-img">
+                Rara Tienda
+            </a></h1>
+        </div>
 
-    <!-- NAVEGACIÓN ESCRITORIO -->
-    <ul class="nav-links">
-        <li><a href="/#inicio">Inicio</a></li>
-        <li><a href="/#catalogo">Catálogo</a></li>
-        <li><a href="{% url 'menu_juegos' %}">Juegos</a></li>
-        {% if config_sitio.mostrar_blog %}
-        <li><a href="{% url 'blog_list' %}">Blog</a></li>
-        {% endif %}
-        <li><a href="/#acerca">Acerca</a></li>
-        <li><a href="/#contacto">Contacto</a></li>
-    </ul>
+        <div class="search-container">
+            <input type="text" id="live-search-input" placeholder="Buscar..." autocomplete="off">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            
+            <div id="live-search-results" class="live-search-dropdown"></div>
+        </div>
+
+        <!-- NAVEGACIÓN ESCRITORIO -->
+        <ul class="nav-links">
+            <li><a href="/#inicio">Inicio</a></li>
+            <li><a href="/#catalogo">Catálogo</a></li>
+            <li><a href="{% url 'menu_juegos' %}">Juegos</a></li>
+            {% if config_sitio.mostrar_blog %}
+            <li><a href="{% url 'blog_list' %}">Blog</a></li>
+            {% endif %}
+            <li><a href="/#acerca">Acerca</a></li>
+            <li><a href="/#contacto">Contacto</a></li>
+        </ul>
+    </div>
 
     <!-- MENÚ LATERAL MÓVIL (SÓLO MOBILE) -->
     <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
