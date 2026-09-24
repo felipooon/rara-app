@@ -126,6 +126,8 @@ def crear_producto(request):
 
             usuario_log = request.user if request.user.is_authenticated else None
             detalles_str = f"Precio inicial: ${producto.precio} | Stock inicial: {producto.stock} | Categoría: {producto.categoria.nombre if producto.categoria else 'Sin categoría'}"
+            if producto.tiene_descuento:
+                detalles_str += f" | En oferta: ${producto.precio_actual} ({producto.porcentaje_descuento}% OFF)"
             if imagenes_extra:
                 detalles_str += f" | {len(imagenes_extra)} imágenes adicionales subidas"
             LogProducto.objects.create(
@@ -189,12 +191,41 @@ def toggle_producto(request, id):
 
 
 @staff_member_required(login_url='login')
+def toggle_oferta_producto(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    if not producto.en_oferta and not producto.precio_oferta:
+        messages.warning(request, f"Para activar oferta en '{producto.nombre}', primero define un precio o porcentaje de descuento editando el producto.")
+        return redirect('editar_producto', id=producto.id)
+    
+    producto.en_oferta = not producto.en_oferta
+    producto.save()
+    
+    usuario_log = request.user if request.user.is_authenticated else None
+    estado_str = f"Oferta activada (${producto.precio_actual} - {producto.porcentaje_descuento}% OFF)" if producto.en_oferta else "Oferta desactivada"
+    LogProducto.objects.create(
+        producto_id=producto.id,
+        nombre_producto=producto.nombre,
+        accion='TOGGLE',
+        usuario=usuario_log,
+        detalles=estado_str
+    )
+    messages.success(request, f"Oferta de '{producto.nombre}': {estado_str}.")
+    
+    next_url = request.GET.get('next')
+    if next_url:
+        return redirect(next_url)
+    return redirect('panel_productos')
+
+
+@staff_member_required(login_url='login')
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     nombre_ant = producto.nombre
     precio_ant = producto.precio
     stock_ant = producto.stock
     dispon_ant = producto.disponible
+    oferta_ant = producto.en_oferta
+    precio_oferta_ant = producto.precio_oferta
     cat_ant = producto.categoria.nombre if producto.categoria else "Sin categoría"
 
     next_url = request.GET.get('next') or request.POST.get('next') or 'panel_productos'
@@ -231,6 +262,13 @@ def editar_producto(request, id):
             cambios.append(f"Stock: {stock_ant} ➔ {prod_editado.stock}")
         if dispon_ant != prod_editado.disponible:
             cambios.append(f"Disponible: {'Sí' if dispon_ant else 'No'} ➔ {'Sí' if prod_editado.disponible else 'No'}")
+        if oferta_ant != prod_editado.en_oferta:
+            if prod_editado.en_oferta:
+                cambios.append(f"Oferta: Activada (${prod_editado.precio_actual} - {prod_editado.porcentaje_descuento}% OFF)")
+            else:
+                cambios.append("Oferta: Desactivada")
+        elif prod_editado.en_oferta and precio_oferta_ant != prod_editado.precio_oferta:
+            cambios.append(f"Precio oferta: ${precio_oferta_ant} ➔ ${prod_editado.precio_oferta} ({prod_editado.porcentaje_descuento}% OFF)")
         
         cat_nueva = prod_editado.categoria.nombre if prod_editado.categoria else "Sin categoría"
         if cat_ant != cat_nueva:
@@ -638,7 +676,8 @@ def exportar_stock_excel(request):
     
     for row_num, p in enumerate(productos, start=2): 
         estado = "Disponible" if p.stock > 0 else "Agotado"
-        ws.append([p.id, p.nombre, p.stock, f"${p.precio}", estado])
+        precio_str = f"${p.precio_actual} ({p.porcentaje_descuento}% OFF)" if p.tiene_descuento else f"${p.precio}"
+        ws.append([p.id, p.nombre, p.stock, precio_str, estado])
         
         for col_num in range(1, 6):
             cell = ws.cell(row=row_num, column=col_num)

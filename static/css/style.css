@@ -1887,3 +1887,60 @@ section:nth-of-type(4) {
     font-size: 0.75rem;
   }
 }
+
+/* ========================================================
+   OFERTAS Y DESCUENTOS ESPECIALES
+======================================================== */
+.badge-oferta {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.76rem;
+  letter-spacing: 0.4px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.35);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.badge-descuento-pill {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.precio-oferta-box {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.precio-original-tachado {
+  text-decoration: line-through;
+  color: #94a3b8 !important;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.precio-nuevo-destacado {
+  color: #e11d48 !important;
+  font-weight: 800 !important;
+}
+

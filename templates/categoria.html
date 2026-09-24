@@ -42,10 +42,20 @@
 
       {% if not p.disponible %}
         <span class="agotado">Agotado</span>
+      {% elif p.tiene_descuento %}
+        <span class="badge-oferta"><i class="fa-solid fa-tag"></i> {{ p.porcentaje_descuento }}% OFF</span>
       {% endif %}
 
       <h3>{{ p.nombre }}</h3>
-      <p>${{ p.precio }}</p>
+      {% if p.tiene_descuento %}
+        <div style="display: flex; align-items: baseline; justify-content: center; gap: 8px; margin: 0 10px 10px 10px; flex-wrap: wrap;">
+          <span style="font-weight: 800; color: #e11d48; font-size: 1.1rem;">${{ p.precio_actual }}</span>
+          <span class="precio-original-tachado">${{ p.precio }}</span>
+          <span class="badge-descuento-pill">-{{ p.porcentaje_descuento }}%</span>
+        </div>
+      {% else %}
+        <p>${{ p.precio }}</p>
+      {% endif %}
 
 
       <div class="producto-acciones">

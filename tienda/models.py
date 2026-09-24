@@ -49,9 +49,14 @@ class Producto(models.Model):
     precio = models.IntegerField()
     imagen = models.ImageField(upload_to='productos/')
 
-    # Nuevo campo para el control de inventario
+    # Control de inventario y disponibilidad
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en inventario")
     disponible = models.BooleanField(default=True)
+
+    # Ofertas y Descuentos
+    en_oferta = models.BooleanField(default=False, verbose_name="En oferta", help_text="Marcar para activar precio de oferta")
+    precio_oferta = models.IntegerField(null=True, blank=True, verbose_name="Precio de oferta", help_text="Nuevo precio rebajado en pesos")
+    descuento_porcentaje = models.PositiveIntegerField(null=True, blank=True, verbose_name="Porcentaje de descuento", help_text="Porcentaje de descuento (1-99)")
 
     # Ficha de Especie / Dato Curioso (Opcional por producto)
     tiene_ficha_especie = models.BooleanField(default=False, help_text="Marcar para incluir Ficha de Especie en la vista del producto")
@@ -125,13 +130,50 @@ class Producto(models.Model):
             })
         return imgs
 
+    @property
+    def tiene_descuento(self):
+        """Indica si el producto tiene una oferta activa válida."""
+        return bool(self.en_oferta and self.precio_oferta and self.precio > 0 and self.precio_oferta < self.precio)
+
+    @property
+    def precio_actual(self):
+        """Retorna el precio vigente (oferta si aplica, o precio normal)."""
+        if self.tiene_descuento:
+            return self.precio_oferta
+        return self.precio
+
+    @property
+    def porcentaje_descuento(self):
+        """Retorna el porcentaje de descuento efectivo (1-99)."""
+        if self.tiene_descuento and self.precio > 0:
+            if self.descuento_porcentaje:
+                return self.descuento_porcentaje
+            return max(1, round((1 - (self.precio_oferta / self.precio)) * 100))
+        return 0
+
+    @property
+    def monto_ahorro(self):
+        """Monto ahorrado en pesos si está en oferta."""
+        if self.tiene_descuento:
+            return self.precio - self.precio_oferta
+        return 0
+
     # --- LÓGICA DE AUTOMATIZACIÓN AL GUARDAR ---
     def save(self, *args, **kwargs):
         # 1. Si el stock es 0, forzamos 'disponible' a False (Agotado)
         if self.stock == 0:
             self.disponible = False
 
-        # 2. Autogeneración de Slug único si no tiene uno asignado
+        # 2. Sincronización de precio de oferta y porcentaje
+        if self.en_oferta and self.precio and self.precio > 0:
+            if self.descuento_porcentaje and not self.precio_oferta:
+                self.precio_oferta = int(round(self.precio * (1 - (self.descuento_porcentaje / 100))))
+            elif self.precio_oferta and not self.descuento_porcentaje:
+                self.descuento_porcentaje = max(1, round((1 - (self.precio_oferta / self.precio)) * 100))
+            elif self.precio_oferta and self.descuento_porcentaje:
+                self.descuento_porcentaje = max(1, round((1 - (self.precio_oferta / self.precio)) * 100))
+
+        # 3. Autogeneración de Slug único si no tiene uno asignado
         if not self.slug:
             base_slug = slugify(self.nombre) or "producto"
             slug_candidate = base_slug

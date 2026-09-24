@@ -26,7 +26,7 @@
     "@type": "Offer",
     "url": "{{ request.build_absolute_uri }}",
     "priceCurrency": "CLP",
-    "price": "{{ producto.precio }}",
+    "price": "{{ producto.precio_actual }}",
     "availability": "https://schema.org/{% if producto.disponible %}InStock{% else %}OutOfStock{% endif %}"
   }
 }
@@ -122,11 +122,16 @@
                         <button type="button" class="gallery-arrow arrow-left" onclick="cambiarSlide(-1)" aria-label="Imagen anterior">❮</button>
                         <button type="button" class="gallery-arrow arrow-right" onclick="cambiarSlide(1)" aria-label="Siguiente imagen">❯</button>
 
-                        <!-- Badges de Stock -->
+                        <!-- Badges de Stock y Oferta -->
                         {% if not producto.disponible %}
                             <span style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 5;">Agotado</span>
                         {% elif producto.stock <= 3 and producto.stock > 0 %}
                             <span style="position: absolute; top: 15px; right: 15px; background: #e67e22; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 5;">¡Solo {{ producto.stock }} disponible{% if producto.stock > 1 %}s{% endif %}!</span>
+                        {% endif %}
+                        {% if producto.tiene_descuento %}
+                            <span class="badge-oferta" style="top: 15px; left: 15px; right: auto; padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">
+                                <i class="fa-solid fa-tag"></i> {{ producto.porcentaje_descuento }}% OFF
+                            </span>
                         {% endif %}
                     </div>
 
@@ -295,6 +300,34 @@
                 </h1>
 
                 <!-- Precio -->
+                {% if producto.tiene_descuento %}
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px;">
+                    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                        <span style="font-size: 2.5rem; font-weight: 800; color: #e11d48; font-family: 'Outfit', sans-serif;">
+                            ${{ producto.precio_actual }}
+                        </span>
+                        <span class="precio-original-tachado" style="font-size: 1.5rem; font-weight: 600; font-family: 'Outfit', sans-serif;">
+                            ${{ producto.precio }}
+                        </span>
+                        <span class="badge-descuento-pill" style="font-size: 0.85rem; padding: 5px 12px;">
+                            <i class="fa-solid fa-tag"></i> {{ producto.porcentaje_descuento }}% OFF
+                        </span>
+
+                        {% if producto.disponible %}
+                            <span style="color: #27ae60; font-size: 0.9rem; font-weight: 600; background: #e8f8f5; padding: 3px 10px; border-radius: 10px;">
+                                <i class="fa-solid fa-circle-check"></i> Disponible
+                            </span>
+                        {% else %}
+                            <span style="color: #e74c3c; font-size: 0.9rem; font-weight: 600; background: #fdf2f2; padding: 3px 10px; border-radius: 10px;">
+                                <i class="fa-solid fa-circle-xmark"></i> Agotado
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 0.88rem; color: #16a34a; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                        <span>🎉 ¡Ahorras ${{ producto.monto_ahorro }} con esta oferta!</span>
+                    </div>
+                </div>
+                {% else %}
                 <div style="display: flex; align-items: baseline; gap: 15px; margin-bottom: 20px;">
                     <span style="font-size: 2.2rem; font-weight: 800; color: #fca311; font-family: 'Outfit', sans-serif;">
                         ${{ producto.precio }}
@@ -310,6 +343,7 @@
                         </span>
                     {% endif %}
                 </div>
+                {% endif %}
 
                 <!-- Descripción detallada -->
                 <div style="color: #555; line-height: 1.7; font-size: 1rem; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 18px 0; margin-bottom: 25px;">

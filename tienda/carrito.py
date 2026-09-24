@@ -19,6 +19,10 @@ class Carrito:
     def agregar(self, producto, cantidad=1):
         id = str(producto.id)
         cantidad = int(cantidad)
+        precio_a_cobrar = str(producto.precio_actual)
+        precio_original = str(producto.precio)
+        en_oferta = producto.tiene_descuento
+        descuento_porcentaje = producto.porcentaje_descuento
 
         if id not in self.carrito:
             # El producto no está en el carrito, evaluamos si pide más del stock
@@ -26,7 +30,10 @@ class Carrito:
                 self.carrito[id] = {
                     "producto_id": producto.id,
                     "nombre": producto.nombre,
-                    "precio": str(producto.precio),
+                    "precio": precio_a_cobrar,
+                    "precio_original": precio_original,
+                    "en_oferta": en_oferta,
+                    "descuento_porcentaje": descuento_porcentaje,
                     "cantidad": producto.stock, # Lo limitamos al stock máximo
                     "imagen": producto.imagen.url if producto.imagen else ""
                 }
@@ -36,14 +43,21 @@ class Carrito:
                 self.carrito[id] = {
                     "producto_id": producto.id,
                     "nombre": producto.nombre,
-                    "precio": str(producto.precio),
+                    "precio": precio_a_cobrar,
+                    "precio_original": precio_original,
+                    "en_oferta": en_oferta,
+                    "descuento_porcentaje": descuento_porcentaje,
                     "cantidad": cantidad,
                     "imagen": producto.imagen.url if producto.imagen else ""
                 }
                 self.guardar()
                 return True
         else:
-            # El producto ya está en el carrito, evaluamos la suma
+            # El producto ya está en el carrito, evaluamos la suma y actualizamos precio vigente
+            self.carrito[id]["precio"] = precio_a_cobrar
+            self.carrito[id]["precio_original"] = precio_original
+            self.carrito[id]["en_oferta"] = en_oferta
+            self.carrito[id]["descuento_porcentaje"] = descuento_porcentaje
             cantidad_actual = self.carrito[id]["cantidad"]
             cantidad_total_deseada = cantidad_actual + cantidad
 
@@ -113,6 +127,10 @@ class Carrito:
             key = str(producto.id)
             if key in carrito_copia:
                 carrito_copia[key]['producto_real'] = producto
+                carrito_copia[key]['precio'] = str(producto.precio_actual)
+                carrito_copia[key]['precio_original'] = str(producto.precio)
+                carrito_copia[key]['en_oferta'] = producto.tiene_descuento
+                carrito_copia[key]['descuento_porcentaje'] = producto.porcentaje_descuento
 
         for item in carrito_copia.values():
             item['precio_total'] = int(item['precio']) * item['cantidad']

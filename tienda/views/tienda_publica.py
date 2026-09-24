@@ -12,10 +12,18 @@ from ..forms import ResenaForm
 
 
 def aplicar_ordenamiento(queryset, orden):
-    if orden == 'precio_asc':
-        return queryset.order_by('precio')
-    elif orden == 'precio_desc':
-        return queryset.order_by('-precio')
+    if orden in ('precio_asc', 'precio_desc'):
+        annotated = queryset.annotate(
+            precio_efectivo=models.Case(
+                models.When(en_oferta=True, precio_oferta__isnull=False, then=models.F('precio_oferta')),
+                default=models.F('precio'),
+                output_field=models.IntegerField()
+            )
+        )
+        if orden == 'precio_asc':
+            return annotated.order_by('precio_efectivo')
+        elif orden == 'precio_desc':
+            return annotated.order_by('-precio_efectivo')
     elif orden == 'nombre':
         return queryset.order_by('nombre')
     elif orden == 'recientes':
@@ -80,6 +88,9 @@ def api_buscar_productos(request):
             'id': p.id,
             'nombre': p.nombre,
             'precio': f"${p.precio:,}".replace(',', '.'),
+            'precio_actual': f"${p.precio_actual:,}".replace(',', '.'),
+            'en_oferta': p.tiene_descuento,
+            'descuento_porcentaje': p.porcentaje_descuento,
             'url': p.get_absolute_url(),
             'imagen': p.imagen.url if p.imagen else ''
         })
@@ -293,6 +304,9 @@ def api_destacados_random(request):
             'id': p.id,
             'nombre': p.nombre,
             'precio': f"{p.precio:,}".replace(',', '.'),
+            'precio_actual': f"{p.precio_actual:,}".replace(',', '.'),
+            'en_oferta': p.tiene_descuento,
+            'descuento_porcentaje': p.porcentaje_descuento,
             'url': p.get_absolute_url(),
             'imagen': p.get_imagen_url_absoluta,
             'badge': badges_pool[idx % len(badges_pool)]

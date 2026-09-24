@@ -256,3 +256,172 @@ class CategoriaIndexTests(TestCase):
         self.assertNotIn(cat_sin_stock, categorias_en_contexto)
         self.assertNotIn(cat_vacia, categorias_en_contexto)
 
+
+class OfertaProductoTests(TestCase):
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nombre="Aves")
+
+    def test_producto_sin_oferta_tiene_precio_normal(self):
+        prod = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Tazón Martín Pescador",
+            precio=10000,
+            stock=10,
+            en_oferta=False
+        )
+        self.assertFalse(prod.tiene_descuento)
+        self.assertEqual(prod.precio_actual, 10000)
+        self.assertEqual(prod.porcentaje_descuento, 0)
+        self.assertEqual(prod.monto_ahorro, 0)
+
+    def test_producto_en_oferta_con_precio_fijo(self):
+        prod = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Guía Ilustrada",
+            precio=20000,
+            precio_oferta=16000,
+            en_oferta=True,
+            stock=5
+        )
+        self.assertTrue(prod.tiene_descuento)
+        self.assertEqual(prod.precio_actual, 16000)
+        self.assertEqual(prod.porcentaje_descuento, 20)
+        self.assertEqual(prod.monto_ahorro, 4000)
+
+    def test_producto_en_oferta_con_porcentaje_calcula_precio_oferta(self):
+        prod = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Polera Chucao",
+            precio=20000,
+            descuento_porcentaje=25,
+            en_oferta=True,
+            stock=5
+        )
+        self.assertTrue(prod.tiene_descuento)
+        self.assertEqual(prod.precio_oferta, 15000)
+        self.assertEqual(prod.precio_actual, 15000)
+        self.assertEqual(prod.porcentaje_descuento, 25)
+        self.assertEqual(prod.monto_ahorro, 5000)
+
+    def test_carrito_cobra_precio_oferta(self):
+        prod = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Gorra Rara",
+            precio=15000,
+            precio_oferta=12000,
+            en_oferta=True,
+            stock=5
+        )
+        request = RequestFactory().get('/')
+        middleware = SessionMiddleware(lambda req: None)
+        middleware.process_request(request)
+        request.session.save()
+
+        carrito = Carrito(request)
+        carrito.agregar(prod, cantidad=2)
+
+        self.assertEqual(carrito.get_total(), 24000)
+        items = list(carrito)
+        self.assertEqual(items[0]['precio'], '12000')
+        self.assertTrue(items[0]['en_oferta'])
+        self.assertEqual(items[0]['descuento_porcentaje'], 20)
+
+    def test_producto_form_validacion_oferta(self):
+        from .forms import ProductoForm
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        # 1x1 transparent GIF valid bytes for Pillow
+        gif_bytes = b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;"
+        test_img = SimpleUploadedFile("test.gif", gif_bytes, content_type="image/gif")
+
+        # Error si activa oferta sin precio ni porcentaje
+        form = ProductoForm(
+            data={
+                'categoria': self.categoria.id,
+                'nombre': 'Producto Test',
+                'precio': '10.000',
+                'stock': 5,
+                'disponible': True,
+                'en_oferta': True,
+            },
+            files={'imagen': test_img}
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('precio_oferta', form.errors)
+
+        # Éxito ingresando solo porcentaje
+        test_img2 = SimpleUploadedFile("test2.gif", gif_bytes, content_type="image/gif")
+        form_pct = ProductoForm(
+            data={
+                'categoria': self.categoria.id,
+                'nombre': 'Producto Test Pct',
+                'precio': '20.000',
+                'stock': 5,
+                'disponible': True,
+                'en_oferta': True,
+                'descuento_porcentaje': 30,
+            },
+            files={'imagen': test_img2}
+        )
+        self.assertTrue(form_pct.is_valid(), form_pct.errors)
+        prod = form_pct.save()
+        self.assertEqual(prod.precio_oferta, 14000)
+        self.assertEqual(prod.porcentaje_descuento, 30)
+
+        # Error si precio oferta es mayor o igual al normal
+        test_img3 = SimpleUploadedFile("test3.gif", gif_bytes, content_type="image/gif")
+        form_invalido = ProductoForm(
+            data={
+                'categoria': self.categoria.id,
+                'nombre': 'Producto Invalido',
+                'precio': '10.000',
+                'stock': 5,
+                'disponible': True,
+                'en_oferta': True,
+                'precio_oferta': '12.000',
+            },
+            files={'imagen': test_img3}
+        )
+        self.assertFalse(form_invalido.is_valid())
+        self.assertIn('precio_oferta', form_invalido.errors)
+
+    def test_vista_detalle_muestra_oferta(self):
+        prod = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Cuaderno Botánico",
+            precio=8000,
+            precio_oferta=6000,
+            en_oferta=True,
+            stock=10
+        )
+        response = self.client.get(prod.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "$6.000")
+        self.assertContains(response, "$8.000")
+        self.assertContains(response, "25% OFF")
+
+    def test_toggle_oferta_producto(self):
+        from django.contrib.auth.models import User
+        staff_user = User.objects.create_user(username='admin_test', password='password123', is_staff=True)
+        self.client.login(username='admin_test', password='password123')
+
+        prod = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Llavero Carpintero",
+            precio=5000,
+            precio_oferta=4000,
+            en_oferta=False,
+            stock=10
+        )
+        # Activar oferta vía toggle
+        response = self.client.get(f'/panel/productos/{prod.id}/toggle-oferta/')
+        self.assertEqual(response.status_code, 302)
+        prod.refresh_from_db()
+        self.assertTrue(prod.en_oferta)
+
+        # Desactivar oferta vía toggle
+        response = self.client.get(f'/panel/productos/{prod.id}/toggle-oferta/')
+        self.assertEqual(response.status_code, 302)
+        prod.refresh_from_db()
+        self.assertFalse(prod.en_oferta)
+
+

@@ -14,9 +14,9 @@ class CategoriaAdmin(admin.ModelAdmin):
 # --- Configuración de Productos ---
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'categoria', 'precio', 'stock', 'disponible')
-    list_editable = ('stock', 'disponible') 
-    list_filter = ('categoria', 'disponible')
+    list_display = ('nombre', 'categoria', 'precio', 'precio_oferta', 'en_oferta', 'stock', 'disponible')
+    list_editable = ('en_oferta', 'stock', 'disponible') 
+    list_filter = ('en_oferta', 'categoria', 'disponible')
     search_fields = ('nombre',)
     inlines = [ImagenProductoInline]
 

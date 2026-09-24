@@ -74,11 +74,21 @@
             {% endif %}
             {% if not p.disponible %}
               <span class="agotado">Agotado</span>
+            {% elif p.tiene_descuento %}
+              <span class="badge-oferta"><i class="fa-solid fa-tag"></i> {{ p.porcentaje_descuento }}% OFF</span>
             {% endif %}
           </div>
           
           <h3 style="font-size: 1rem; font-weight: 700; color: #334155; margin: 0 0 4px 0; font-family: 'Quicksand', sans-serif;">{{ p.nombre }}</h3>
-          <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">${{ p.precio }}</p>
+          {% if p.tiene_descuento %}
+            <div style="display: flex; align-items: baseline; gap: 8px; margin: 0 0 12px 0; flex-wrap: wrap;">
+              <span style="font-weight: 800; color: #e11d48; font-size: 1.15rem;">${{ p.precio_actual }}</span>
+              <span class="precio-original-tachado">${{ p.precio }}</span>
+              <span class="badge-descuento-pill">-{{ p.porcentaje_descuento }}%</span>
+            </div>
+          {% else %}
+            <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">${{ p.precio }}</p>
+          {% endif %}
           
           <div style="display: flex; gap: 6px; margin-top: auto;">
             <a href="{{ p.get_absolute_url }}" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0;">
@@ -523,13 +533,24 @@ async function shuffleDestacados() {
     if (data.productos && data.productos.length > 0) {
       container.innerHTML = '';
       data.productos.forEach(p => {
+        const badgeOfertaHtml = p.en_oferta ? `<span class="badge-oferta"><i class="fa-solid fa-tag"></i> ${p.descuento_porcentaje}% OFF</span>` : '';
+        const precioHtml = p.en_oferta ? `
+          <div style="display: flex; align-items: baseline; gap: 8px; margin: 0 0 12px 0; flex-wrap: wrap;">
+            <span style="font-weight: 800; color: #e11d48; font-size: 1.15rem;">$${p.precio_actual}</span>
+            <span class="precio-original-tachado">$${p.precio}</span>
+            <span class="badge-descuento-pill">-${p.descuento_porcentaje}%</span>
+          </div>
+        ` : `
+          <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">$${p.precio}</p>
+        `;
         const cardHtml = `
           <div class="producto-destacado-card">
             <div class="img-box">
               ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}">` : ''}
+              ${badgeOfertaHtml}
             </div>
             <h3 style="font-size: 1rem; font-weight: 700; color: #334155; margin: 0 0 4px 0; font-family: 'Quicksand', sans-serif;">${p.nombre}</h3>
-            <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">$${p.precio}</p>
+            ${precioHtml}
             <div style="display: flex; gap: 6px; margin-top: auto;">
               <a href="${p.url}" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0;">
                 <i class="fa-solid fa-eye"></i> Ver

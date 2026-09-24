@@ -36,6 +36,7 @@ from .panel_admin import (
     crear_producto,
     crear_categoria,
     toggle_producto,
+    toggle_oferta_producto,
     editar_producto,
     eliminar_producto,
     panel_pedidos,

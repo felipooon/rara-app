@@ -350,6 +350,60 @@ function ejecutarCopiaFormModal() {
             </label>
         </div>
 
+        <!-- Toggle Switch para Oferta / Descuento -->
+        <label for="{{ form.en_oferta.id_for_label }}" class="switch-wrapper" style="background: #fff5f5; border-color: #fecaca; margin-bottom: 12px;">
+            <span class="switch-label-text" style="color: #b91c1c;">
+                🏷️ Activar Oferta / Descuento Especial
+            </span>
+            <span class="toggle-switch">
+                {{ form.en_oferta }}
+                <span class="toggle-slider"></span>
+            </span>
+        </label>
+
+        <!-- Campos de Oferta (Desplegable dinámicamente) -->
+        <div id="sec-oferta" style="display: none; background: #fffaf0; border: 1px dashed #fbd38d; border-radius: 12px; padding: 22px; margin-bottom: 25px;">
+            <div style="margin-bottom: 14px; font-weight: 800; color: #c05621; font-size: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <span>🔥 Configuración de Oferta y Descuento</span>
+                <span style="font-size: 0.82rem; font-weight: 600; color: #718096;">Ingresa un porcentaje O un nuevo precio (se calculan solos)</span>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="{{ form.descuento_porcentaje.id_for_label }}">
+                        <i class="fa-solid fa-percent" style="color: #dd6b20;"></i> {{ form.descuento_porcentaje.label }}
+                    </label>
+                    {{ form.descuento_porcentaje }}
+                    {% if form.descuento_porcentaje.errors %}
+                        <div style="color: #e53e3e; font-size: 0.85rem; margin-top: 4px;">{{ form.descuento_porcentaje.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.precio_oferta.id_for_label }}">
+                        <i class="fa-solid fa-tag" style="color: #dd6b20;"></i> {{ form.precio_oferta.label }}
+                    </label>
+                    {{ form.precio_oferta }}
+                    {% if form.precio_oferta.errors %}
+                        <div style="color: #e53e3e; font-size: 0.85rem; margin-top: 4px;">{{ form.precio_oferta.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vista Previa de la Oferta en Tiempo Real -->
+            <div id="oferta-preview-box" style="margin-top: 14px; background: white; border: 1px solid #feebc8; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 0.85rem; color: #718096; font-weight: 600;">Normal:</span>
+                    <span id="preview-precio-original" style="font-size: 1rem; color: #a0aec0; text-decoration: line-through; font-weight: 600;">$0</span>
+                    <span style="font-size: 0.85rem; color: #718096; font-weight: 600;">➔ En Oferta:</span>
+                    <span id="preview-precio-oferta" style="font-size: 1.25rem; color: #e53e3e; font-weight: 800;">$0</span>
+                    <span id="preview-badge-pct" class="badge-descuento-pill" style="display: none;">-0% OFF</span>
+                </div>
+                <div id="preview-ahorro" style="font-size: 0.88rem; color: #38a169; font-weight: 700;">
+                    Ahorro para el cliente: $0
+                </div>
+            </div>
+        </div>
+
         <!-- Toggle Switch para Ficha de Especie -->
         <label for="{{ form.tiene_ficha_especie.id_for_label }}" class="switch-wrapper">
             <span class="switch-label-text">
@@ -407,22 +461,103 @@ function ejecutarCopiaFormModal() {
         }
 
         document.addEventListener("DOMContentLoaded", function() {
+            // Ficha de especie
             var chkFicha = document.getElementById("{{ form.tiene_ficha_especie.id_for_label }}");
             var secFicha = document.getElementById("sec-ficha-especie");
 
             function toggleFicha() {
                 if (chkFicha && secFicha) {
-                    if (chkFicha.checked) {
-                        secFicha.style.display = "block";
-                    } else {
-                        secFicha.style.display = "none";
-                    }
+                    secFicha.style.display = chkFicha.checked ? "block" : "none";
                 }
             }
-
             if (chkFicha) {
                 chkFicha.addEventListener("change", toggleFicha);
                 toggleFicha();
+            }
+
+            // Oferta
+            var chkOferta = document.getElementById("{{ form.en_oferta.id_for_label }}");
+            var secOferta = document.getElementById("sec-oferta");
+            var inputPrecio = document.getElementById("{{ form.precio.id_for_label }}") || document.querySelector('input[name="precio"]');
+            var inputPct = document.getElementById("{{ form.descuento_porcentaje.id_for_label }}") || document.querySelector('input[name="descuento_porcentaje"]');
+            var inputOferta = document.getElementById("{{ form.precio_oferta.id_for_label }}") || document.querySelector('input[name="precio_oferta"]');
+
+            var prevOrig = document.getElementById("preview-precio-original");
+            var prevOferta = document.getElementById("preview-precio-oferta");
+            var prevBadge = document.getElementById("preview-badge-pct");
+            var prevAhorro = document.getElementById("preview-ahorro");
+
+            function getPrecioBase() {
+                if (!inputPrecio) return 0;
+                var raw = String(inputPrecio.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '');
+                return parseInt(raw, 10) || 0;
+            }
+
+            function updateOfertaPreview() {
+                var precioBase = getPrecioBase();
+                var rawOferta = inputOferta ? String(inputOferta.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '') : '';
+                var pOferta = parseInt(rawOferta, 10) || 0;
+                var pct = inputPct ? parseInt(inputPct.value, 10) || 0 : 0;
+
+                if (prevOrig) prevOrig.textContent = '$' + precioBase.toLocaleString('es-CL');
+
+                if (pOferta > 0 && precioBase > 0) {
+                    if (prevOferta) prevOferta.textContent = '$' + pOferta.toLocaleString('es-CL');
+                    var calcPct = pct > 0 ? pct : Math.max(1, Math.round((1 - (pOferta / precioBase)) * 100));
+                    if (prevBadge) {
+                        prevBadge.style.display = 'inline-flex';
+                        prevBadge.textContent = '-' + calcPct + '% OFF';
+                    }
+                    var ahorro = Math.max(0, precioBase - pOferta);
+                    if (prevAhorro) prevAhorro.textContent = 'Ahorro para el cliente: $' + ahorro.toLocaleString('es-CL');
+                } else {
+                    if (prevOferta) prevOferta.textContent = '$' + precioBase.toLocaleString('es-CL');
+                    if (prevBadge) prevBadge.style.display = 'none';
+                    if (prevAhorro) prevAhorro.textContent = 'Ingresa un % o precio con rebaja';
+                }
+            }
+
+            function toggleOferta() {
+                if (chkOferta && secOferta) {
+                    secOferta.style.display = chkOferta.checked ? "block" : "none";
+                    if (chkOferta.checked) updateOfertaPreview();
+                }
+            }
+
+            if (chkOferta) {
+                chkOferta.addEventListener("change", toggleOferta);
+                toggleOferta();
+            }
+
+            // Al escribir en Porcentaje -> calcula automáticamente Precio de Oferta
+            if (inputPct) {
+                inputPct.addEventListener("input", function() {
+                    var precioBase = getPrecioBase();
+                    var pct = parseInt(inputPct.value, 10);
+                    if (precioBase > 0 && pct > 0 && pct < 100) {
+                        var nuevoPrecio = Math.round(precioBase * (1 - (pct / 100)));
+                        if (inputOferta) inputOferta.value = nuevoPrecio;
+                    }
+                    updateOfertaPreview();
+                });
+            }
+
+            // Al escribir en Precio de Oferta -> calcula automáticamente Porcentaje
+            if (inputOferta) {
+                inputOferta.addEventListener("input", function() {
+                    var precioBase = getPrecioBase();
+                    var raw = String(inputOferta.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '');
+                    var pOferta = parseInt(raw, 10);
+                    if (precioBase > 0 && pOferta > 0 && pOferta < precioBase) {
+                        var calcPct = Math.max(1, Math.round((1 - (pOferta / precioBase)) * 100));
+                        if (inputPct) inputPct.value = calcPct;
+                    }
+                    updateOfertaPreview();
+                });
+            }
+
+            if (inputPrecio) {
+                inputPrecio.addEventListener("input", updateOfertaPreview);
             }
         });
         </script>
