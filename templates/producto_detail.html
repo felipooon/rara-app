@@ -301,31 +301,26 @@
 
                 <!-- Precio -->
                 {% if producto.tiene_descuento %}
-                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px;">
-                    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                        <span style="font-size: 2.5rem; font-weight: 800; color: #e11d48; font-family: 'Outfit', sans-serif;">
-                            ${{ producto.precio_actual }}
-                        </span>
-                        <span class="precio-original-tachado" style="font-size: 1.5rem; font-weight: 600; font-family: 'Outfit', sans-serif;">
-                            ${{ producto.precio }}
-                        </span>
-                        <span class="badge-descuento-pill" style="font-size: 0.85rem; padding: 5px 12px;">
-                            <i class="fa-solid fa-tag"></i> {{ producto.porcentaje_descuento }}% OFF
-                        </span>
+                <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <span style="font-size: 2.5rem; font-weight: 800; color: #e11d48; font-family: 'Outfit', sans-serif;">
+                        ${{ producto.precio_actual }}
+                    </span>
+                    <span class="precio-original-tachado" style="font-size: 1.5rem; font-weight: 600; font-family: 'Outfit', sans-serif;">
+                        ${{ producto.precio }}
+                    </span>
+                    <span class="badge-descuento-pill" style="font-size: 0.85rem; padding: 5px 12px;">
+                        <i class="fa-solid fa-tag"></i> {{ producto.porcentaje_descuento }}% OFF
+                    </span>
 
-                        {% if producto.disponible %}
-                            <span style="color: #27ae60; font-size: 0.9rem; font-weight: 600; background: #e8f8f5; padding: 3px 10px; border-radius: 10px;">
-                                <i class="fa-solid fa-circle-check"></i> Disponible
-                            </span>
-                        {% else %}
-                            <span style="color: #e74c3c; font-size: 0.9rem; font-weight: 600; background: #fdf2f2; padding: 3px 10px; border-radius: 10px;">
-                                <i class="fa-solid fa-circle-xmark"></i> Agotado
-                            </span>
-                        {% endif %}
-                    </div>
-                    <div style="font-size: 0.88rem; color: #16a34a; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                        <span>🎉 ¡Ahorras ${{ producto.monto_ahorro }} con esta oferta!</span>
-                    </div>
+                    {% if producto.disponible %}
+                        <span style="color: #27ae60; font-size: 0.9rem; font-weight: 600; background: #e8f8f5; padding: 3px 10px; border-radius: 10px;">
+                            <i class="fa-solid fa-circle-check"></i> Disponible
+                        </span>
+                    {% else %}
+                        <span style="color: #e74c3c; font-size: 0.9rem; font-weight: 600; background: #fdf2f2; padding: 3px 10px; border-radius: 10px;">
+                            <i class="fa-solid fa-circle-xmark"></i> Agotado
+                        </span>
+                    {% endif %}
                 </div>
                 {% else %}
                 <div style="display: flex; align-items: baseline; gap: 15px; margin-bottom: 20px;">
