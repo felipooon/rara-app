@@ -110,6 +110,19 @@ class Carrito:
         """
         return sum(int(item['precio']) * item['cantidad'] for item in self.carrito.values())
 
+    def __len__(self):
+        """
+        Retorna la cantidad total de unidades en el carrito.
+        """
+        return sum(item['cantidad'] for item in self.carrito.values())
+
+    @property
+    def total_items(self):
+        """
+        Retorna la cantidad total de unidades en el carrito.
+        """
+        return sum(item['cantidad'] for item in self.carrito.values())
+
     def __iter__(self):
         """
         Permite iterar sobre los items del carrito en los templates HTML y 
