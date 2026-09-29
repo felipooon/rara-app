@@ -217,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <li><a href="{% url 'blog_list' %}" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Blog</a></li>
           {% endif %}
           <li><a href="{% url 'index' %}#contacto" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Atención al Cliente</a></li>
+          <li><a href="{% url 'terminos' %}" style="color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Términos y Condiciones</a></li>
         </ul>
       </div>
 
@@ -248,8 +249,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     <!-- Fila Inferior (Sub-footer): Copyright & Firma de Desarrollo -->
     <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; color: #64748b;">
-      <div>
-        &copy; {% now "Y" %} Rara Tienda. Todos los derechos reservados.
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span>&copy; {% now "Y" %} Rara Tienda. Todos los derechos reservados.</span>
+        <span style="opacity: 0.5;">•</span>
+        <a href="{% url 'terminos' %}" style="color: #64748b; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ef9d71'" onmouseout="this.style.color='#64748b'">Términos y Condiciones</a>
       </div>
 
       <div style="display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: #94a3b8; font-weight: 400;">
