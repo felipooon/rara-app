@@ -174,6 +174,222 @@
             .top-bar-left, .top-bar-right { width: auto; }
             .ads-floating { bottom: 20px; right: 420px; }
         }
+        /* MODAL PROMOCIONAL BIG DAY */
+        .promo-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.2rem;
+            animation: fadeInPromo 0.3s ease-out;
+        }
+
+        .promo-modal-card {
+            background: #ffffff;
+            border-radius: 24px;
+            max-width: 480px;
+            width: 100%;
+            padding: 2.2rem 2rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            border: 2px solid rgba(239, 157, 113, 0.45);
+            animation: zoomInPromo 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .promo-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: #f1f5f9;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            line-height: 1;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .promo-close-btn:hover {
+            background: #e2895a;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .promo-badge {
+            display: inline-block;
+            background: rgba(239, 157, 113, 0.15);
+            color: #c26332;
+            border: 1px solid var(--accent);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 0.9rem;
+        }
+
+        .promo-icon-header {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .promo-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 0.6rem;
+        }
+
+        .promo-description {
+            font-size: 0.92rem;
+            color: #64748b;
+            line-height: 1.55;
+            margin-bottom: 1.3rem;
+        }
+
+        .promo-coupon-box {
+            background: linear-gradient(135deg, #fff9f5, #fef2ea);
+            border: 2px dashed var(--accent);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-bottom: 1.3rem;
+        }
+
+        .promo-discount-tag {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #c26332;
+            letter-spacing: 0.5px;
+        }
+
+        .promo-discount-sub {
+            font-size: 0.8rem;
+            color: #78716c;
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
+
+        .promo-code-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 157, 113, 0.35);
+            max-width: 290px;
+            margin: 0 auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .promo-code-text {
+            font-family: monospace;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: 1.5px;
+        }
+
+        .btn-copy-code {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-copy-code:hover {
+            background: #e2895a;
+            transform: scale(1.03);
+        }
+
+        .btn-copy-code.copied {
+            background: #65C18C !important;
+        }
+
+        .promo-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-promo-primary {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), #ff8c00);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(239, 157, 113, 0.35);
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .btn-promo-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 157, 113, 0.5);
+        }
+
+        .btn-promo-secondary {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 6px;
+            transition: color 0.2s;
+        }
+
+        .btn-promo-secondary:hover {
+            color: #475569;
+        }
+
+        .promo-footer-hint {
+            margin-top: 10px;
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        @keyframes fadeInPromo {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes zoomInPromo {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -263,6 +479,53 @@
         </div>
     </div>
 
+    <!-- MODAL PROMOCIONAL BIG DAY (Comentado para activar más adelante)
+    <div id="modal-promo-bigday" class="promo-modal-backdrop" style="display: none;" onclick="if(event.target === this) cerrarModalPromoBigDay()">
+        <div class="promo-modal-card">
+            <button class="promo-close-btn" onclick="cerrarModalPromoBigDay()" title="Cerrar">&times;</button>
+            
+            <div class="promo-badge">
+                🦅 GLOBAL BIG DAY · DESAFÍO PAJARERO
+            </div>
+
+            <div class="promo-icon-header">
+                🔭🦜
+            </div>
+
+            <h3 class="promo-title">¡Espíritu Pajarero Desbloqueado!</h3>
+            
+            <p class="promo-description">
+                El <strong>Global Big Day</strong> nos une en la observación y protección de las aves. Como estás explorando activamente los avistamientos en el mapa, te premiamos con un descuento especial para equipar tus salidas a terreno:
+            </p>
+
+            <div class="promo-coupon-box">
+                <div class="promo-discount-tag">10% DE DESCUENTO</div>
+                <div class="promo-discount-sub">Válido en stickers, guías de campo, prints y recuerdos de fauna nativa</div>
+                
+                <div class="promo-code-wrapper">
+                    <span class="promo-code-text" id="couponCodeText">BIGDAY10</span>
+                    <button class="btn-copy-code" id="btnCopyCoupon" onclick="copiarCodigoCupon()">
+                        <i class="fa-regular fa-copy"></i> <span id="copyBtnText">Copiar Cupón</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="promo-actions">
+                <a href="{% url 'index' %}#catalogo" class="btn-promo-primary" target="_blank" onclick="cerrarModalPromoBigDay()">
+                    🛍️ Usar Descuento en la Tienda ➔
+                </a>
+                <button class="btn-promo-secondary" onclick="cerrarModalPromoBigDay()">
+                    Seguir explorando el mapa
+                </button>
+            </div>
+            
+            <div class="promo-footer-hint">
+                <small>* Aplica en el carrito ingresando el código <strong>BIGDAY10</strong></small>
+            </div>
+        </div>
+    </div>
+    -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     {% verbatim %}
     <script>
@@ -284,6 +547,62 @@
         const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' });
         L.control.layers({"Satélite": sat, "Mapa": streets}, null, {position:'bottomleft'}).addTo(map);
         const markers = L.layerGroup().addTo(map);
+
+        /* MODAL PROMOCIONAL BIG DAY (Comentado para activar más adelante)
+        let mapInteractionsCount = 0;
+        const MAX_INTERACTIONS_FOR_PROMO = 3;
+
+        function registrarInteraccionPunto() {
+            if (sessionStorage.getItem('promo_bigday_mostrada')) return;
+            mapInteractionsCount++;
+            if (mapInteractionsCount >= MAX_INTERACTIONS_FOR_PROMO) {
+                setTimeout(abrirModalPromoBigDay, 700);
+            }
+        }
+
+        function abrirModalPromoBigDay() {
+            const modal = document.getElementById('modal-promo-bigday');
+            if (modal) {
+                modal.style.display = 'flex';
+                sessionStorage.setItem('promo_bigday_mostrada', 'true');
+            }
+        }
+
+        function cerrarModalPromoBigDay() {
+            const modal = document.getElementById('modal-promo-bigday');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function copiarCodigoCupon() {
+            const codeEl = document.getElementById('couponCodeText');
+            const code = codeEl ? codeEl.innerText.trim() : 'BIGDAY10';
+            
+            const marcarCopiado = () => {
+                const btn = document.getElementById('btnCopyCoupon');
+                const text = document.getElementById('copyBtnText');
+                if (btn && text) {
+                    btn.classList.add('copied');
+                    text.innerText = '¡Copiado! ✅';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        text.innerText = 'Copiar Cupón';
+                    }, 3000);
+                }
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(marcarCopiado).catch(() => {
+                    marcarCopiado();
+                });
+            } else {
+                marcarCopiado();
+            }
+        }
+
+        // map.on('popupopen', registrarInteraccionPunto);
+        */
 
         async function changeRegion(val) {
             REGION = val;

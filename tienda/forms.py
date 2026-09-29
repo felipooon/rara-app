@@ -135,7 +135,11 @@ from .models import Cupon
 class CuponForm(forms.ModelForm):
     class Meta:
         model = Cupon
-        fields = ["codigo", "descuento_porcentaje", "descuento_monto", "activo", "usos_maximos", "fecha_expiracion"]
+        fields = [
+            "codigo", "descuento_porcentaje", "descuento_monto", 
+            "monto_minimo_compra", "tope_maximo_descuento", "excluir_ofertas",
+            "activo", "usos_maximos", "fecha_expiracion"
+        ]
         widgets = {
             'fecha_expiracion': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }

@@ -46,6 +46,26 @@
             </div>
         </div>
 
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Compra Mínima (CLP)</label>
+                {{ form.monto_minimo_compra }}
+                <small style="color: #888;">0 = sin monto mínimo.</small>
+            </div>
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Tope Máx. Descuento (CLP)</label>
+                {{ form.tope_maximo_descuento }}
+                <small style="color: #888;">Dejar en blanco para sin tope.</small>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: #fdfaf6; padding: 12px; border-radius: 8px; border: 1px solid #fed7aa;">
+            {{ form.excluir_ofertas }}
+            <label for="id_excluir_ofertas" style="font-weight: 600; color: #444; cursor: pointer; font-size: 0.95rem;">
+                No aplicar sobre productos que ya estén en oferta
+            </label>
+        </div>
+
         <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
             {{ form.activo }}
             <label for="id_activo" style="font-weight: 600; color: #444; cursor: pointer;">Cupón Activo</label>

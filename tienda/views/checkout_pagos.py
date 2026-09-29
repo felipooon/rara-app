@@ -42,15 +42,15 @@ def validar_rut_chileno(rut):
     return dv_ingresado == dv_esperado
 
 
-def obtener_descuento_cupon(request, total_carrito):
+def obtener_descuento_cupon(request, total_carrito, carrito=None):
     codigo = request.session.get('cupon_codigo')
     if not codigo:
         return None, 0
     try:
         cupon = Cupon.objects.get(codigo__iexact=codigo)
-        valido, _ = cupon.es_valido()
+        valido, _ = cupon.es_valido(total=total_carrito, carrito=carrito)
         if valido:
-            descuento = cupon.calcular_descuento(total_carrito)
+            descuento = cupon.calcular_descuento(total_carrito, carrito=carrito)
             return cupon, descuento
     except Cupon.DoesNotExist:
         pass
@@ -66,7 +66,9 @@ def aplicar_cupon(request):
         
         try:
             cupon = Cupon.objects.get(codigo__iexact=codigo)
-            valido, msg = cupon.es_valido()
+            carrito = Carrito(request)
+            total_carrito = carrito.get_total()
+            valido, msg = cupon.es_valido(total=total_carrito, carrito=carrito)
             if not valido:
                 messages.error(request, msg)
             else:
@@ -172,7 +174,7 @@ def procesar_pedido(request):
             return redirect('ver_carrito')
 
     total_bruto = carrito.get_total()
-    cupon_obj, descuento_aplicado = obtener_descuento_cupon(request, total_bruto)
+    cupon_obj, descuento_aplicado = obtener_descuento_cupon(request, total_bruto, carrito=carrito)
     total_final = max(0, total_bruto - descuento_aplicado)
 
     if request.method == 'POST':

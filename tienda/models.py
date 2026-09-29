@@ -236,10 +236,14 @@ class Cupon(models.Model):
     usos_actuales = models.PositiveIntegerField(default=0)
     fecha_expiracion = models.DateTimeField(null=True, blank=True)
 
+    monto_minimo_compra = models.PositiveIntegerField(default=0, help_text="Monto mínimo en CLP para aplicar el cupón (0 = sin mínimo)")
+    tope_maximo_descuento = models.PositiveIntegerField(null=True, blank=True, help_text="Tope máximo en CLP que puede descontar este cupón (dejar en blanco para ilimitado)")
+    excluir_ofertas = models.BooleanField(default=False, help_text="No aplicar descuento sobre productos que ya estén en oferta")
+
     def __str__(self):
         return self.codigo
 
-    def es_valido(self):
+    def es_valido(self, total=None, carrito=None):
         if not self.activo:
             return False, "El cupón no está activo."
         if self.usos_maximos and self.usos_actuales >= self.usos_maximos:
@@ -248,14 +252,39 @@ class Cupon(models.Model):
             from django.utils import timezone
             if timezone.now() > self.fecha_expiracion:
                 return False, "El cupón ha expirado."
+        if total is not None and self.monto_minimo_compra > 0 and total < self.monto_minimo_compra:
+            return False, f"Este cupón requiere una compra mínima de ${self.monto_minimo_compra:,} CLP.".replace(',', '.')
+        if self.excluir_ofertas and carrito:
+            subtotal_regular = sum(
+                int(item['precio']) * item['cantidad'] 
+                for item in carrito 
+                if not item.get('en_oferta')
+            )
+            if subtotal_regular <= 0:
+                return False, "Este cupón no es acumulable con productos en oferta y todos los productos de tu nido ya tienen descuento."
         return True, "Cupón válido."
 
-    def calcular_descuento(self, total):
+    def calcular_descuento(self, total, carrito=None):
+        base = total
+        if self.excluir_ofertas and carrito:
+            base = sum(
+                int(item['precio']) * item['cantidad'] 
+                for item in carrito 
+                if not item.get('en_oferta')
+            )
+            if base <= 0:
+                return 0
+
+        descuento = 0
         if self.descuento_porcentaje > 0:
-            return int(total * (self.descuento_porcentaje / 100.0))
+            descuento = int(base * (self.descuento_porcentaje / 100.0))
         elif self.descuento_monto > 0:
-            return min(total, self.descuento_monto)
-        return 0
+            descuento = min(base, self.descuento_monto)
+
+        if self.tope_maximo_descuento and self.tope_maximo_descuento > 0:
+            descuento = min(descuento, self.tope_maximo_descuento)
+
+        return max(0, descuento)
 
     class Meta:
         verbose_name = 'Cupón'

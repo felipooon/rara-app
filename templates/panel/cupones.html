@@ -29,12 +29,23 @@
                 <tr style="border-bottom: 1px solid #eee;">
                     <td style="padding: 15px; font-weight: bold; color: #fca311;">{{ cupon.codigo }}</td>
                     <td style="padding: 15px;">
-                        {% if cupon.descuento_porcentaje > 0 %}
-                            {{ cupon.descuento_porcentaje }}% OFF
-                        {% elif cupon.descuento_monto > 0 %}
-                            ${{ cupon.descuento_monto }} CLP
-                        {% else %}
-                            Sin descuento
+                        <div>
+                            {% if cupon.descuento_porcentaje > 0 %}
+                                <strong>{{ cupon.descuento_porcentaje }}% OFF</strong>
+                            {% elif cupon.descuento_monto > 0 %}
+                                <strong>${{ cupon.descuento_monto }} CLP</strong>
+                            {% else %}
+                                Sin descuento
+                            {% endif %}
+                        </div>
+                        {% if cupon.tope_maximo_descuento %}
+                            <small style="color: #64748b; display: block;">Tope: ${{ cupon.tope_maximo_descuento }}</small>
+                        {% endif %}
+                        {% if cupon.monto_minimo_compra > 0 %}
+                            <small style="color: #64748b; display: block;">Mínimo: ${{ cupon.monto_minimo_compra }}</small>
+                        {% endif %}
+                        {% if cupon.excluir_ofertas %}
+                            <small style="color: #ef4444; display: block; font-weight: 600;">Excluye ofertas</small>
                         {% endif %}
                     </td>
                     <td style="padding: 15px;">
