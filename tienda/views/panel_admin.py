@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from ..models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido, MetricaDiaria, MetricaProducto
 from ..forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ConfiguracionSitioForm
+from ..utils import generar_excel_catalogo_pos, generar_html_codigos_barra
 
 
 class CustomLoginView(LoginView):
@@ -690,6 +691,54 @@ def exportar_stock_excel(request):
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="Inventario_Rara_Tienda.xlsx"'
     wb.save(response)
+    return response
+
+
+@staff_member_required(login_url='login')
+def exportar_catalogo_pos_excel(request):
+    productos = Producto.objects.exclude(nombre__iexact='test').order_by('nombre')
+
+    categoria_id = request.GET.get("categoria", "")
+    estado = request.GET.get("estado", "")
+    if categoria_id:
+        productos = productos.filter(categoria_id=categoria_id)
+    if estado == "disponible":
+        productos = productos.filter(disponible=True, stock__gt=0)
+    elif estado == "agotado":
+        productos = productos.filter(models.Q(disponible=False) | models.Q(stock=0))
+
+    xlsx_bytes = generar_excel_catalogo_pos(productos)
+    response = HttpResponse(
+        xlsx_bytes,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="catalogo_importacion_rara_tienda.xlsx"'
+    return response
+
+
+@staff_member_required(login_url='login')
+def panel_codigos_barra(request):
+    productos = Producto.objects.select_related('categoria').exclude(nombre__iexact='test').order_by('nombre')
+    categorias = Categoria.objects.all().order_by('nombre')
+    q_inicial = request.GET.get('q', '').strip()
+    ids_raw = request.GET.get('ids', '').strip()
+    ids_seleccionados = [int(x) for x in ids_raw.split(',') if x.strip().isdigit()] if ids_raw else []
+
+    return render(request, "panel/codigos_barra.html", {
+        "productos": productos,
+        "categorias": categorias,
+        "total_productos": productos.count(),
+        "q_inicial": q_inicial,
+        "ids_seleccionados": ids_seleccionados,
+    })
+
+
+@staff_member_required(login_url='login')
+def descargar_codigos_barra_html(request):
+    productos = Producto.objects.exclude(nombre__iexact='test').order_by('nombre')
+    html_content = generar_html_codigos_barra(productos)
+    response = HttpResponse(html_content, content_type='text/html; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="codigos_de_barra_rara_tienda.html"'
     return response
 
 

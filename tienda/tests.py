@@ -425,3 +425,58 @@ class OfertaProductoTests(TestCase):
         self.assertFalse(prod.en_oferta)
 
 
+class PosYCodigosBarraTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth.models import User
+        self.staff_user = User.objects.create_user(username='admin_pos', password='password123', is_staff=True)
+        self.client.login(username='admin_pos', password='password123')
+        self.categoria = Categoria.objects.create(nombre="Guías")
+        self.prod = Producto.objects.create(
+            id=185,
+            categoria=self.categoria,
+            nombre="Anfibios de Chile",
+            precio=5000,
+            stock=1,
+            disponible=True
+        )
+
+    def test_sku_y_codigo_barras_upca(self):
+        self.assertEqual(self.prod.codigo_sku, "185")
+        self.assertEqual(self.prod.codigo_barras, "780492711850")
+        self.assertIn("<svg", self.prod.codigo_barras_svg)
+        self.assertIn("780492711850", self.prod.codigo_barras_svg)
+
+    def test_exportar_inventario_original_y_catalogo_pos(self):
+        import io
+        import openpyxl
+
+        resp_inv = self.client.get('/panel/productos/exportar/')
+        self.assertEqual(resp_inv.status_code, 200)
+        wb_inv = openpyxl.load_workbook(io.BytesIO(resp_inv.content))
+        ws_inv = wb_inv['Stock Rara Tienda']
+        self.assertEqual(ws_inv.cell(2, 1).value, 185)
+        self.assertEqual(ws_inv.cell(2, 2).value, "Anfibios de Chile")
+
+        resp_pos = self.client.get('/panel/productos/exportar-pos/')
+        self.assertEqual(resp_pos.status_code, 200)
+        wb_pos = openpyxl.load_workbook(io.BytesIO(resp_pos.content))
+        ws_pos = wb_pos['Productos']
+        self.assertEqual(ws_pos.cell(2, 1).value, "Anfibios de Chile")
+        self.assertEqual(ws_pos.cell(2, 4).value, 5000.0)
+        self.assertEqual(ws_pos.cell(2, 6).value, "N")
+        self.assertEqual(ws_pos.cell(2, 7).value, "185")
+        self.assertEqual(ws_pos.cell(2, 8).value, "780492711850")
+        self.assertEqual(ws_pos.cell(2, 9).value, "S")
+
+    def test_vista_y_descarga_codigos_barra(self):
+        resp_panel = self.client.get('/panel/productos/codigos-barra/')
+        self.assertEqual(resp_panel.status_code, 200)
+        self.assertContains(resp_panel, "Anfibios de Chile")
+        self.assertContains(resp_panel, "780492711850")
+
+        resp_html = self.client.get('/panel/productos/codigos-barra/descargar/')
+        self.assertEqual(resp_html.status_code, 200)
+        self.assertIn("780492711850", resp_html.content.decode('utf-8'))
+
+
+

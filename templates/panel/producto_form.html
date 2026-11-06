@@ -178,6 +178,20 @@
     </h2>
 
     {% if editando and form.instance.id %}
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <div style="font-weight: 700; color: #1e293b; font-size: 0.93rem;">
+                <i class="fa-solid fa-barcode"></i> SKU POS: <span style="font-family: monospace;">{{ form.instance.codigo_sku }}</span> &bull; Código: <span style="font-family: monospace;">{{ form.instance.codigo_barras }}</span>
+            </div>
+            <div style="margin-top: 6px; background: white; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block;">
+                {{ form.instance.codigo_barras_svg }}
+            </div>
+        </div>
+        <a href="{% url 'panel_codigos_barra' %}?q={{ form.instance.codigo_barras }}" style="background: #111827; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+            🖨️ Imprimir Etiquetas
+        </a>
+    </div>
+
     <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 10px; padding: 14px 18px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #92400e; font-size: 0.93rem;">
             <span>⭐ Link de Valoración para este producto:</span>

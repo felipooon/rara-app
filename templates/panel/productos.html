@@ -2,18 +2,21 @@
 
 {% block content %}
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
     <h1>Gestión de Productos</h1>
     
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <a href="/panel/categorias/crear/?next={{ request.get_full_path|urlencode }}" class="btn-categoria" style="background-color: #6c757d; color: white;">
             📂 Nueva categoría
         </a>
         <a href="/panel/productos/crear/?next={{ request.get_full_path|urlencode }}" class="btn-categoria">
             ➕ Nuevo producto
         </a>
-        <a href="{% url 'exportar_stock_excel' %}" style="background-color: #1D6F42; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-            📊 Descargar Excel
+        <a href="{% url 'exportar_stock_excel' %}" title="Descargar planilla de inventario" style="background-color: #1D6F42; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+            📊 Inventario
+        </a>
+        <a href="{% url 'exportar_catalogo_pos_excel' %}" title="Descargar planilla de catálogo lista para importar al POS" style="background-color: #0f766e; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+            🏪 Catálogo POS
         </a>
     </div>
 </div>
@@ -91,7 +94,12 @@
           {% endif %}
         </td>
 
-        <td style="padding: 12px; font-weight: 500; color: #2c3e50;">{{ p.nombre }}</td>
+        <td style="padding: 12px; font-weight: 500; color: #2c3e50;">
+            <div>{{ p.nombre }}</div>
+            <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px; font-family: monospace;">
+                SKU: {{ p.codigo_sku }} &bull; {{ p.codigo_barras }}
+            </div>
+        </td>
         
         <td style="padding: 12px;">
             {% if p.stock == 0 %}
@@ -165,7 +173,15 @@
 
         <td style="padding: 12px; text-align: right; white-space: nowrap; vertical-align: middle;">
     <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">
-        
+
+        <a href="{% url 'panel_codigos_barra' %}?q={{ p.codigo_barras }}"
+           title="Ver e imprimir código de barra ({{ p.codigo_barras }})"
+           style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background-color: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none; transition: all 0.2s;"
+           onmouseover="this.style.backgroundColor='#111827'; this.style.color='white';"
+           onmouseout="this.style.backgroundColor='#f1f5f9'; this.style.color='#1e293b';">
+            <i class="fa-solid fa-barcode"></i>
+        </a>
+
         <button type="button" 
            onclick="abrirModalResena('https://www.raratienda.cl/evaluar-producto/{{ p.id }}/', '{{ p.nombre|escapejs }}')"
            title="Generar link de valoración para este producto"

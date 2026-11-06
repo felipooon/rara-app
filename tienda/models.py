@@ -1,8 +1,9 @@
 import uuid
 from django.db import models
 from django.utils.text import slugify
+from django.utils.safestring import mark_safe
 from django.urls import reverse
-from .utils import get_cloudinary_url
+from .utils import get_cloudinary_url, generar_codigo_sku, generar_codigo_barras_upca, generar_svg_code128c
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -157,6 +158,21 @@ class Producto(models.Model):
         if self.tiene_descuento:
             return self.precio - self.precio_oferta
         return 0
+
+    @property
+    def codigo_sku(self):
+        """Código SKU de 3 dígitos compatible con el POS."""
+        return generar_codigo_sku(self.id)
+
+    @property
+    def codigo_barras(self):
+        """Código de barras numérico de 12 dígitos (UPC-A / Code 128C)."""
+        return generar_codigo_barras_upca(self.id)
+
+    @property
+    def codigo_barras_svg(self):
+        """SVG vectorial del código de barras listo para renderizar o imprimir."""
+        return mark_safe(generar_svg_code128c(self.codigo_barras))
 
     # --- LÓGICA DE AUTOMATIZACIÓN AL GUARDAR ---
     def save(self, *args, **kwargs):

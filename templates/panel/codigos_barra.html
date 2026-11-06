@@ -1,0 +1,775 @@
+{% extends "panel/base_panel.html" %}
+
+{% block content %}
+<style>
+  /* Header superior limpio */
+  .bc-top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .bc-top-header h1 {
+    margin: 0;
+    font-size: 1.55rem;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bc-top-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .bc-btn {
+    padding: 8px 14px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.15s ease;
+  }
+
+  .bc-btn:hover {
+    background: #f1f5f9;
+  }
+
+  .bc-btn.primary {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+    padding: 9px 18px;
+  }
+
+  .bc-btn.primary:hover {
+    background: #1e293b;
+  }
+
+  /* Layout principal en 2 paneles: Selector a la izquierda, Hoja a la derecha */
+  .bc-workspace {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .bc-workspace {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Panel Izquierdo: Selector de productos */
+  .bc-picker-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 125px);
+    position: sticky;
+    top: 20px;
+    overflow: hidden;
+  }
+
+  .bc-picker-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #f8fafc;
+  }
+
+  .bc-picker-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 0.95rem;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-body input.bc-search-input {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    font-size: 0.88rem !important;
+    box-sizing: border-box !important;
+    margin-bottom: 8px;
+    background: #ffffff !important;
+  }
+
+  .panel-body select.bc-cat-select {
+    width: 100% !important;
+    padding: 7px 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+  }
+
+  .bc-quick-actions {
+    display: flex;
+    gap: 6px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+    flex-wrap: wrap;
+  }
+
+  .bc-mini-btn {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .bc-mini-btn:hover {
+    background: #e2e8f0;
+  }
+
+  .bc-picker-list {
+    overflow-y: auto;
+    flex: 1;
+    divide-y: 1px solid #f1f5f9;
+  }
+
+  .bc-picker-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s;
+  }
+
+  .bc-picker-row:hover {
+    background: #f8fafc;
+  }
+
+  .bc-picker-row.is-active {
+    background: #eff6ff;
+  }
+
+  .bc-picker-info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .bc-picker-name {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bc-picker-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 2px;
+    font-family: monospace;
+  }
+
+  .bc-add-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .bc-add-btn:hover {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+  }
+
+  /* Controles +/- compactos reutilizados en lista y tarjetas */
+  .copy-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .copy-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .copy-btn:hover {
+    background: #e2e8f0;
+  }
+
+  .panel-body input.copy-input,
+  .copy-input {
+    width: 46px !important;
+    height: 26px !important;
+    text-align: center !important;
+    padding: 2px !important;
+    border: 1px solid #93c5fd !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1d4ed8 !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .copy-input::-webkit-outer-spin-button,
+  .copy-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Panel Derecho: Hoja de vista previa e impresión */
+  .bc-sheet-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    padding: 18px 20px;
+    min-height: 480px;
+  }
+
+  .bc-sheet-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .bc-sheet-status {
+    font-size: 0.92rem;
+    color: #334155;
+  }
+
+  .bc-size-tabs {
+    display: inline-flex;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 8px;
+    gap: 2px;
+  }
+
+  .bc-size-tab {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+  }
+
+  .bc-size-tab.active {
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+
+  /* Estado vacío cuando aún no se eligen productos */
+  .bc-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #64748b;
+  }
+
+  .bc-empty-state i {
+    font-size: 2.6rem;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+  }
+
+  .bc-empty-state h3 {
+    margin: 0 0 6px 0;
+    color: #334155;
+    font-size: 1.1rem;
+  }
+
+  .bc-empty-state p {
+    margin: 0 auto 18px auto;
+    max-width: 420px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  /* Grillas de etiquetas en la hoja */
+  .pos-large-view {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .pos-large-view .barcode-box svg {
+    width: 100%;
+    max-width: 360px;
+    height: 106px;
+    margin: 0 auto;
+  }
+
+  .grid-view {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .grid-view .barcode-box svg {
+    width: 100%;
+    max-width: 270px;
+    height: 84px;
+    margin: 0 auto;
+  }
+
+  .item-card {
+    border: 1.5px solid #9ca3af;
+    border-radius: 8px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    background: #ffffff;
+    position: relative;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .item-header {
+    width: 100%;
+    margin-bottom: 6px;
+  }
+
+  .item-name {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #000000;
+  }
+
+  .item-meta {
+    font-size: 12px;
+    color: #374151;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+
+  .barcode-box {
+    width: 100%;
+  }
+
+  .barcode-box svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    shape-rendering: crispEdges;
+  }
+
+  .card-remove-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .card-remove-btn:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .card-copies-badge {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 12px;
+  }
+
+  @media print {
+    @page {
+      margin: 6mm;
+    }
+    body, .panel-body {
+      background: #ffffff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .panel-nav,
+    #panel-toast-container,
+    .bc-top-header,
+    .bc-picker-panel,
+    .bc-sheet-bar,
+    .card-remove-btn,
+    .card-copies-badge {
+      display: none !important;
+    }
+    .panel-layout,
+    .panel-main,
+    .bc-workspace,
+    .bc-sheet-panel {
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    #sheetGrid.pos-large-view {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+    }
+    #sheetGrid.pos-large-view .barcode-box svg {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 108px !important;
+    }
+    #sheetGrid.grid-view {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 6px !important;
+    }
+    #sheetGrid.grid-view .barcode-box svg {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 86px !important;
+    }
+    .item-card {
+      padding: 8px 6px !important;
+      border: 1px solid #000000 !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+  }
+</style>
+
+<div class="bc-top-header">
+  <h1><i class="fa-solid fa-barcode"></i> Códigos de Barra</h1>
+  <div class="bc-top-actions">
+    <a href="{% url 'panel_productos' %}" class="bc-btn">
+      <i class="fa-solid fa-arrow-left"></i> Volver a Productos
+    </a>
+    <button type="button" class="bc-btn primary" onclick="imprimirHoja()">
+      <i class="fa-solid fa-print"></i> Imprimir / Guardar PDF
+    </button>
+  </div>
+</div>
+
+<div class="bc-workspace">
+  <!-- COLUMNA IZQUIERDA: Buscador y selector limpio -->
+  <aside class="bc-picker-panel">
+    <div class="bc-picker-header">
+      <h3>
+        <span>1. Elegir Productos</span>
+        <span style="font-size: 0.78rem; color: #64748b; font-weight: 500;">{{ total_productos }} en catálogo</span>
+      </h3>
+      <input type="text" id="searchInput" class="bc-search-input" value="{{ q_inicial }}" placeholder="🔍 Buscar por nombre, SKU o código..." oninput="filtrarSelector()">
+      <select id="categoryFilter" class="bc-cat-select" onchange="filtrarSelector()">
+        <option value="">Todas las categorías</option>
+        {% for c in categorias %}
+          <option value="{{ c.id }}">{{ c.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="bc-quick-actions">
+      <button type="button" class="bc-mini-btn" onclick="cargarMasivo('uno')">+ Todos (1 c/u)</button>
+      <button type="button" class="bc-mini-btn" onclick="cargarMasivo('stock')">+ Según stock</button>
+      <button type="button" class="bc-mini-btn" onclick="cargarMasivo('vaciar')" style="color: #dc2626;">Vaciar hoja</button>
+    </div>
+
+    <div class="bc-picker-list" id="pickerList">
+      {% for p in productos %}
+      <div class="bc-picker-row"
+           id="row-{{ p.id }}"
+           data-id="{{ p.id }}"
+           data-name="{{ p.nombre }}"
+           data-sku="{{ p.codigo_sku }}"
+           data-meta="SKU: {{ p.codigo_sku }} &bull; Precio: ${{ p.precio_actual }}{% if p.tiene_descuento %} ({{ p.porcentaje_descuento }}% OFF){% endif %}"
+           data-search="{{ p.nombre|lower }} {{ p.codigo_sku }} {{ p.codigo_barras }}"
+           data-categoria="{{ p.categoria_id }}"
+           data-stock="{{ p.stock }}">
+        <div class="bc-picker-info">
+          <div class="bc-picker-name" title="{{ p.nombre }}">{{ p.nombre }}</div>
+          <div class="bc-picker-sub">SKU {{ p.codigo_sku }} &bull; Stock: {{ p.stock }} &bull; ${{ p.precio_actual }}</div>
+        </div>
+
+        <button type="button" class="bc-add-btn" id="btn-add-{{ p.id }}" onclick="setCopiasProducto({{ p.id }}, 1)">
+          + Agregar
+        </button>
+
+        <div class="copy-stepper" id="stepper-{{ p.id }}" style="display: none;">
+          <button type="button" class="copy-btn" onclick="cambiarCopias({{ p.id }}, -1)">−</button>
+          <input type="number" min="0" max="500" value="0" class="copy-input" id="input-{{ p.id }}" oninput="onInputCopias({{ p.id }}, this.value)">
+          <button type="button" class="copy-btn" onclick="cambiarCopias({{ p.id }}, 1)">+</button>
+        </div>
+
+        <template id="svg-tpl-{{ p.id }}">{{ p.codigo_barras_svg }}</template>
+      </div>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <!-- COLUMNA DERECHA: Vista previa de la hoja a imprimir -->
+  <section class="bc-sheet-panel">
+    <div class="bc-sheet-bar">
+      <div class="bc-sheet-status" id="sheetStatus">
+        <strong>0</strong> etiquetas en la hoja de impresión
+      </div>
+      <div class="bc-size-tabs">
+        <button type="button" class="bc-size-tab active" onclick="cambiarTamanoHoja('pos-large-view', this)">
+          Grande POS (2 por fila)
+        </button>
+        <button type="button" class="bc-size-tab" onclick="cambiarTamanoHoja('grid-view', this)">
+          Estándar (3 por fila)
+        </button>
+      </div>
+    </div>
+
+    <div id="emptyState" class="bc-empty-state">
+      <i class="fa-solid fa-barcode"></i>
+      <h3>Tu hoja de impresión está vacía</h3>
+      <p>Busca y haz clic en <strong>"+ Agregar"</strong> en la lista de la izquierda para armar tu documento personalizado, o carga el catálogo completo con un clic:</p>
+      <div style="display: inline-flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+        <button type="button" class="bc-btn" onclick="cargarMasivo('uno')">
+          <i class="fa-solid fa-layer-group"></i> Cargar todos (1 copia c/u)
+        </button>
+        <button type="button" class="bc-btn" onclick="cargarMasivo('stock')">
+          <i class="fa-solid fa-boxes-stacked"></i> Cargar según stock disponible
+        </button>
+      </div>
+    </div>
+
+    <div id="sheetGrid" class="pos-large-view" style="display: none;"></div>
+  </section>
+</div>
+
+<script>
+const copiasPorProducto = {};
+let ordenSeleccion = [];
+let currentSheetClass = 'pos-large-view';
+
+function cambiarTamanoHoja(cls, btnEl) {
+  currentSheetClass = cls;
+  document.getElementById('sheetGrid').className = cls;
+  document.querySelectorAll('.bc-size-tab').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+}
+
+function filtrarSelector() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const cat = document.getElementById('categoryFilter').value;
+  document.querySelectorAll('#pickerList .bc-picker-row').forEach(row => {
+    const matchQ = !q || row.getAttribute('data-search').includes(q);
+    const matchCat = !cat || row.getAttribute('data-categoria') === cat;
+    row.style.display = (matchQ && matchCat) ? '' : 'none';
+  });
+}
+
+function setCopiasProducto(id, cantidad) {
+  const cant = Math.max(0, Math.min(500, parseInt(cantidad || 0, 10)));
+  const row = document.getElementById('row-' + id);
+  const btnAdd = document.getElementById('btn-add-' + id);
+  const stepper = document.getElementById('stepper-' + id);
+  const input = document.getElementById('input-' + id);
+
+  if (cant > 0) {
+    copiasPorProducto[id] = cant;
+    if (!ordenSeleccion.includes(id)) ordenSeleccion.push(id);
+    if (row) row.classList.add('is-active');
+    if (btnAdd) btnAdd.style.display = 'none';
+    if (stepper) stepper.style.display = 'inline-flex';
+    if (input) input.value = cant;
+  } else {
+    delete copiasPorProducto[id];
+    ordenSeleccion = ordenSeleccion.filter(x => x !== id);
+    if (row) row.classList.remove('is-active');
+    if (btnAdd) btnAdd.style.display = '';
+    if (stepper) stepper.style.display = 'none';
+    if (input) input.value = 0;
+  }
+  renderizarHoja();
+}
+
+function cambiarCopias(id, delta) {
+  const actual = copiasPorProducto[id] || 0;
+  setCopiasProducto(id, actual + delta);
+}
+
+function onInputCopias(id, val) {
+  setCopiasProducto(id, val);
+}
+
+function cargarMasivo(modo) {
+  if (modo === 'vaciar') {
+    ordenSeleccion = [];
+    Object.keys(copiasPorProducto).forEach(k => delete copiasPorProducto[k]);
+    document.querySelectorAll('#pickerList .bc-picker-row').forEach(row => {
+      const id = parseInt(row.getAttribute('data-id'), 10);
+      row.classList.remove('is-active');
+      document.getElementById('btn-add-' + id).style.display = '';
+      document.getElementById('stepper-' + id).style.display = 'none';
+      document.getElementById('input-' + id).value = 0;
+    });
+    renderizarHoja();
+    return;
+  }
+
+  document.querySelectorAll('#pickerList .bc-picker-row').forEach(row => {
+    if (row.style.display === 'none') return;
+    const id = parseInt(row.getAttribute('data-id'), 10);
+    const stock = parseInt(row.getAttribute('data-stock') || '0', 10);
+    const cant = (modo === 'uno') ? 1 : (stock > 0 ? stock : 0);
+    const btnAdd = document.getElementById('btn-add-' + id);
+    const stepper = document.getElementById('stepper-' + id);
+    const input = document.getElementById('input-' + id);
+
+    if (cant > 0) {
+      copiasPorProducto[id] = cant;
+      if (!ordenSeleccion.includes(id)) ordenSeleccion.push(id);
+      row.classList.add('is-active');
+      btnAdd.style.display = 'none';
+      stepper.style.display = 'inline-flex';
+      input.value = cant;
+    }
+  });
+  renderizarHoja();
+}
+
+function renderizarHoja() {
+  const grid = document.getElementById('sheetGrid');
+  const empty = document.getElementById('emptyState');
+  grid.innerHTML = '';
+
+  let totalProductos = 0;
+  let totalEtiquetas = 0;
+
+  ordenSeleccion.forEach(id => {
+    const copias = copiasPorProducto[id] || 0;
+    if (copias <= 0) return;
+    totalProductos++;
+    totalEtiquetas += copias;
+
+    const row = document.getElementById('row-' + id);
+    const nombre = row.getAttribute('data-name');
+    const meta = row.getAttribute('data-meta');
+    const svgHtml = document.getElementById('svg-tpl-' + id).innerHTML;
+
+    for (let i = 0; i < copias; i++) {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.innerHTML =
+        (copias > 1 ? `<span class="card-copies-badge">Copia ${i + 1} de ${copias}</span>` : '') +
+        `<button type="button" class="card-remove-btn" onclick="cambiarCopias(${id}, -1)" title="Quitar una copia">&times;</button>` +
+        `<div class="item-header">` +
+          `<div class="item-name">${nombre}</div>` +
+          `<div class="item-meta">${meta}</div>` +
+        `</div>` +
+        `<div class="barcode-box">${svgHtml}</div>`;
+      grid.appendChild(card);
+    }
+  });
+
+  document.getElementById('sheetStatus').innerHTML =
+    `<strong>${totalProductos}</strong> producto(s) elegido(s) &bull; <strong>${totalEtiquetas}</strong> etiqueta(s) listas para imprimir`;
+
+  if (totalEtiquetas > 0) {
+    empty.style.display = 'none';
+    grid.style.display = 'grid';
+  } else {
+    empty.style.display = 'block';
+    grid.style.display = 'none';
+  }
+}
+
+function imprimirHoja() {
+  if (ordenSeleccion.length === 0) {
+    alert('La hoja está vacía. Agrega al menos un producto desde la lista de la izquierda antes de imprimir.');
+    return;
+  }
+  window.print();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const qInicial = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (qInicial) {
+    filtrarSelector();
+    document.querySelectorAll('#pickerList .bc-picker-row').forEach(row => {
+      if (row.style.display !== 'none') {
+        const id = parseInt(row.getAttribute('data-id'), 10);
+        setCopiasProducto(id, 1);
+      }
+    });
+  }
+});
+</script>
+{% endblock %}
