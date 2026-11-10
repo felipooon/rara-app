@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   
   <!-- Custom Modern Design System -->
-  <link rel="stylesheet" href="{% static 'planificador/css/style.css' %}?v=9">
+  <link rel="stylesheet" href="{% static 'planificador/css/style.css' %}?v=10">
   <script>
     window.PLANIFICADOR_API_BASE = '/planificador/api';
     window.RARA_LOGO_URL = "{% static 'img/logo_rara.png' %}";
@@ -41,9 +41,12 @@
       <button class="nav-tab-btn" data-tab="pane-radar" id="tab-radar" role="tab">
         Radar de Especies
       </button>
+      <!-- Pestaña Biorritmo y Clima oculta temporalmente para fase de prueba -->
+      <!--
       <button class="nav-tab-btn" data-tab="pane-guide" id="tab-guide" role="tab">
         Biorritmo y Clima
       </button>
+      -->
     </nav>
 
     <!-- Header Actions / API Key status & Theme toggle -->
@@ -450,8 +453,8 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 4: BIORRITMO, CLIMA & GUÍA REGIONAL ==================== -->
-    <section class="tab-pane" id="pane-guide" role="tabpanel">
+    <!-- ==================== TAB 4: BIORRITMO, CLIMA & GUÍA REGIONAL (OCULTO TEMPORALMENTE) ==================== -->
+    <section class="tab-pane" id="pane-guide" role="tabpanel" style="display: none !important;">
       <div class="guide-cards-grid">
         
         <div class="glass-panel">
@@ -516,9 +519,9 @@
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="{% static 'planificador/js/route_planner.js' %}?v=9"></script>
-  <script src="{% static 'planificador/js/ebird_explorer.js' %}?v=9"></script>
-  <script src="{% static 'planificador/js/species_radar.js' %}?v=9"></script>
-  <script src="{% static 'planificador/js/app.js' %}?v=9"></script>
+  <script src="{% static 'planificador/js/route_planner.js' %}?v=10"></script>
+  <script src="{% static 'planificador/js/ebird_explorer.js' %}?v=10"></script>
+  <script src="{% static 'planificador/js/species_radar.js' %}?v=10"></script>
+  <script src="{% static 'planificador/js/app.js' %}?v=10"></script>
 </body>
 </html>
