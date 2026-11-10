@@ -17,20 +17,27 @@ function initRouteMap() {
     zoomControl: true
   });
 
-  // Base map tile layers (100% free, no API key required, works on 127.0.0.1 and strict browsers)
-  const esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, METI, GIS User Community',
-    maxZoom: 19
-  });
-
-  const esriStreets = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom',
-    maxZoom: 19
+  // High-resolution Satellite & Terrain providers (Satellite Hybrid by default)
+  const googleSatHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    attribution: 'Imágenes satelitales &copy; Google Maps',
+    maxZoom: 20
   });
 
   const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: '&copy; Esri, Maxar, Earthstar Geographics',
-    maxZoom: 18
+    maxZoom: 19
+  });
+
+  const googleTerrain = L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    attribution: 'Terreno &copy; Google Maps',
+    maxZoom: 20
+  });
+
+  const esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; National Geographic, USGS, DeLorme',
+    maxZoom: 19
   });
 
   const osmProxied = L.tileLayer('/planificador/api/tiles/{z}/{x}/{y}.png', {
@@ -38,14 +45,15 @@ function initRouteMap() {
     maxZoom: 19
   });
 
-  // Add Esri Topo & Roads by default (fast CDN, zero API key / Referer issues, detailed nature & roads)
-  esriTopo.addTo(routeMap);
+  // Default view: Satellite Hybrid (high-resolution satellite imagery + road/place labels)
+  googleSatHybrid.addTo(routeMap);
 
   // Add layer switcher control in top-right
   const baseLayers = {
-    'Mapa Terreno y Rutas (Esri)': esriTopo,
-    'Mapa Callejero (Esri)': esriStreets,
-    'Satélite Aéreo (Esri)': esriSatellite,
+    'Satélite Híbrido con Rutas (Por defecto)': googleSatHybrid,
+    'Satélite Puro sin Etiquetas (Esri)': esriSatellite,
+    'Relieve y Terreno (Google)': googleTerrain,
+    'Mapa Topográfico (Esri)': esriTopo,
     'OpenStreetMap (OSM)': osmProxied
   };
 
@@ -415,34 +423,45 @@ function renderRouteResults(data) {
     guideList.innerHTML = `• Fase Lunar: <b>${summary.tides.lunar_phase}</b> (amplitud ~${summary.tides.tidal_range_m}m).<br>${evLines}`;
   }
 
-  // Update Map
+  // Update Map: Connect Punto Base + Intermediate Stops + Tentative Corridor in a complete circuit
   initRouteMap();
   routeLayerGroup.clearLayers();
 
-  const latlngs = [];
+  const allBoundsLatLngs = [];
+  const stopLatLngs = [];
   const origin = data.origin;
-  latlngs.push([origin.lat, origin.lng]);
+  allBoundsLatLngs.push([origin.lat, origin.lng]);
 
   const originMarker = L.marker([origin.lat, origin.lng], {
     icon: createCustomPin('★', '#06b6d4')
   }).bindPopup(`
-    <div style="font-family: sans-serif; padding: 4px;">
-      <b style="color: #0284c7;">Punto Base de Salida</b>
-      <p style="margin: 4px 0 0 0; font-size: 13px;">${origin.name}</p>
+    <div style="font-family: sans-serif; padding: 4px; min-width: 180px;">
+      <div style="font-size: 11px; text-transform: uppercase; color: #0284c7; font-weight: 800;">
+        Punto Base (Partida y Retorno)
+      </div>
+      <h4 style="margin: 4px 0 2px 0; font-size: 13px; font-weight: 700; color: #0f172a;">${origin.name}</h4>
+      <div style="font-size: 11.5px; color: #475569; margin-top: 4px;">
+        Salida: <b>${data.summary.start_time} hrs</b><br>
+        Retorno estimado: <b>${data.summary.finish_time} hrs</b>
+      </div>
     </div>
   `);
   routeLayerGroup.addLayer(originMarker);
 
   stops.forEach((stop) => {
-    latlngs.push([stop.lat, stop.lng]);
+    allBoundsLatLngs.push([stop.lat, stop.lng]);
+    stopLatLngs.push([stop.lat, stop.lng]);
     const blockText = stop.day_block_short || 'En ruta';
+    const isEnRoute = stop.stop_role === 'en_route';
+    const pinColor = isEnRoute ? '#0284c7' : '#10b981';
+    const roleBadgeText = isEnRoute ? 'Punto Intermedio de Camino' : (stop.stop_role_label || 'Ruta Tentativa');
 
     const marker = L.marker([stop.lat, stop.lng], {
-      icon: createCustomPin(stop.stop_number, '#10b981')
+      icon: createCustomPin(stop.stop_number, pinColor)
     }).bindPopup(`
-      <div style="font-family: sans-serif; min-width: 210px; padding: 4px;">
-        <div style="font-size: 11px; text-transform: uppercase; color: #059669; font-weight: 700;">
-          Parada ${stop.stop_number} • Bloque ${blockText}
+      <div style="font-family: sans-serif; min-width: 215px; padding: 4px;">
+        <div style="font-size: 11px; text-transform: uppercase; color: ${isEnRoute ? '#0284c7' : '#059669'}; font-weight: 700;">
+          Parada ${stop.stop_number} • ${roleBadgeText}
         </div>
         <h4 style="margin: 4px 0; font-size: 14px; font-weight: 700; color: #0f172a;">${stop.locName}</h4>
         <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">
@@ -460,19 +479,53 @@ function renderRouteResults(data) {
     routeLayerGroup.addLayer(marker);
   });
 
-  latlngs.push([origin.lat, origin.lng]);
+  // 1. Connection line from Punto Base to First Stop (Approach / Intermediate stop)
+  if (stops.length > 0) {
+    L.polyline([[origin.lat, origin.lng], [stops[0].lat, stops[0].lng]], {
+      color: '#06b6d4',
+      weight: 3.5,
+      opacity: 0.85,
+      dashArray: '6, 6',
+      lineCap: 'round'
+    }).addTo(routeLayerGroup);
+  }
 
-  const polyline = L.polyline(latlngs, {
-    color: '#10b981',
-    weight: 4,
-    opacity: 0.8,
-    dashArray: '8, 8',
-    lineCap: 'round'
-  }).addTo(routeLayerGroup);
+  // 2. Main route polyline connecting birding stops
+  if (stopLatLngs.length >= 2) {
+    L.polyline(stopLatLngs, {
+      color: '#10b981',
+      weight: 4.5,
+      opacity: 0.95,
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(routeLayerGroup);
+  }
 
-  routeMap.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+  // 3. Return polyline from Last Stop back to Punto Base
+  if (stops.length > 0) {
+    const lastStop = stops[stops.length - 1];
+    L.polyline([[lastStop.lat, lastStop.lng], [origin.lat, origin.lng]], {
+      color: '#94a3b8',
+      weight: 2.8,
+      opacity: 0.75,
+      dashArray: '8, 8',
+      lineCap: 'round'
+    }).addTo(routeLayerGroup);
+  }
+
+  // Fit bounds to show both the Base and all route stops
+  if (allBoundsLatLngs.length > 0) {
+    routeMap.fitBounds(L.latLngBounds(allBoundsLatLngs), { padding: [50, 50] });
+  }
 
   // Group Stops into 3 Flexible Day Blocks (Mañana, Mediodía, Tarde)
+  const subzoneSelectEl = document.getElementById('routeSubzone');
+  const activeCorridorLabel = subzoneSelectEl && subzoneSelectEl.selectedIndex >= 0
+    ? subzoneSelectEl.options[subzoneSelectEl.selectedIndex].text
+    : 'Corredor Regional';
+  const firstStop = stops[0];
+  const enRouteCount = data.summary.en_route_count || 0;
+
   const blocksConfig = [
     {
       key: 'morning',
@@ -498,7 +551,44 @@ function renderRouteResults(data) {
   ];
 
   const timelineEl = document.getElementById('timelineContainer');
-  let timelineHtml = '';
+  let timelineHtml = `
+    <!-- Base Point & Corridor Circuit Summary Card -->
+    <div class="base-route-summary-grid">
+      <div class="base-route-summary-card base-card">
+        <div class="base-route-icon" style="background: #06b6d4;">
+          ★
+        </div>
+        <div style="min-width: 0;">
+          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: #0284c7; font-weight: 800;">
+            Punto Base (Salida y Retorno)
+          </div>
+          <div style="font-size: 0.94rem; font-weight: 700; color: var(--text-primary); margin-top: 1px;">
+            ${origin.name}
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">
+            Salida: <b>${data.summary.start_time} hrs</b> • Retorno est.: <b>${data.summary.finish_time} hrs</b>
+          </div>
+        </div>
+      </div>
+
+      <div class="base-route-summary-card route-card">
+        <div class="base-route-icon" style="background: #059669; font-size: 0.88rem;">
+          1–${stops.length}
+        </div>
+        <div style="min-width: 0;">
+          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: #047857; font-weight: 800;">
+            Ruta Tentativa Seleccionada
+          </div>
+          <div style="font-size: 0.94rem; font-weight: 700; color: var(--text-primary); margin-top: 1px;">
+            ${activeCorridorLabel}
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">
+            ${stops.length} paradas ${enRouteCount > 0 ? `(${enRouteCount} punto${enRouteCount > 1 ? 's' : ''} intermedio${enRouteCount > 1 ? 's' : ''} de camino)` : 'en circuito continuo'}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 
   blocksConfig.forEach(block => {
     const blockStops = stops.filter(s => (s.day_block || 'morning') === block.key);
@@ -506,16 +596,16 @@ function renderRouteResults(data) {
 
     timelineHtml += `
       <div style="margin-bottom: 1.35rem;">
-        <div style="background: ${block.bg}; border-left: 4px solid ${block.accent}; padding: 0.65rem 1rem; border-radius: 0 10px 10px 0; margin-bottom: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="day-block-header" style="background: ${block.bg}; border-left: 4px solid ${block.accent};">
           <div>
-            <h4 style="margin: 0; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--text-primary);">
+            <h4 style="margin: 0; font-family: var(--font-heading); font-size: 0.98rem; font-weight: 700; color: var(--text-primary);">
               ${block.title}
             </h4>
-            <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: var(--text-secondary);">
+            <p style="margin: 2px 0 0 0; font-size: 0.77rem; color: var(--text-secondary);">
               ${block.subtitle}
             </p>
           </div>
-          <span style="font-size: 0.75rem; font-weight: 700; color: ${block.accent}; background: rgba(255,255,255,0.7); padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.06);">
+          <span class="day-block-count" style="color: ${block.accent};">
             ${blockStops.length} ${blockStops.length === 1 ? 'parada sugerida' : 'paradas sugeridas'}
           </span>
         </div>
@@ -524,13 +614,20 @@ function renderRouteResults(data) {
     `;
 
     blockStops.forEach(stop => {
+      const isEnRoute = stop.stop_role === 'en_route';
       const rainColor = stop.activity.rain_prob > 40 ? '#f43f5e' : '#10b981';
       const transferLabel = stop.stop_number === 1
-        ? `Desde ${origin.name.split('(')[0].trim()}: ~${stop.drive_time_from_prev_min} min (${stop.distance_from_prev_km} km)`
-        : `Traslado desde parada anterior: ~${stop.drive_time_from_prev_min} min (${stop.distance_from_prev_km} km)`;
+        ? `Desde Punto Base (${origin.name.split('(')[0].trim()}): ~${stop.drive_time_from_prev_min} min (${stop.distance_from_prev_km} km)`
+        : `Traslado anterior: ~${stop.drive_time_from_prev_min} min (${stop.distance_from_prev_km} km)`;
+
+      const roleBadge = isEnRoute ? `
+        <span style="font-size: 0.72rem; background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3); padding: 2px 8px; border-radius: 999px; font-weight: 700;">
+          Punto Intermedio de Camino
+        </span>
+      ` : '';
 
       const tideChip = stop.tide ? `
-        <span style="font-size: 0.75rem; background: rgba(2, 132, 199, 0.08); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.25); padding: 3px 8px; border-radius: 6px; font-weight: 600;">
+        <span class="stop-tide-chip">
           Marea: ${stop.tide.status_label} (${stop.tide.height_m}m)
         </span>
       ` : '';
@@ -546,34 +643,35 @@ function renderRouteResults(data) {
       });
 
       timelineHtml += `
-        <div class="timeline-card" style="padding: 1rem 1.15rem;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.65rem;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                <span class="stop-number-badge" style="background: ${block.accent};">Parada ${stop.stop_number}</span>
-                <span class="stop-title" style="font-size: 1.02rem;">${stop.locName}</span>
+        <div class="timeline-card stop-card-item" style="${isEnRoute ? 'border-left: 3px solid #0284c7;' : ''}">
+          <div class="stop-card-top">
+            <div class="stop-card-main-info">
+              <div class="stop-card-title-row">
+                <span class="stop-number-badge" style="background: ${isEnRoute ? '#0284c7' : block.accent};">Parada ${stop.stop_number}</span>
+                <span class="stop-title">${stop.locName}</span>
+                ${roleBadge}
               </div>
-              <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.35rem; font-size: 0.78rem; color: var(--text-secondary);">
+              <div class="stop-card-meta-row">
                 <span class="habitat-badge" style="margin: 0;">${stop.habitat_label}</span>
-                <span>•</span>
-                <span>${transferLabel}</span>
+                <span class="stop-meta-dot">•</span>
+                <span class="stop-transfer-text">${transferLabel}</span>
               </div>
             </div>
 
-            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <div class="stop-card-weather-row">
               ${tideChip}
               <div class="weather-chip" style="padding: 3px 8px; font-size: 0.75rem;">
                 <span class="temp">${stop.activity.temp_c}°C</span>
                 <span class="rain" style="color: ${rainColor};">Lluvia ${stop.activity.rain_prob}%</span>
                 <span class="wind">${stop.activity.wind_kmh} km/h</span>
               </div>
-              <a href="https://ebird.org/hotspot/${stop.locId}" target="_blank" style="font-size: 0.75rem; color: var(--cyan); text-decoration: none; font-weight: 600; margin-left: 4px;">
+              <a href="https://ebird.org/hotspot/${stop.locId}" target="_blank" class="stop-ebird-link">
                 eBird ↗
               </a>
             </div>
           </div>
 
-          <div style="margin-top: 0.65rem; padding-top: 0.55rem; border-top: 1px solid var(--border-color);">
+          <div class="stop-card-species-box">
             <div style="font-size: 0.74rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">
               Especies clave en este punto (${stop.numSpeciesAllTime} históricas en eBird):
             </div>
@@ -590,6 +688,29 @@ function renderRouteResults(data) {
       </div>
     `;
   });
+
+  // Add final circuit card: Return to Punto Base
+  timelineHtml += `
+    <div class="timeline-card" style="padding: 0.9rem 1.15rem; background: rgba(148, 163, 184, 0.05); border: 1px dashed var(--border-color); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 32px; height: 32px; border-radius: 50%; background: #64748b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; flex-shrink: 0;">
+          ↩
+        </div>
+        <div>
+          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); font-weight: 800;">
+            Retorno a Punto Base
+          </div>
+          <div style="font-size: 0.94rem; font-weight: 700; color: var(--text-primary); margin-top: 1px;">
+            ${origin.name}
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 0.78rem; color: var(--text-secondary); text-align: right;">
+        Traslado final: <b>~${data.summary.return_drive_minutes || 35} min</b> (${data.summary.return_distance_km || 25} km)<br>
+        Llegada estimada: <b>${data.summary.finish_time} hrs</b>
+      </div>
+    </div>
+  `;
 
   timelineEl.innerHTML = timelineHtml;
   document.getElementById('routeResultsSection').style.display = 'block';
@@ -655,6 +776,7 @@ function renderProbableSpeciesChecklist(speciesList) {
             ${sp.comName}
           </label>
           <span class="spp-sci">${sp.sciName}</span>
+          <span class="spp-mobile-stop">Parada #${sp.best_stop_number || 1}: ${sp.best_stop_name}</span>
         </div>
         <span class="group-badge">${sp.groupName}</span>
         <span class="prob-tag ${probTagClass}">${sp.probability}</span>
@@ -763,6 +885,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  ['routeHub', 'routeSubzone', 'routeFocus', 'routeStops', 'routePace'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', () => {
+        generateOptimalRoute();
+      });
+    }
+  });
+
   const dateInput = document.getElementById('routeDate');
   if (dateInput) {
     if (!dateInput.value) {
@@ -817,21 +948,35 @@ function downloadRouteFieldPdf() {
     afternoon: 'Tarde (15:30 – Ocaso)'
   };
 
-  let stopsRowsHtml = '';
+  let stopsRowsHtml = `
+    <tr style="background: rgba(6, 182, 212, 0.05);">
+      <td style="font-weight: 800; color: #0284c7; text-align: center; width: 34px;">★</td>
+      <td style="width: 120px; font-weight: 700; color: #0284c7;">Partida (~${summary.start_time || '06:30'})</td>
+      <td>
+        <div style="font-weight: 700; color: #0f172a; font-size: 11px;">${origin.name}</div>
+        <div style="font-size: 9.5px; color: #64748b;">Punto Base (Salida / Alojamiento)</div>
+      </td>
+      <td style="font-size: 9.5px; color: #64748b;">Inicio de ruta</td>
+      <td style="font-size: 9.5px; color: #64748b;">Punto de reunión</td>
+    </tr>
+  `;
+
   stops.forEach(s => {
+    const isEnRoute = s.stop_role === 'en_route';
     const topBirds = (s.target_species || []).slice(0, 6).map(b => b.comName).join(', ');
     const blockLabel = blockLabels[s.day_block] || s.day_block_short || 'Flexible';
     const transferStr = s.stop_number === 1
-      ? `Inicio: ~${s.drive_time_from_prev_min} min (${s.distance_from_prev_km} km)`
+      ? `Desde Base: ~${s.drive_time_from_prev_min} min (${s.distance_from_prev_km} km)`
       : `Traslado: ~${s.drive_time_from_prev_min} min (${s.distance_from_prev_km} km)`;
     const condStr = `${s.activity?.temp_c ?? 14}°C, Lluvia ${s.activity?.rain_prob ?? 0}%` + (s.tide ? ` • ${s.tide.status_label} (${s.tide.height_m}m)` : '');
+    const roleTag = isEnRoute ? '<span style="color: #0284c7; font-weight: 700;">[Punto Intermedio]</span> ' : '';
 
     stopsRowsHtml += `
       <tr>
-        <td style="font-weight: 800; color: #047857; text-align: center; width: 34px;">#${s.stop_number}</td>
+        <td style="font-weight: 800; color: ${isEnRoute ? '#0284c7' : '#047857'}; text-align: center; width: 34px;">#${s.stop_number}</td>
         <td style="width: 120px; font-weight: 600; color: #334155;">${blockLabel}</td>
         <td>
-          <div style="font-weight: 700; color: #0f172a; font-size: 11px;">${s.locName}</div>
+          <div style="font-weight: 700; color: #0f172a; font-size: 11px;">${roleTag}${s.locName}</div>
           <div style="font-size: 9.5px; color: #64748b;">${s.habitat_label} • ${transferStr}</div>
         </td>
         <td style="font-size: 9.5px; color: #334155; width: 135px;">${condStr}</td>
@@ -839,6 +984,19 @@ function downloadRouteFieldPdf() {
       </tr>
     `;
   });
+
+  stopsRowsHtml += `
+    <tr style="background: rgba(148, 163, 184, 0.08);">
+      <td style="font-weight: 800; color: #64748b; text-align: center; width: 34px;">↩</td>
+      <td style="width: 120px; font-weight: 700; color: #475569;">Retorno (~${summary.finish_time || '18:30'})</td>
+      <td>
+        <div style="font-weight: 700; color: #0f172a; font-size: 11px;">${origin.name}</div>
+        <div style="font-size: 9.5px; color: #64748b;">Regreso a Base: ~${summary.return_drive_minutes || 35} min (${summary.return_distance_km || 25} km)</div>
+      </td>
+      <td style="font-size: 9.5px; color: #64748b;">Fin de jornada</td>
+      <td style="font-size: 9.5px; color: #64748b;">Cierre de ruta y conteo de lista</td>
+    </tr>
+  `;
 
   // Group species by ecological group for the 2-column checklist
   let speciesChecklistHtml = '';

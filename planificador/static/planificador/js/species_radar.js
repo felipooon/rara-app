@@ -164,7 +164,7 @@ function renderSpeciesChecklist(speciesList) {
     const dateStr = sp.obsDt ? sp.obsDt.split(' ')[0] : 'Reciente';
 
     html += `
-      <div class="checklist-item-row ${isChecked ? 'checked' : ''}" id="radar_row_${sp.speciesCode}">
+      <div class="checklist-item-row radar-item-row ${isChecked ? 'checked' : ''}" id="radar_row_${sp.speciesCode}">
         <input 
           type="checkbox" 
           class="checklist-checkbox" 
@@ -173,27 +173,30 @@ function renderSpeciesChecklist(speciesList) {
           id="radar_chk_${sp.speciesCode}"
         >
         <div class="spp-name-col">
-          <label for="radar_chk_${sp.speciesCode}" class="spp-name" style="cursor: pointer;">
-            ${sp.comName}
-          </label>
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <label for="radar_chk_${sp.speciesCode}" class="spp-name" style="cursor: pointer;">
+              ${sp.comName}
+            </label>
+            ${isNotable ? `<span style="background: rgba(244, 63, 94, 0.16); color: #f43f5e; font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 700; border: 1px solid rgba(244, 63, 94, 0.5);">Rareza</span>` : ''}
+          </div>
           <span class="spp-sci">${sp.sciName}</span>
+          <span class="spp-mobile-stop">${sp.locName || 'Región'} • ${dateStr}</span>
         </div>
 
-        <div style="font-size: 0.8rem; color: var(--text-secondary); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-          <b>${sp.locName || 'Los Lagos'}</b>
+        <div class="radar-loc-col" style="font-size: 0.8rem; color: var(--text-secondary); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          <b>${sp.locName || 'Región'}</b>
         </div>
 
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <div class="radar-date-col" style="display: flex; gap: 0.5rem; align-items: center;">
           <span style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">${dateStr}</span>
-          ${isNotable ? `<span style="background: rgba(244, 63, 94, 0.2); color: #f43f5e; font-size: 11px; padding: 1px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #f43f5e;">Rareza</span>` : ''}
         </div>
 
-        <div style="display: flex; gap: 0.5rem; align-items: center; white-space: nowrap;">
+        <div class="radar-links-col" style="display: flex; gap: 0.5rem; align-items: center; white-space: nowrap;">
           <a href="https://ebird.org/species/${sp.speciesCode}" target="_blank" style="color: var(--emerald); text-decoration: none; font-size: 12px; font-weight: 600;" title="Ver taxon en eBird">
             eBird ↗
           </a>
-          <a href="https://media.ebird.org/catalog?taxonCode=${sp.speciesCode}&mediaType=photo" target="_blank" style="color: var(--cyan); text-decoration: none; font-size: 12px; font-weight: 600;" title="Ver fotos en Macaulay Library">
-            Macaulay Fotos ↗
+          <a href="https://media.ebird.org/catalog?taxonCode=${sp.speciesCode}&mediaType=photo" target="_blank" class="macaulay-link-text" style="color: var(--cyan); text-decoration: none; font-size: 12px; font-weight: 600;" title="Ver fotos en Macaulay Library">
+            Fotos ↗
           </a>
         </div>
       </div>

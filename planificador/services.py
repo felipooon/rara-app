@@ -496,10 +496,10 @@ CHILE_REGIONS_CONFIG = {
         'hubs': LOS_LAGOS_HUBS,
         'subzones': [
             {'id': 'all', 'name': 'Toda la Región de Los Lagos (Máximo Rango)'},
-            {'id': 'llanquihue', 'name': 'Cuenca Lago Llanquihue & PN Vicente Pérez Rosales', 'lng_min': -74.0, 'lng_max': -72.1, 'lat_min': -41.75},
+            {'id': 'llanquihue', 'name': 'Cuenca Lago Llanquihue & PN Vicente Pérez Rosales', 'lng_min': -73.40, 'lng_max': -72.10, 'lat_min': -41.58, 'lat_max': -40.88},
             {'id': 'chiloe', 'name': 'Archipiélago de Chiloé (Humedales & Costa Pacífica)', 'lat_max': -41.80},
             {'id': 'maullin', 'name': 'Santuario Humedales de Maullín & Desembocadura', 'lat_min': -41.80, 'lat_max': -41.45, 'lng_min': -73.9, 'lng_max': -73.4, 'keywords': ['maullín', 'carelmapu']},
-            {'id': 'osorno_puyehue', 'name': 'Parque Nacional Puyehue & Bosque Valdiviano', 'lat_min': -41.0}
+            {'id': 'osorno_puyehue', 'name': 'Parque Nacional Puyehue & Bosque Valdiviano', 'lat_min': -40.95}
         ],
         'focus_options': [
             {'id': 'all', 'name': 'Máxima Biodiversidad (Todas las Familias)'},
@@ -1339,35 +1339,25 @@ def run_optimize_route(payload, api_key=None):
                 hotspot_recent_species[loc_id] = []
             hotspot_recent_species[loc_id].append(obs)
 
-    min_species_req = 10 if is_big_day else 16
-    candidates = []
+    min_species_req = 10 if is_big_day else 14
+    corridor_candidates = []
+    other_regional_candidates = []
+
     for h in all_hotspots:
         if is_generic_city_centroid(h.get('locName', '')):
             continue
 
         num_sp = h.get('numSpeciesAllTime', 0)
-        if num_sp < min_species_req:
+        if num_sp < 8:
             continue
 
         lat = h['lat']
         lng = h['lng']
         habitat = h.get('habitat', 'mixed_countryside')
-
-        if not _matches_subzone_filter(lat, lng, h.get('locName', ''), subzone, region_cfg):
-            continue
-
-        if target_focus == 'forest' and habitat not in ('valdivian_forest', 'mixed_countryside'):
-            continue
-        elif target_focus == 'wetland' and habitat not in ('wetland_estuary', 'lake_inland', 'marine_coast'):
-            continue
-
         dist_from_start = haversine_km(start_pt['lat'], start_pt['lng'], lat, lng)
-        max_dist_start = 220 if is_big_day else 170
-        if dist_from_start > max_dist_start:
-            continue
-
         recent_list = hotspot_recent_species.get(h['locId'], [])
-        candidates.append({
+
+        cand_obj = {
             'locId': h['locId'],
             'locName': h['locName'],
             'lat': lat,
@@ -1376,23 +1366,94 @@ def run_optimize_route(payload, api_key=None):
             'recentSpeciesCount': len(recent_list),
             'recentSpecies': recent_list[:10],
             'habitat': habitat,
-            'dist_from_start': dist_from_start
-        })
+            'dist_from_start': dist_from_start,
+            'stop_role': 'corridor',
+            'stop_role_label': 'Ruta Tentativa'
+        }
 
-    candidates.sort(key=lambda x: (x['recentSpeciesCount'] * 2.5 + x['numSpeciesAllTime']), reverse=True)
-    candidate_pool_size = 90 if is_big_day else 45
-    top_candidates = candidates[:candidate_pool_size]
+        in_subzone = _matches_subzone_filter(lat, lng, h.get('locName', ''), subzone, region_cfg)
+        matches_focus = True
+        if target_focus == 'forest' and habitat not in ('valdivian_forest', 'mixed_countryside'):
+            matches_focus = False
+        elif target_focus == 'wetland' and habitat not in ('wetland_estuary', 'lake_inland', 'marine_coast'):
+            matches_focus = False
+
+        max_dist_start = 340 if (subzone and subzone != 'all') else (230 if is_big_day else 180)
+        if in_subzone and matches_focus and num_sp >= min_species_req and dist_from_start <= max_dist_start:
+            corridor_candidates.append(cand_obj)
+        else:
+            other_regional_candidates.append(cand_obj)
+
+    corridor_candidates.sort(key=lambda x: (x['recentSpeciesCount'] * 2.5 + x['numSpeciesAllTime']), reverse=True)
+    candidate_pool_size = 90 if is_big_day else 50
+    top_candidates = corridor_candidates[:candidate_pool_size]
 
     if not top_candidates:
         top_candidates = sorted(
-            [h for h in all_hotspots if h.get('numSpeciesAllTime', 0) >= 8 and not is_generic_city_centroid(h.get('locName', ''))],
-            key=lambda x: haversine_km(start_pt['lat'], start_pt['lng'], x['lat'], x['lng'])
+            other_regional_candidates,
+            key=lambda x: (x['recentSpeciesCount'] * 2.0 + x['numSpeciesAllTime'] - x['dist_from_start'] * 0.4),
+            reverse=True
         )[:35]
-        for h in top_candidates:
-            h['habitat'] = classify_habitat(h.get('locName', ''))
-            h['dist_from_start'] = haversine_km(start_pt['lat'], start_pt['lng'], h['lat'], h['lng'])
-            h['recentSpeciesCount'] = len(hotspot_recent_species.get(h['locId'], []))
-            h['recentSpecies'] = hotspot_recent_species.get(h['locId'], [])[:10]
+
+    # Identify intermediate ("en_route") stops between Punto Base and Ruta Tentativa
+    en_route_preselected = []
+    if top_candidates and max_stops >= 4:
+        by_dist_to_base = sorted(top_candidates, key=lambda x: x['dist_from_start'])
+        entry_group = by_dist_to_base[:min(4, len(by_dist_to_base))]
+        target_entry_lat = sum(c['lat'] for c in entry_group) / len(entry_group)
+        target_entry_lng = sum(c['lng'] for c in entry_group) / len(entry_group)
+        direct_dist_to_entry = haversine_km(start_pt['lat'], start_pt['lng'], target_entry_lat, target_entry_lng)
+
+        if subzone and subzone != 'all' and direct_dist_to_entry >= 14.0:
+            desired_en_route = 2 if (direct_dist_to_entry >= 55.0 and max_stops >= 6) else 1
+            scored_transit = []
+            for oc in other_regional_candidates:
+                d_base = oc['dist_from_start']
+                d_entry = haversine_km(oc['lat'], oc['lng'], target_entry_lat, target_entry_lng)
+                if d_base < 2.0 or d_base > direct_dist_to_entry * 0.96 or d_entry >= direct_dist_to_entry * 1.02:
+                    continue
+                detour_km = max(0.0, (d_base + d_entry) - direct_dist_to_entry)
+                max_allowed_detour = max(direct_dist_to_entry * 0.55, 30.0)
+                if detour_km <= max_allowed_detour:
+                    t_score = (oc['recentSpeciesCount'] * 2.5 + oc['numSpeciesAllTime']) - detour_km * 1.4
+                    t_copy = dict(oc)
+                    t_copy['stop_role'] = 'en_route'
+                    t_copy['stop_role_label'] = 'Punto Intermedio en Ruta'
+                    t_copy['_transit_score'] = t_score
+                    scored_transit.append(t_copy)
+
+            scored_transit.sort(key=lambda x: x['_transit_score'], reverse=True)
+            for st in scored_transit:
+                if len(en_route_preselected) >= desired_en_route:
+                    break
+                if all(haversine_km(st['lat'], st['lng'], prev['lat'], prev['lng']) >= 10.0 for prev in en_route_preselected):
+                    en_route_preselected.append(st)
+
+            en_route_preselected.sort(key=lambda x: x['dist_from_start'])
+
+        # If Base is already inside or close to the selected subzone (or subzone == 'all'),
+        # pick 1 intermediate stop on the way from Base toward the richest core of the route
+        if not en_route_preselected and len(top_candidates) >= 4:
+            core_pool = top_candidates[:min(8, len(top_candidates))]
+            core_lat = sum(c['lat'] for c in core_pool) / len(core_pool)
+            core_lng = sum(c['lng'] for c in core_pool) / len(core_pool)
+            dist_to_core = haversine_km(start_pt['lat'], start_pt['lng'], core_lat, core_lng)
+            if dist_to_core >= 10.0:
+                approach_pool = []
+                for cand in (top_candidates + other_regional_candidates[:25]):
+                    d_base = cand['dist_from_start']
+                    d_core = haversine_km(cand['lat'], cand['lng'], core_lat, core_lng)
+                    if 2.0 <= d_base <= max(dist_to_core * 0.85, 22.0) and d_core < dist_to_core * 0.95:
+                        detour_km = max(0.0, (d_base + d_core) - dist_to_core)
+                        if detour_km <= max(dist_to_core * 0.5, 18.0):
+                            c_copy = dict(cand)
+                            c_copy['stop_role'] = 'en_route'
+                            c_copy['stop_role_label'] = 'Punto Intermedio en Ruta'
+                            c_copy['_transit_score'] = (cand['recentSpeciesCount'] * 2.5 + cand['numSpeciesAllTime']) - detour_km * 1.5 - d_base * 0.4
+                            approach_pool.append(c_copy)
+                if approach_pool:
+                    approach_pool.sort(key=lambda x: x['_transit_score'], reverse=True)
+                    en_route_preselected.append(approach_pool[0])
 
     weather_data = fetch_weather_forecast(start_pt['lat'], start_pt['lng'], target_date)
     daily_w = weather_data.get('daily', {}) if weather_data else {}
@@ -1426,49 +1487,51 @@ def run_optimize_route(payload, api_key=None):
         current_hour_decimal = (current_time_minutes / 60.0) % 24
         hour_index = min(23, max(0, int(current_hour_decimal)))
 
-        for cand in top_candidates:
-            if cand['locId'] in visited_loc_ids:
-                continue
+        if stop_idx < len(en_route_preselected):
+            forced_cand = en_route_preselected[stop_idx]
+            if forced_cand['locId'] not in visited_loc_ids:
+                best_candidate = forced_cand
+                best_dist = haversine_km(current_lat, current_lng, forced_cand['lat'], forced_cand['lng'])
+                best_drive_time = estimate_drive_minutes(best_dist, current_lat, current_lng, forced_cand['lat'], forced_cand['lng'])
 
-            dist = haversine_km(current_lat, current_lng, cand['lat'], cand['lng'])
-            drive_time = estimate_drive_minutes(dist, current_lat, current_lng, cand['lat'], cand['lng'])
+        if not best_candidate:
+            for cand in top_candidates:
+                if cand['locId'] in visited_loc_ids:
+                    continue
 
-            birding_time = birding_minutes_per_stop
-            arrival_minutes = current_time_minutes + drive_time
-            arrival_hour = (arrival_minutes / 60.0) % 24
-            arr_hour_idx = min(23, max(0, int(arrival_hour)))
+                dist = haversine_km(current_lat, current_lng, cand['lat'], cand['lng'])
+                drive_time = estimate_drive_minutes(dist, current_lat, current_lng, cand['lat'], cand['lng'])
 
-            return_dist = haversine_km(cand['lat'], cand['lng'], start_pt['lat'], start_pt['lng'])
-            return_time = estimate_drive_minutes(return_dist, cand['lat'], cand['lng'], start_pt['lat'], start_pt['lng'])
+                birding_time = birding_minutes_per_stop
+                arrival_minutes = current_time_minutes + drive_time
+                arrival_hour = (arrival_minutes / 60.0) % 24
+                arr_hour_idx = min(23, max(0, int(arrival_hour)))
 
-            if (arrival_minutes + birding_time + return_time) > (sh * 60 + sm + max_total_minutes):
-                continue
+                act_info = calculate_bird_activity_score(arrival_hour, cand['habitat'], hourly_w, arr_hour_idx)
+                act_mult = act_info['activity_multiplier']
 
-            act_info = calculate_bird_activity_score(arrival_hour, cand['habitat'], hourly_w, arr_hour_idx)
-            act_mult = act_info['activity_multiplier']
+                species_richness = cand['numSpeciesAllTime'] * 0.4 + cand['recentSpeciesCount'] * 3.0
 
-            species_richness = cand['numSpeciesAllTime'] * 0.4 + cand['recentSpeciesCount'] * 3.0
+                synergy_bonus = 0
+                if arrival_hour < 10.5 and cand['habitat'] == 'valdivian_forest':
+                    synergy_bonus += 35
+                elif 11.0 <= arrival_hour <= 16.0 and cand['habitat'] in ('wetland_estuary', 'marine_coast'):
+                    synergy_bonus += 35
+                elif cand['habitat'] != 'valdivian_forest' and any(s['habitat'] == 'valdivian_forest' for s in selected_stops):
+                    synergy_bonus += 15
 
-            synergy_bonus = 0
-            if arrival_hour < 10.5 and cand['habitat'] == 'valdivian_forest':
-                synergy_bonus += 35
-            elif 11.0 <= arrival_hour <= 16.0 and cand['habitat'] in ('wetland_estuary', 'marine_coast'):
-                synergy_bonus += 35
-            elif cand['habitat'] != 'valdivian_forest' and any(s['habitat'] == 'valdivian_forest' for s in selected_stops):
-                synergy_bonus += 15
+                if dist < 20:
+                    distance_penalty = dist * 0.35
+                else:
+                    distance_penalty = dist * 0.85
 
-            if dist < 20:
-                distance_penalty = dist * 0.35
-            else:
-                distance_penalty = dist * 0.85
+                score = (species_richness * act_mult) + synergy_bonus - distance_penalty
 
-            score = (species_richness * act_mult) + synergy_bonus - distance_penalty
-
-            if score > best_score:
-                best_score = score
-                best_candidate = cand
-                best_drive_time = drive_time
-                best_dist = dist
+                if score > best_score:
+                    best_score = score
+                    best_candidate = cand
+                    best_drive_time = drive_time
+                    best_dist = dist
 
         if not best_candidate:
             break
@@ -1538,6 +1601,8 @@ def run_optimize_route(payload, api_key=None):
             'lng': best_candidate['lng'],
             'habitat': best_candidate['habitat'],
             'habitat_label': format_habitat_label(best_candidate['habitat'], region_code),
+            'stop_role': best_candidate.get('stop_role', 'corridor'),
+            'stop_role_label': best_candidate.get('stop_role_label', 'Ruta Tentativa'),
             'numSpeciesAllTime': best_candidate['numSpeciesAllTime'],
             'distance_from_prev_km': round(best_dist, 1),
             'drive_time_from_prev_min': best_drive_time,
@@ -1569,6 +1634,7 @@ def run_optimize_route(payload, api_key=None):
     end_m = int(end_minutes % 60)
 
     total_birding_minutes = sum(s['birding_minutes'] for s in selected_stops)
+    en_route_count = sum(1 for s in selected_stops if s.get('stop_role') == 'en_route')
     all_probable_species = compile_probable_species(selected_stops, recent_obs, region_code)
     tides_data = get_tide_events_los_lagos(target_date)
 
@@ -1589,7 +1655,10 @@ def run_optimize_route(payload, api_key=None):
             'total_km': round(total_km, 1),
             'total_drive_minutes': total_drive_minutes,
             'total_birding_minutes': total_birding_minutes,
+            'return_distance_km': round(return_dist, 1),
+            'return_drive_minutes': return_time,
             'num_stops': len(selected_stops),
+            'en_route_count': en_route_count,
             'estimated_total_species': max(len(accumulated_unique_species), round(len(selected_stops) * 9.5 + 26)),
             'total_probable_species_count': len(all_probable_species),
             'sunrise': sunrise_time,
