@@ -1,0 +1,517 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="origin-when-cross-origin">
+  <title>Planificador de Pajareo | Rara Tienda</title>
+  <meta name="description" content="Planificador de rutas de observación de aves en Chile de Rara Tienda, alimentado en tiempo real por eBird y pronósticos meteorológicos.">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Modern Design System -->
+  <link rel="stylesheet" href="{% static 'planificador/css/style.css' %}">
+  <script>
+    window.PLANIFICADOR_API_BASE = '/planificador/api';
+    window.RARA_LOGO_URL = "{% static 'img/logo_rara.png' %}";
+    window.CHILE_REGIONS_CONFIG = {{ regions_config_json|default:"{}"|safe }};
+  </script>
+</head>
+<body class="light-mode">
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <a href="/" title="Volver a Rara Tienda" style="display: flex; align-items: center; text-decoration: none;">
+        <img src="{% static 'img/logo_rara.png' %}" alt="Rara Tienda" style="width: 42px; height: 42px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-color); background: #fff; padding: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      </a>
+      <div class="brand-text">
+        <h1>Rara Tienda <span style="font-weight: 500; font-size: 0.95rem; opacity: 0.85;">• Planificador</span></h1>
+        <p>Rutas de Avistamiento & Checklist de Campo con eBird</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" data-tab="pane-optimizer" id="tab-optimizer" role="tab">
+        Ruta Óptima
+      </button>
+      <button class="nav-tab-btn" data-tab="pane-radar" id="tab-radar" role="tab">
+        Radar de Especies
+      </button>
+      <button class="nav-tab-btn" data-tab="pane-guide" id="tab-guide" role="tab">
+        Biorritmo y Clima
+      </button>
+    </nav>
+
+    <!-- Header Actions / API Key status & Theme toggle -->
+    <div class="header-actions">
+      <button type="button" id="themeToggleBtn" class="btn-secondary" onclick="toggleTheme()" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: var(--radius-full); cursor: pointer;" title="Cambiar tema de la aplicación">
+        Modo Oscuro
+      </button>
+      <div class="api-key-badge" title="Conexión segura con API de eBird activa">
+        <span class="dot"></span>
+        <span>eBird Conectado</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="app-main">
+
+    <!-- ==================== TAB 1: RUTA ÓPTIMA LOS LAGOS ==================== -->
+    <section class="tab-pane active" id="pane-optimizer" role="tabpanel">
+      <div class="optimizer-grid">
+
+        <!-- Left Column: Controls & Filters -->
+        <aside class="glass-panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Planificar Salida</h2>
+              <p class="panel-subtitle">Optimización por registros eBird, luz y clima</p>
+            </div>
+          </div>
+
+          <form id="routeForm">
+            <!-- Region Selector (16 Regions of Chile grouped by Macrozone) -->
+            <div class="form-group">
+              <label class="form-label" for="routeRegion" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Región de Chile</span>
+                <span id="routeMacrozoneBadge" style="color: var(--cyan); font-weight: 700; text-transform: none; font-size: 0.74rem;">Zona Sur</span>
+              </label>
+              <select id="routeRegion" class="form-select" style="font-weight: 600;">
+                <optgroup label="Norte Grande">
+                  <option value="CL-AP">Arica y Parinacota (XV)</option>
+                  <option value="CL-TA">Tarapacá (I)</option>
+                  <option value="CL-AN">Antofagasta (II)</option>
+                </optgroup>
+                <optgroup label="Norte Chico">
+                  <option value="CL-AT">Atacama (III)</option>
+                  <option value="CL-CO">Coquimbo (IV)</option>
+                </optgroup>
+                <optgroup label="Zona Central">
+                  <option value="CL-VS">Valparaíso (V)</option>
+                  <option value="CL-RM">Metropolitana de Santiago (RM)</option>
+                  <option value="CL-LI">O'Higgins (VI)</option>
+                  <option value="CL-ML">Maule (VII)</option>
+                </optgroup>
+                <optgroup label="Zona Sur">
+                  <option value="CL-NB">Ñuble (XVI)</option>
+                  <option value="CL-BI">Biobío (VIII)</option>
+                  <option value="CL-AR">La Araucanía (IX)</option>
+                  <option value="CL-LR">Los Ríos (XIV)</option>
+                  <option value="CL-LL" selected>Los Lagos (X)</option>
+                </optgroup>
+                <optgroup label="Zona Austral">
+                  <option value="CL-AI">Aysén (XI)</option>
+                  <option value="CL-MA">Magallanes y la Antártica Chilena (XII)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Interactive Date Selector with Calendar & Quick Chips -->
+            <div class="form-group">
+              <label class="form-label" for="routeDate" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Fecha de la Salida</span>
+                <span id="routeSeasonBadge" style="color: var(--emerald); font-weight: 600; text-transform: none; font-size: 0.75rem;">Primavera austral</span>
+              </label>
+              <div style="position: relative; display: flex; flex-direction: column; gap: 0.45rem;">
+                <input type="date" id="routeDate" class="form-control" style="font-weight: 600; cursor: pointer;">
+                <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid var(--border-glow); padding: 0.45rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; color: var(--emerald-dark); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                  <span id="routeDateFormatted">Cargando fecha...</span>
+                  <div style="display: flex; gap: 0.3rem;">
+                    <button type="button" onclick="setQuickRouteDate('today')" style="background: rgba(5, 150, 105, 0.14); border: 1px solid rgba(5, 150, 105, 0.3); color: var(--emerald-dark); font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">Hoy</button>
+                    <button type="button" onclick="setQuickRouteDate('tomorrow')" style="background: rgba(5, 150, 105, 0.14); border: 1px solid rgba(5, 150, 105, 0.3); color: var(--emerald-dark); font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">Mañana</button>
+                    <button type="button" onclick="setQuickRouteDate('bigday')" title="Fecha Global Big Day (10 de Octubre)" style="background: rgba(245, 158, 11, 0.16); border: 1px solid rgba(245, 158, 11, 0.4); color: #b45309; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">10 Oct</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                <label class="form-label" for="routeHub" style="margin-bottom: 0;">Punto de Partida (Base)</label>
+                <button type="button" id="btnUseMyGps" style="background: none; border: none; color: var(--cyan); font-size: 0.75rem; cursor: pointer; text-decoration: underline;">
+                  Usar mi GPS
+                </button>
+              </div>
+              <select id="routeHub" class="form-select">
+                <option value="puerto_varas" selected>Puerto Varas (Base Lago Llanquihue)</option>
+                <option value="puerto_montt">Puerto Montt (Capital Regional & Seno)</option>
+                <option value="castro">Castro (Isla Grande de Chiloé Central)</option>
+                <option value="ancud">Ancud (Norte de Chiloé & Golfos)</option>
+                <option value="maullin">Maullín (Humedales & Santuario de la Naturaleza)</option>
+                <option value="osorno">Osorno (Valle Central & Acceso PN Puyehue)</option>
+                <option value="frutillar">Frutillar (Ribera Llanquihue)</option>
+                <option value="cochamo">Cochamó (Estuario del Reloncaví)</option>
+              </select>
+            </div>
+
+            <!-- Modalidad de Salida (Simple Preset) -->
+            <div class="form-group">
+              <label class="form-label" for="routeModePreset">Modalidad de Salida</label>
+              <select id="routeModePreset" class="form-select" onchange="applyRouteModePreset(this.value)">
+                <option value="half_day">Media Jornada (4 Paradas • Mañana)</option>
+                <option value="full_day" selected>Jornada Flexible (6 Paradas • Mañana y Tarde)</option>
+                <option value="extended">Jornada Completa (8 Paradas • Todos los Ambientes)</option>
+                <option value="big_day">Maratón Intensiva (10 Paradas • Día Completo)</option>
+              </select>
+            </div>
+
+            <!-- Collapsible Advanced Options -->
+            <details style="margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.55rem 0.75rem; background: rgba(148, 163, 184, 0.05);">
+              <summary style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; user-select: none;">
+                Ajustes avanzados (Subzona, Enfoque, Paradas)
+              </summary>
+              <div style="margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="routeSubzone">Corredor o Subzona</label>
+                  <select id="routeSubzone" class="form-select">
+                    <option value="all" selected>Toda la Región de Los Lagos (Máximo Rango)</option>
+                    <option value="llanquihue">Cuenca Lago Llanquihue & PN Vicente Pérez Rosales</option>
+                    <option value="chiloe">Archipiélago de Chiloé (Humedales & Costa Pacífica)</option>
+                    <option value="maullin">Santuario Humedales de Maullín & Desembocadura</option>
+                    <option value="osorno_puyehue">Parque Nacional Puyehue & Bosque Valdiviano</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="routeFocus">Enfoque de Observación</label>
+                  <select id="routeFocus" class="form-select">
+                    <option value="all" selected>Máxima Biodiversidad (Todas las Familias)</option>
+                    <option value="forest">Especialistas de Bosque Templado (Chucao, Huet-huet, Carpintero)</option>
+                    <option value="wetland">Humedales y Aves Playeras (Cisnes, Zarapitos, Flamencos)</option>
+                  </select>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 0;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="routeStops">N° de Hotspots</label>
+                    <select id="routeStops" class="form-select">
+                      <option value="4">4 Paradas</option>
+                      <option value="6" selected>6 Paradas</option>
+                      <option value="8">8 Paradas</option>
+                      <option value="10">10 Paradas</option>
+                      <option value="12">12 Paradas</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="routePace">Ritmo</label>
+                    <select id="routePace" class="form-select">
+                      <option value="relaxed">Pausado</option>
+                      <option value="standard" selected>Flexible</option>
+                      <option value="tactical">Ágil</option>
+                      <option value="blitz">Intensivo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 0;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="routeStartTime">Inicio ref.</label>
+                    <input type="time" id="routeStartTime" class="form-control" value="06:30">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="routeDuration">Ventana</label>
+                    <select id="routeDuration" class="form-select">
+                      <option value="6">6 Horas</option>
+                      <option value="10">10 Horas</option>
+                      <option value="12" selected>12 Horas</option>
+                      <option value="14">14 Horas</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <button type="submit" id="btnCalculateRoute" class="btn-primary" style="margin-top: 0.25rem; background: linear-gradient(135deg, #059669, #0284c7);">
+              <span id="btnCalculateRouteSpinner" class="loading-spinner" style="display: none;"></span>
+              <span id="btnCalculateRouteText">Actualizar Planificación</span>
+            </button>
+          </form>
+
+          <!-- Compact Quick Export Action -->
+          <div style="margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem;">
+            <button type="button" onclick="downloadRouteFieldPdf()" class="btn-secondary" style="width: 100%; justify-content: center; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--emerald-dark); border-color: var(--border-glow); background: rgba(5, 150, 105, 0.07);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+              <span>Descargar PDF (Ruta + Especies)</span>
+            </button>
+            <p id="bioTipText" style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
+              Ruta agrupada en bloques flexibles (Mañana, Mediodía y Tarde) con las especies clave de cada hotspot.
+            </p>
+          </div>
+        </aside>
+
+        <!-- Right Column: Map, Compact Summary, Flexible Itinerary & Route Species Checklist -->
+        <div id="routeResultsSection">
+
+          <!-- Compact Summary Bar -->
+          <div class="metrics-ribbon" style="grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="metric-card" style="padding: 0.75rem 1rem;">
+              <div class="metric-data">
+                <h3 style="font-size: 0.7rem;">Especies de la Ruta</h3>
+                <p id="metricSpeciesCount" style="font-size: 1.15rem;">--</p>
+              </div>
+            </div>
+
+            <div class="metric-card" style="padding: 0.75rem 1rem;">
+              <div class="metric-data">
+                <h3 style="font-size: 0.7rem;">Recorrido Estimado</h3>
+                <p id="metricTotalKm" style="font-size: 1.15rem;">-- km</p>
+              </div>
+            </div>
+
+            <div class="metric-card" style="padding: 0.75rem 1rem;">
+              <div class="metric-data">
+                <h3 id="metricSunLabel" style="font-size: 0.7rem;">Luz Solar</h3>
+                <p id="metricSunTimes" style="font-size: 1.05rem;">07:00 / 20:00</p>
+              </div>
+            </div>
+
+            <div class="metric-card" style="padding: 0.75rem 1rem;">
+              <div class="metric-data">
+                <h3 id="metricTideLabel" style="font-size: 0.7rem;">Mareas del Día</h3>
+                <p id="metricTideTimes" style="font-size: 0.9rem; font-weight: 700;">--</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leaflet Interactive Map -->
+          <div class="map-wrapper" style="margin-bottom: 1.25rem;">
+            <div id="routeMap"></div>
+          </div>
+
+          <!-- Action bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 id="itineraryTitle" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700;">Ruta Sugerida por Bloques</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary);">Orden flexible sugerido según actividad de las aves, traslados y condiciones del día</p>
+            </div>
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" onclick="openGoogleMapsRoute()" id="btnOpenGoogleMaps">
+                Abrir en Google Maps ↗
+              </button>
+              <button type="button" class="btn-secondary" onclick="scrollToRouteChecklist()" style="border-color: var(--cyan); color: var(--cyan); font-weight: 600;">
+                Ver Lista de Especies ↓
+              </button>
+              <button type="button" class="btn-primary" onclick="downloadRouteFieldPdf()" id="btnPrintChecklist" style="width: auto; padding: 0.5rem 1rem; font-size: 0.82rem; background: linear-gradient(135deg, #059669, #047857);">
+                Descargar PDF Hoja de Campo
+              </button>
+            </div>
+          </div>
+
+          <!-- Flexible Block Timeline Container -->
+          <div class="timeline-container" id="timelineContainer">
+            <!-- Dynamically populated by route_planner.js -->
+          </div>
+
+          <!-- Route-Specific Species Checklist Section -->
+          <div id="routeSpeciesSection" class="glass-panel" style="margin-top: 2rem; padding: 1.35rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <h3 style="font-family: var(--font-heading); font-size: 1.18rem; font-weight: 700; color: var(--text-primary);">
+                  Lista de Especies de esta Planificación
+                </h3>
+                <p id="masterChecklistSubtitle" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+                  Especies probables y registradas recientemente en los hotspots de tu ruta seleccionada
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <span class="api-key-badge" id="checklistProgressBadge" style="background: rgba(16, 185, 129, 0.14); color: var(--emerald-dark); font-weight: 700;">
+                  ✓ 0 / 0 Marcadas
+                </span>
+                <button type="button" class="btn-secondary" onclick="exportChecklistToClipboard()" style="padding: 0.35rem 0.75rem; font-size: 0.76rem;">
+                  Copiar Texto
+                </button>
+                <button type="button" class="btn-secondary" onclick="resetChecklistTicks()" style="padding: 0.35rem 0.75rem; font-size: 0.76rem;">
+                  Limpiar Marcas
+                </button>
+                <button type="button" class="btn-primary" onclick="downloadRouteFieldPdf()" style="width: auto; padding: 0.38rem 0.85rem; font-size: 0.76rem; background: var(--emerald-dark);">
+                  Exportar PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="species-search-bar" style="margin-bottom: 1rem;">
+              <input type="text" id="probableSearchInput" class="form-control" placeholder="Filtrar especie o parada de la ruta..." style="flex: 1; min-width: 220px;">
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="btn-secondary probable-filter-chip active" data-group="all" onclick="filterProbableSpecies('all')">Todas</button>
+                <button type="button" class="btn-secondary probable-filter-chip" data-group="forest" onclick="filterProbableSpecies('forest')">Bosques y Terrestres</button>
+                <button type="button" class="btn-secondary probable-filter-chip" data-group="wetland" onclick="filterProbableSpecies('wetland')">Humedales y Lagunas</button>
+                <button type="button" class="btn-secondary probable-filter-chip" data-group="shorebird" onclick="filterProbableSpecies('shorebird')">Costa y Marinas</button>
+                <button type="button" class="btn-secondary probable-filter-chip" data-group="raptor" onclick="filterProbableSpecies('raptor')">Rapaces</button>
+              </div>
+            </div>
+
+            <div id="probableSpeciesContainer">
+              <!-- Populated dynamically with the route's species -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: EXPLORADOR EBIRD API (OCULTO) ==================== -->
+    <section class="tab-pane" id="pane-explorer" role="tabpanel" style="display: none !important;">
+      <!-- Hidden from primary UI as requested -->
+      <input type="hidden" id="customApiKey" value="">
+    </section>
+
+    <!-- ==================== TAB 3: RADAR DE ESPECIES REGIONAL ==================== -->
+    <section class="tab-pane" id="pane-radar" role="tabpanel">
+      <div class="glass-panel" style="margin-bottom: 1.5rem;">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 class="panel-title" id="radarTitle">Radar de Especies — Los Lagos (X)</h2>
+            <p class="panel-subtitle" id="radarSubtitle">Aves registradas en los últimos 14 días en eBird con nombres comunes chilenos</p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <select id="radarRegionSelect" class="form-select" style="width: auto; min-width: 210px; padding: 0.35rem 0.75rem; font-size: 0.8rem; font-weight: 600;" title="Cambiar región del Radar eBird">
+              <optgroup label="Norte Grande">
+                <option value="CL-AP">Arica y Parinacota (XV)</option>
+                <option value="CL-TA">Tarapacá (I)</option>
+                <option value="CL-AN">Antofagasta (II)</option>
+              </optgroup>
+              <optgroup label="Norte Chico">
+                <option value="CL-AT">Atacama (III)</option>
+                <option value="CL-CO">Coquimbo (IV)</option>
+              </optgroup>
+              <optgroup label="Zona Central">
+                <option value="CL-VS">Valparaíso (V)</option>
+                <option value="CL-RM">Metropolitana de Santiago (RM)</option>
+                <option value="CL-LI">O'Higgins (VI)</option>
+                <option value="CL-ML">Maule (VII)</option>
+              </optgroup>
+              <optgroup label="Zona Sur">
+                <option value="CL-NB">Ñuble (XVI)</option>
+                <option value="CL-BI">Biobío (VIII)</option>
+                <option value="CL-AR">La Araucanía (IX)</option>
+                <option value="CL-LR">Los Ríos (XIV)</option>
+                <option value="CL-LL" selected>Los Lagos (X)</option>
+              </optgroup>
+              <optgroup label="Zona Austral">
+                <option value="CL-AI">Aysén (XI)</option>
+                <option value="CL-MA">Magallanes (XII)</option>
+              </optgroup>
+            </select>
+            <span class="api-key-badge" id="radarTotalSpeciesCount">Cargando...</span>
+            <span class="api-key-badge" id="radarSeenBadge" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald); font-weight: 700;">
+              0 Registradas
+            </span>
+            <span class="api-key-badge" style="color: var(--rose); border-color: rgba(244,63,94,0.4);" id="radarNotableCount">0 Rarezas</span>
+            <button class="btn-secondary" onclick="exportRadarSeenList()" title="Copiar especies registradas al portapapeles" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+              Copiar Registradas
+            </button>
+            <button class="btn-secondary" onclick="resetRadarSeenList()" title="Desmarcar todas las especies" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+              Desmarcar Todo
+            </button>
+            <button class="btn-secondary" id="btnToggleRadarView" onclick="toggleRadarView()" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+              Vista Cuadrícula
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Chips & Search Bar -->
+        <div class="species-search-bar">
+          <input type="text" id="speciesSearchInput" class="form-control" placeholder="Buscar por nombre común o científico (ej. Chucao, Huet-huet, Zarapito, Carpintero)..." style="flex: 1; min-width: 280px;">
+          
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn-secondary filter-chip active" id="filter_all" onclick="filterSpecies('all')">Todas</button>
+            <button type="button" class="btn-secondary filter-chip" id="filter_forest" onclick="filterSpecies('forest')">Bosque Templado</button>
+            <button type="button" class="btn-secondary filter-chip" id="filter_wetland" onclick="filterSpecies('wetland')">Humedales y Playeras</button>
+            <button type="button" class="btn-secondary filter-chip" id="filter_raptors" onclick="filterSpecies('raptors')">Rapaces</button>
+            <button type="button" class="btn-secondary filter-chip" id="filter_notable" onclick="filterSpecies('notable')">Rarezas</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Species Checklist (List view with checkboxes) -->
+      <div id="speciesListContainer" class="checklist-table-wrapper" style="margin-bottom: 2rem;">
+        <!-- Dynamically rendered checklist -->
+      </div>
+
+      <!-- Species Cards Grid (Alternative view) -->
+      <div class="species-grid" id="speciesGrid" style="display: none;">
+        <!-- Dynamically rendered cards -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: BIORRITMO, CLIMA & GUÍA REGIONAL ==================== -->
+    <section class="tab-pane" id="pane-guide" role="tabpanel">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem;">
+        
+        <div class="glass-panel">
+          <h3 class="panel-title" style="color: var(--amber);">El Amanecer y el Dawn Chorus en Bosque Valdiviano</h3>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.75rem; line-height: 1.6;">
+            En la Región de Los Lagos, los passeriformes y especies del sotobosque templado lluvioso (familia <i>Rhinocryptidae</i> como el <b>Chucao</b> <i>Scelorchilus rubecula</i>, el <b>Huet-huet común</b> <i>Pteroptochos tarnii</i> y el <b>Churrín de la mocha</b> <i>Eugralla paradoxa</i>) tienen su punto máximo de actividad vocal y territorial entre <b>las 06:30 y las 09:30 AM</b>.
+          </p>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.75rem; line-height: 1.6;">
+            A partir de las 11:00 AM, estos pájaros descienden al interior denso del quilanto y del sotobosque, haciendo su detección hasta un 70% más difícil. Por eso la ruta siempre prioriza sitios como el <b>Parque Nacional Vicente Pérez Rosales</b>, <b>Monumento Natural Lahuen Ñadi</b> o <b>Parque Nacional Puyehue</b> a primera hora del día.
+          </p>
+        </div>
+
+        <div class="glass-panel">
+          <h3 id="guideTideHeading" class="panel-title" style="color: var(--cyan);">Humedales Costeros, Chiloé y Dinámica de Mareas</h3>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.75rem; line-height: 1.6;">
+            Sitios como el <b>Santuario de la Naturaleza Humedales de Maullín</b>, <b>Bahía de Caulín</b>, <b>Humedal de Putemún</b> y <b>Pullao</b> albergan concentraciones hemisféricas del <b>Zarapito de pico recto</b> (<i>Limosa haemastica</i>), <b>Playero de lomo blanco</b>, <b>Flamenco chileno</b> y <b>Cisne de cuello negro</b>.
+          </p>
+          <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); border-radius: 8px; padding: 10px 14px; margin: 0.75rem 0; font-size: 0.84rem;">
+            <div id="guideTideSubheading" style="font-weight: 700; color: #0284c7; margin-bottom: 4px;">Régimen de Mareas (Seno de Reloncaví & Chiloé):</div>
+            <div id="guideTideList" style="color: var(--text-primary); line-height: 1.5;">
+              • Fase Lunar: <b>Mareas Vivas (Sicigia)</b> con gran amplitud intermareal (~5.8m).<br>
+              • <b>07:55 AM (0.7m) - Bajamar matutina:</b> Extensas planicies lodosas expuestas. Alimentación óptima de limícolas y flamencos.<br>
+              • <b>14:15 PM (6.5m) - Pleamar de la tarde:</b> Agua alta cubre los llanos intermareales. Las aves se compactan en dormideros y puntillas de restinga (facilita conteos masivos).<br>
+              • <b>20:30 PM (0.6m) - Bajamar vespertina:</b> Segunda ventana de alimentación previa al crepúsculo.
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+            El optimizador de rutas sincroniza automáticamente los hotspots marinos y estuarinos con el estado de marea calculando el coeficiente biológico para cada hora de arribo.
+          </p>
+        </div>
+
+        <div class="glass-panel">
+          <h3 class="panel-title" style="color: var(--rose);">Factores Climáticos Críticos en el Sur de Chile</h3>
+          <ul style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.75rem; line-height: 1.6; padding-left: 1.25rem;">
+            <li><b>Lluvia intensa (> 2 mm/h):</b> Reduce drásticamente la actividad de vuelo y obliga a las aves a guarecerse. El algoritmo aplica una penalización si el pronóstico de Open-Meteo supera el 50% de probabilidad de lluvia.</li>
+            <li><b>Viento fuerte (> 25 km/h):</b> Muy común en costas y fiordos. Afecta la audibilidad de los cantos y ahuyenta las aves de las copas de los árboles hacia estratos bajos.</li>
+            <li><b>Temperatura:</b> Días fríos y despejados con escarcha matutina retrasan unos 20-30 minutos el coro matutino hasta que los primeros rayos tibian la vegetación.</li>
+          </ul>
+        </div>
+
+        <div class="glass-panel">
+          <h3 class="panel-title" style="color: var(--emerald);">Hotspots Emblemáticos en Los Lagos (CL-LL)</h3>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem; line-height: 1.6;">
+            <p>• <b>Humedales de Maullín:</b> +100 especies registradas. Sitio RHRAP de importancia hemisférica.</p>
+            <p>• <b>PN Vicente Pérez Rosales & Sendero Desolación:</b> Especialistas de bosque antiguo (Carpintero negro, Comesebo grande, Rayadito).</p>
+            <p>• <b>Bahía de Caulín & Pullao (Chiloé):</b> Flamencos chilenos, chorlos, gaviotas y patos silvestres.</p>
+            <p>• <b>Monumento Natural Lahuen Ñadi:</b> Último relicto de alerces milenarios de la depresión intermedia con abundante Chucao y Churrín.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <p>
+      <b>Rara Tienda</b> • Planificador de Rutas de Pajareo • Datos ornitológicos de <a href="https://ebird.org" target="_blank">eBird</a> y clima de <a href="https://open-meteo.com" target="_blank">Open-Meteo</a>.
+    </p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="{% static 'planificador/js/route_planner.js' %}?v=5"></script>
+  <script src="{% static 'planificador/js/ebird_explorer.js' %}?v=5"></script>
+  <script src="{% static 'planificador/js/species_radar.js' %}?v=5"></script>
+  <script src="{% static 'planificador/js/app.js' %}?v=5"></script>
+</body>
+</html>
