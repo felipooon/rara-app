@@ -15,6 +15,7 @@ from .services import (
     fetch_recent_observations,
     fetch_notable_observations,
     fetch_weather_forecast,
+    get_tide_events,
     get_tide_events_los_lagos,
     get_tide_at_hour,
     run_optimize_route,
@@ -138,17 +139,20 @@ def api_optimize_route(request):
 
 def api_tides(request):
     target_date = request.GET.get('date')
-    tide_data = get_tide_events_los_lagos(target_date)
+    region = request.GET.get('region', 'CL-LL')
+    tide_data = get_tide_events(target_date, region)
     hourly = []
-    for h in range(5, 23):
-        t_info = get_tide_at_hour(float(h), target_date)
-        hourly.append({
-            'time': f"{h:02d}:00",
-            'height_m': t_info['height_m'],
-            'state': t_info['state'],
-            'status_label': t_info['status_label'],
-            'note': t_info['note']
-        })
+    if tide_data.get('is_coastal', True):
+        for h in range(5, 23):
+            t_info = get_tide_at_hour(float(h), target_date, region)
+            if t_info:
+                hourly.append({
+                    'time': f"{h:02d}:00",
+                    'height_m': t_info['height_m'],
+                    'state': t_info['state'],
+                    'status_label': t_info['status_label'],
+                    'note': t_info['note']
+                })
     tide_data['hourly'] = hourly
     return JsonResponse(tide_data)
 

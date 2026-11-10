@@ -7,7 +7,14 @@
   --bg-card-hover: #18223b;
   --bg-card-glass: rgba(18, 26, 45, 0.85);
   --border-color: #22304d;
-  --border-glow: rgba(16, 185, 129, 0.25);
+  --border-glow: rgba(234, 88, 12, 0.22);
+  
+  /* Rara Tienda Corporate Brand Identity */
+  --rara-orange: #ea580c;
+  --rara-orange-light: #f97316;
+  --rara-amber: #f59e0b;
+  --rara-warm: #fa8938;
+  --rara-glow: rgba(234, 88, 12, 0.25);
   
   --emerald: #10b981;
   --emerald-dark: #059669;
@@ -32,7 +39,7 @@
   --radius-full: 9999px;
   
   --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.05);
-  --shadow-glow: 0 0 25px -5px var(--emerald-glow);
+  --shadow-glow: 0 0 25px -5px var(--rara-glow);
   
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -46,7 +53,13 @@
   --bg-card-hover: #f1f5f9;
   --bg-card-glass: rgba(255, 255, 255, 0.95);
   --border-color: #e2e8f0;
-  --border-glow: rgba(5, 150, 105, 0.25);
+  --border-glow: rgba(234, 88, 12, 0.18);
+  
+  --rara-orange: #ea580c;
+  --rara-orange-light: #f97316;
+  --rara-amber: #d97706;
+  --rara-warm: #fa8938;
+  --rara-glow: rgba(234, 88, 12, 0.18);
   
   --emerald: #059669;
   --emerald-dark: #047857;
@@ -70,8 +83,8 @@ body.light-mode {
   background-color: var(--bg-dark);
   color: var(--text-primary);
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(5, 150, 105, 0.06) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.06) 0%, transparent 45%);
+    radial-gradient(circle at 10% 20%, rgba(234, 88, 12, 0.035) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.03) 0%, transparent 45%);
 }
 
 [data-theme="light"] header.app-header,
@@ -83,7 +96,7 @@ body.light-mode header.app-header {
 
 [data-theme="light"] .brand-text h1,
 body.light-mode .brand-text h1 {
-  background: linear-gradient(135deg, #0f172a 40%, var(--emerald));
+  background: linear-gradient(135deg, #0f172a 40%, var(--rara-orange));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -108,7 +121,8 @@ body.light-mode .nav-tab-btn:hover {
 [data-theme="light"] .nav-tab-btn.active,
 body.light-mode .nav-tab-btn.active {
   color: #ffffff;
-  background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+  background: linear-gradient(135deg, var(--rara-orange-light), var(--rara-orange));
+  box-shadow: 0 2px 10px var(--rara-glow);
 }
 
 [data-theme="light"] .glass-panel,
@@ -134,8 +148,8 @@ body.light-mode .timeline-card {
 
 [data-theme="light"] .timeline-card:hover,
 body.light-mode .timeline-card:hover {
-  border-color: var(--emerald);
-  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.12);
+  border-color: rgba(234, 88, 12, 0.45);
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.08);
 }
 
 [data-theme="light"] .bird-pill,
@@ -431,7 +445,7 @@ header.app-header {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #fff 40%, var(--emerald));
+  background: linear-gradient(135deg, #fff 40%, var(--rara-orange-light));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -473,8 +487,8 @@ header.app-header {
 
 .nav-tab-btn.active {
   color: #fff;
-  background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
-  box-shadow: 0 2px 10px var(--emerald-glow);
+  background: linear-gradient(135deg, var(--rara-orange-light), var(--rara-orange));
+  box-shadow: 0 2px 10px var(--rara-glow);
 }
 
 .header-actions {
@@ -631,8 +645,8 @@ main.app-main {
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: var(--emerald);
-  box-shadow: 0 0 0 3px var(--emerald-glow);
+  border-color: var(--rara-orange);
+  box-shadow: 0 0 0 3px var(--rara-glow);
 }
 
 .form-row {
@@ -642,7 +656,7 @@ main.app-main {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+  background: linear-gradient(135deg, var(--rara-orange-light), var(--rara-orange));
   color: #fff;
   border: none;
   padding: 0.85rem 1.5rem;
@@ -656,13 +670,13 @@ main.app-main {
   justify-content: center;
   gap: 0.6rem;
   width: 100%;
-  box-shadow: 0 4px 15px var(--emerald-glow);
+  box-shadow: 0 4px 15px var(--rara-glow);
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--emerald-glow);
+  box-shadow: 0 6px 20px var(--rara-glow);
 }
 
 .btn-secondary {
@@ -1147,10 +1161,10 @@ main.app-main {
 }
 
 .probable-filter-chip.active {
-  background: var(--emerald);
+  background: var(--rara-orange);
   color: #fff;
-  border-color: var(--emerald);
-  box-shadow: 0 2px 8px var(--emerald-glow);
+  border-color: var(--rara-orange);
+  box-shadow: 0 2px 8px var(--rara-glow);
 }
 
 .checklist-table-wrapper {
@@ -1492,6 +1506,221 @@ main.app-main {
   gap: 1.25rem;
   width: 100%;
   max-width: 100%;
+}
+
+/* Notable Species Near Route Alert */
+.notable-alert-panel {
+  background: rgba(244, 63, 94, 0.06);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.notable-pills-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notable-pill-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(244, 63, 94, 0.22);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  transition: all 0.2s ease;
+}
+
+.notable-pill-card:hover {
+  border-color: #f43f5e;
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.12);
+}
+
+/* Day Block & Stop Card Stacking Context for Popovers */
+.day-block-group {
+  position: relative;
+  z-index: 1;
+}
+
+.day-block-group.active-tip-block,
+.day-block-group:has(.ebird-tip-popover:not([style*="display: none"])) {
+  z-index: 80 !important;
+}
+
+.stop-card-item {
+  position: relative;
+  z-index: 1;
+}
+
+.stop-card-item.active-tip-card,
+.stop-card-item:has(.ebird-tip-popover:not([style*="display: none"])) {
+  z-index: 100 !important;
+}
+
+/* eBird Tips Floating Popover Balloon */
+.ebird-tip-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  z-index: 20;
+}
+
+.ebird-tip-pill-btn {
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  color: #0284c7;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ebird-tip-pill-btn:hover {
+  background: rgba(2, 132, 199, 0.18);
+  border-color: #0284c7;
+}
+
+.ebird-tip-popover {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 120;
+  width: 320px;
+  max-width: min(320px, calc(100vw - 2.5rem));
+  background: var(--bg-card);
+  border: 1.5px solid rgba(2, 132, 199, 0.35);
+  border-radius: 12px;
+  padding: 0.85rem 0.95rem;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(2, 132, 199, 0.15);
+  animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+[data-theme="light"] .ebird-tip-popover,
+body.light-mode .ebird-tip-popover {
+  background: #ffffff;
+  border-color: #93c5fd;
+  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.18), 0 4px 10px rgba(2, 132, 199, 0.1);
+}
+
+.ebird-popover-arrow {
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  width: 11px;
+  height: 11px;
+  background: var(--bg-card);
+  border-left: 1.5px solid rgba(2, 132, 199, 0.35);
+  border-top: 1.5px solid rgba(2, 132, 199, 0.35);
+  transform: rotate(45deg);
+}
+
+[data-theme="light"] .ebird-popover-arrow,
+body.light-mode .ebird-popover-arrow {
+  background: #ffffff;
+  border-color: #93c5fd;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ebird-open-submit-btn {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #fff !important;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.ebird-open-submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+/* eBird Trip Report Help Modal / Card */
+.trip-report-modal-wrapper {
+  margin-bottom: 1.25rem;
+}
+
+.trip-report-modal-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--cyan);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.35rem;
+  box-shadow: 0 6px 24px rgba(2, 132, 199, 0.12);
+  position: relative;
+  animation: fadeIn 0.25s ease;
+}
+
+.trip-report-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0.85rem 0 1rem 0;
+}
+
+.ebird-tip-step {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.ebird-tip-step b {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.ebird-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.trip-report-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
 }
 
 /* ==================== TABLET & MOBILE RESPONSIVENESS ==================== */
@@ -1892,6 +2121,11 @@ footer.app-footer {
 }
 
 footer.app-footer a {
-  color: var(--emerald);
+  color: var(--rara-orange);
   text-decoration: none;
+  font-weight: 600;
+}
+
+footer.app-footer a:hover {
+  text-decoration: underline;
 }

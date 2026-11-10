@@ -905,8 +905,27 @@ def fetch_weather_forecast(lat, lng, target_date=None):
         pass
     return None
 
-def _compute_daily_tide_model(target_date=None):
-    """Calculate semidiurnal tide events and lunar phase for Seno de Reloncaví / Chiloé based on target_date."""
+CHILE_COASTAL_TIDE_PARAMS = {
+    'CL-AP': {'port_name': 'Puerto de Arica y Humedal Río Lluta', 'is_coastal': True, 'mean_level': 1.10, 'semi_amp': 0.55, 'amp_mod': 0.18, 'min_low': 0.20, 'ref_high_hour': 4.50},
+    'CL-TA': {'port_name': 'Puerto de Iquique y Costa de Tarapacá', 'is_coastal': True, 'mean_level': 1.15, 'semi_amp': 0.58, 'amp_mod': 0.20, 'min_low': 0.20, 'ref_high_hour': 4.65},
+    'CL-AN': {'port_name': 'Bahía de Mejillones y Antofagasta', 'is_coastal': True, 'mean_level': 1.20, 'semi_amp': 0.62, 'amp_mod': 0.22, 'min_low': 0.25, 'ref_high_hour': 4.80},
+    'CL-AT': {'port_name': 'Caldera, Chañaral y Huasco', 'is_coastal': True, 'mean_level': 1.25, 'semi_amp': 0.65, 'amp_mod': 0.22, 'min_low': 0.25, 'ref_high_hour': 4.95},
+    'CL-CO': {'port_name': 'Bahía de Coquimbo, Tongoy y Los Vilos', 'is_coastal': True, 'mean_level': 1.30, 'semi_amp': 0.70, 'amp_mod': 0.25, 'min_low': 0.30, 'ref_high_hour': 5.10},
+    'CL-VS': {'port_name': 'Valparaíso, San Antonio y Quintero', 'is_coastal': True, 'mean_level': 1.35, 'semi_amp': 0.75, 'amp_mod': 0.26, 'min_low': 0.30, 'ref_high_hour': 5.25},
+    'CL-RM': {'port_name': 'Región Metropolitana (Interior / Sin Litoral)', 'is_coastal': False, 'mean_level': 0.0, 'semi_amp': 0.0, 'amp_mod': 0.0, 'min_low': 0.0, 'ref_high_hour': 0.0},
+    'CL-LI': {'port_name': 'Pichilemu, Bucalemu y Boca del Rapel', 'is_coastal': True, 'mean_level': 1.40, 'semi_amp': 0.80, 'amp_mod': 0.28, 'min_low': 0.30, 'ref_high_hour': 5.40},
+    'CL-ML': {'port_name': 'Constitución, Iloca y Costa del Maule', 'is_coastal': True, 'mean_level': 1.45, 'semi_amp': 0.85, 'amp_mod': 0.30, 'min_low': 0.30, 'ref_high_hour': 5.55},
+    'CL-NB': {'port_name': 'Cobquecura, Buchupureo y Costa de Ñuble', 'is_coastal': True, 'mean_level': 1.50, 'semi_amp': 0.90, 'amp_mod': 0.30, 'min_low': 0.35, 'ref_high_hour': 5.70},
+    'CL-BI': {'port_name': 'Bahía de Concepción, Talcahuano y Arauco', 'is_coastal': True, 'mean_level': 1.55, 'semi_amp': 0.95, 'amp_mod': 0.32, 'min_low': 0.35, 'ref_high_hour': 5.85},
+    'CL-AR': {'port_name': 'Puerto Saavedra (Lago Budi), Toltén y Queule', 'is_coastal': True, 'mean_level': 1.60, 'semi_amp': 1.05, 'amp_mod': 0.35, 'min_low': 0.35, 'ref_high_hour': 6.00},
+    'CL-LR': {'port_name': 'Bahía de Corral, Niebla y Mehuín', 'is_coastal': True, 'mean_level': 1.65, 'semi_amp': 1.15, 'amp_mod': 0.38, 'min_low': 0.35, 'ref_high_hour': 6.15},
+    'CL-LL': {'port_name': 'Seno de Reloncaví, Chiloé y Maullín', 'is_coastal': True, 'mean_level': 3.55, 'semi_amp': 2.45, 'amp_mod': 0.50, 'min_low': 0.30, 'ref_high_hour': 1.75},
+    'CL-AI': {'port_name': 'Puerto Chacabuco y Fiordos de Aysén', 'is_coastal': True, 'mean_level': 2.50, 'semi_amp': 1.50, 'amp_mod': 0.40, 'min_low': 0.40, 'ref_high_hour': 2.20},
+    'CL-MA': {'port_name': 'Punta Arenas, Estrecho de Magallanes y Canales', 'is_coastal': True, 'mean_level': 1.80, 'semi_amp': 1.10, 'amp_mod': 0.35, 'min_low': 0.35, 'ref_high_hour': 7.10}
+}
+
+def _compute_daily_tide_model(target_date=None, region_code='CL-LL'):
+    """Calculate astronomical semidiurnal tide events calibrated for all Chilean coastal regions."""
     if not target_date:
         target_date = datetime.now().strftime('%Y-%m-%d')
     try:
@@ -915,16 +934,11 @@ def _compute_daily_tide_model(target_date=None):
         dt = datetime.now().date()
         target_date = dt.strftime('%Y-%m-%d')
 
-    # Reference anchor: 2026-10-10 (New Moon / Sicigia in Reloncaví & Chiloé)
+    params = CHILE_COASTAL_TIDE_PARAMS.get(region_code, CHILE_COASTAL_TIDE_PARAMS['CL-LL'])
+
     ref_date = datetime(2026, 10, 10).date()
     days_diff = (dt - ref_date).days
-
-    # Lunar synodic period = 29.53059 days; semidiurnal spring-neap cycle = 14.7653 days
-    synodic_age = (days_diff % 29.53059)
-    # Daily lunar retardation ~ 50.47 minutes (0.8412 hours/day) modulo 12.4206h M2 period
     shift_hours = (days_diff * 0.8412) % 12.4206
-
-    # Spring-neap modulation factor: +1 at syzygy (new/full moon), -1 at quadrature (quarters)
     syzygy_factor = math.cos(2 * math.pi * days_diff / 14.7653)
 
     if syzygy_factor > 0.45:
@@ -935,24 +949,37 @@ def _compute_daily_tide_model(target_date=None):
         short_phase = 'Marea Cuadratura'
     else:
         lunar_phase = 'Marea Intermedia'
-        short_phase = 'Ciclo de Marea'
+        short_phase = 'Ciclo Regular'
 
-    mean_level = 3.55
-    semi_amp = 2.45 + 0.50 * syzygy_factor  # ranges ~1.95m (neap) to ~2.95m (spring)
-    high_h = round(mean_level + semi_amp, 1)
-    low_h = round(max(0.3, mean_level - semi_amp), 1)
-    tidal_range = round(high_h - low_h, 1)
+    if not params.get('is_coastal', True):
+        return {
+            'is_coastal': False,
+            'target_date': target_date,
+            'reference_zone': params['port_name'],
+            'lunar_phase': lunar_phase,
+            'short_phase': short_phase,
+            'tidal_range_m': 0.0,
+            'raw_nodes': [],
+            'day_events': [],
+            'summary_text': 'Sin influencia mareal (Región interior / Valles y Cordillera)'
+        }
 
-    # Base events on reference day (hours decimal): High 1.75 (01:45), Low 7.917 (07:55)
-    first_high = (1.75 + shift_hours) % 12.4206
+    mean_level = params['mean_level']
+    semi_amp = params['semi_amp'] + params['amp_mod'] * syzygy_factor
+    high_h = round(mean_level + semi_amp, 2)
+    low_h = round(max(params['min_low'], mean_level - semi_amp), 2)
+    tidal_range = round(high_h - low_h, 2)
+
+    base_ref_high = params['ref_high_hour']
+    first_high = (base_ref_high + shift_hours) % 12.4206
     half_period = 6.2103
 
     raw_Node_hours = [
         (first_high - half_period, low_h, 'Bajamar'),
         (first_high, high_h, 'Pleamar'),
         (first_high + half_period, low_h, 'Bajamar'),
-        (first_high + 2 * half_period, round(min(7.0, high_h + 0.15), 1), 'Pleamar'),
-        (first_high + 3 * half_period, round(max(0.2, low_h - 0.1), 1), 'Bajamar'),
+        (first_high + 2 * half_period, round(high_h + 0.05, 2), 'Pleamar'),
+        (first_high + 3 * half_period, round(max(params['min_low'], low_h - 0.05), 2), 'Bajamar'),
         (first_high + 4 * half_period, high_h, 'Pleamar'),
     ]
 
@@ -972,8 +999,12 @@ def _compute_daily_tide_model(target_date=None):
                 'label': 'Pleamar (Marea Alta)' if t_type == 'Pleamar' else 'Bajamar (Marea Baja)'
             })
 
+    day_events.sort(key=lambda x: x['hour_dec'])
+
     return {
+        'is_coastal': True,
         'target_date': target_date,
+        'reference_zone': params['port_name'],
         'lunar_phase': lunar_phase,
         'short_phase': short_phase,
         'tidal_range_m': tidal_range,
@@ -981,8 +1012,22 @@ def _compute_daily_tide_model(target_date=None):
         'day_events': day_events
     }
 
-def get_tide_events_los_lagos(target_date=None):
-    model = _compute_daily_tide_model(target_date)
+def get_tide_events(target_date=None, region_code='CL-LL'):
+    """Return structured tide events and summary for any Chilean region."""
+    model = _compute_daily_tide_model(target_date, region_code)
+    if not model.get('is_coastal', True):
+        return {
+            'is_coastal': False,
+            'date': model['target_date'],
+            'reference_zone': model['reference_zone'],
+            'port_name': model['reference_zone'],
+            'lunar_phase': model['lunar_phase'],
+            'short_phase': model['short_phase'],
+            'tidal_range_m': 0.0,
+            'summary_text': model['summary_text'],
+            'events': []
+        }
+
     events = [
         {
             'time': ev['time'],
@@ -994,21 +1039,29 @@ def get_tide_events_los_lagos(target_date=None):
     ]
     lows = [e for e in events if e['type'] == 'Bajamar']
     highs = [e for e in events if e['type'] == 'Pleamar']
-    b_str = f"{lows[0]['time']} ({lows[0]['height_m']}m)" if lows else "07:55 (0.7m)"
-    p_str = f"{highs[-1]['time']} ({highs[-1]['height_m']}m)" if highs else "14:15 (6.5m)"
+    b_str = f"{lows[0]['time']} ({lows[0]['height_m']}m)" if lows else "--"
+    p_str = f"{highs[0]['time']} ({highs[0]['height_m']}m)" if highs else "--"
 
     return {
+        'is_coastal': True,
         'date': model['target_date'],
-        'reference_zone': 'Seno de Reloncaví & Chiloé (Promedio Regional Los Lagos)',
+        'reference_zone': model['reference_zone'],
+        'port_name': model['reference_zone'],
         'lunar_phase': model['lunar_phase'],
         'short_phase': model['short_phase'],
         'tidal_range_m': model['tidal_range_m'],
-        'summary_text': f"{model['lunar_phase']} con bajamar a las {b_str} y pleamar a las {p_str}.",
+        'summary_text': f"{model['lunar_phase']} en {model['reference_zone']}. Bajamar {b_str} / Pleamar {p_str}.",
         'events': events
     }
 
-def get_tide_at_hour(hour_decimal, target_date=None):
-    model = _compute_daily_tide_model(target_date)
+def get_tide_events_los_lagos(target_date=None):
+    return get_tide_events(target_date, 'CL-LL')
+
+def get_tide_at_hour(hour_decimal, target_date=None, region_code='CL-LL'):
+    model = _compute_daily_tide_model(target_date, region_code)
+    if not model.get('is_coastal', True) or not model.get('raw_nodes'):
+        return None
+
     events = model['raw_nodes']
     t = hour_decimal % 24
 
@@ -1549,8 +1602,8 @@ def run_optimize_route(payload, api_key=None):
         arr_hour_decimal = (arrival_minutes / 60.0) % 24
         arr_hour_idx = min(23, max(0, int(arr_hour_decimal)))
 
-        is_coastal = best_candidate['habitat'] in ('wetland_estuary', 'marine_coast') or any(k in best_candidate['locName'].lower() for k in ['humedal', 'estuario', 'bahía', 'caulín', 'maullín', 'pullao', 'putemún', 'mar', 'seno', 'costa'])
-        tide_info = get_tide_at_hour(arr_hour_decimal, target_date) if is_coastal else None
+        is_coastal = best_candidate['habitat'] in ('wetland_estuary', 'marine_coast') or any(k in best_candidate['locName'].lower() for k in ['humedal', 'estuario', 'bahía', 'caulín', 'maullín', 'pullao', 'putemún', 'mar', 'seno', 'costa', 'playa', 'caleta', 'roquerío', 'desembocadura'])
+        tide_info = get_tide_at_hour(arr_hour_decimal, target_date, region_code) if is_coastal else None
 
         act_info = calculate_bird_activity_score(arr_hour_decimal, best_candidate['habitat'], hourly_w, arr_hour_idx, tide_info)
 
@@ -1636,7 +1689,38 @@ def run_optimize_route(payload, api_key=None):
     total_birding_minutes = sum(s['birding_minutes'] for s in selected_stops)
     en_route_count = sum(1 for s in selected_stops if s.get('stop_role') == 'en_route')
     all_probable_species = compile_probable_species(selected_stops, recent_obs, region_code)
-    tides_data = get_tide_events_los_lagos(target_date)
+    tides_data = get_tide_events(target_date, region_code)
+
+    # Detect rare or notable observations reported recently near the planned route
+    notable_obs = fetch_notable_observations(region_code, 14, api_key)
+    nearby_notables = []
+    seen_notables = set()
+    route_points = [(s['lat'], s['lng']) for s in selected_stops] + [(start_pt['lat'], start_pt['lng'])]
+    for no in notable_obs:
+        n_lat = no.get('lat')
+        n_lng = no.get('lng')
+        if n_lat is None or n_lng is None:
+            continue
+        min_dist_to_route = min(haversine_km(pt[0], pt[1], n_lat, n_lng) for pt in route_points) if route_points else 999.0
+        if min_dist_to_route <= 32.0:
+            sp_code = no.get('speciesCode') or no.get('comName', '')
+            key = f"{sp_code}_{no.get('locId', '')}"
+            if key not in seen_notables:
+                seen_notables.add(key)
+                nearby_notables.append({
+                    'speciesCode': no.get('speciesCode', ''),
+                    'comName': no.get('comName', ''),
+                    'sciName': no.get('sciName', ''),
+                    'locId': no.get('locId', ''),
+                    'locName': no.get('locName', ''),
+                    'lat': n_lat,
+                    'lng': n_lng,
+                    'obsDt': no.get('obsDt', ''),
+                    'howMany': no.get('howMany', 1),
+                    'dist_km': round(min_dist_to_route, 1),
+                    'subId': no.get('subId', '')
+                })
+    nearby_notables.sort(key=lambda x: x['dist_km'])
 
     return {
         'origin': start_pt,
@@ -1659,6 +1743,7 @@ def run_optimize_route(payload, api_key=None):
             'return_drive_minutes': return_time,
             'num_stops': len(selected_stops),
             'en_route_count': en_route_count,
+            'nearby_notables_count': len(nearby_notables),
             'estimated_total_species': max(len(accumulated_unique_species), round(len(selected_stops) * 9.5 + 26)),
             'total_probable_species_count': len(all_probable_species),
             'sunrise': sunrise_time,
@@ -1666,6 +1751,7 @@ def run_optimize_route(payload, api_key=None):
             'tides': tides_data
         },
         'stops': selected_stops,
+        'nearby_notables': nearby_notables,
         'all_probable_species': all_probable_species,
         'weather_overview': {
             'target_date': target_date,

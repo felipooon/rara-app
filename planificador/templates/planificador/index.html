@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   
   <!-- Custom Modern Design System -->
-  <link rel="stylesheet" href="{% static 'planificador/css/style.css' %}?v=10">
+  <link rel="stylesheet" href="{% static 'planificador/css/style.css' %}?v=14">
   <script>
     window.PLANIFICADOR_API_BASE = '/planificador/api';
     window.RARA_LOGO_URL = "{% static 'img/logo_rara.png' %}";
@@ -118,15 +118,15 @@
             <div class="form-group">
               <label class="form-label" for="routeDate" style="display: flex; justify-content: space-between; align-items: center;">
                 <span>Fecha de la Salida</span>
-                <span id="routeSeasonBadge" style="color: var(--emerald); font-weight: 600; text-transform: none; font-size: 0.75rem;">Primavera austral</span>
+                <span id="routeSeasonBadge" style="color: var(--rara-orange); font-weight: 600; text-transform: none; font-size: 0.75rem;">Primavera austral</span>
               </label>
               <div style="position: relative; display: flex; flex-direction: column; gap: 0.45rem;">
                 <input type="date" id="routeDate" class="form-control" style="font-weight: 600; cursor: pointer;">
-                <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid var(--border-glow); padding: 0.45rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; color: var(--emerald-dark); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                <div style="background: rgba(234, 88, 12, 0.06); border: 1px solid rgba(234, 88, 12, 0.22); padding: 0.45rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; color: #c2410c; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
                   <span id="routeDateFormatted">Cargando fecha...</span>
                   <div style="display: flex; gap: 0.3rem;">
-                    <button type="button" onclick="setQuickRouteDate('today')" style="background: rgba(5, 150, 105, 0.14); border: 1px solid rgba(5, 150, 105, 0.3); color: var(--emerald-dark); font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">Hoy</button>
-                    <button type="button" onclick="setQuickRouteDate('tomorrow')" style="background: rgba(5, 150, 105, 0.14); border: 1px solid rgba(5, 150, 105, 0.3); color: var(--emerald-dark); font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">Mañana</button>
+                    <button type="button" onclick="setQuickRouteDate('today')" style="background: rgba(234, 88, 12, 0.12); border: 1px solid rgba(234, 88, 12, 0.3); color: #c2410c; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">Hoy</button>
+                    <button type="button" onclick="setQuickRouteDate('tomorrow')" style="background: rgba(234, 88, 12, 0.12); border: 1px solid rgba(234, 88, 12, 0.3); color: #c2410c; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">Mañana</button>
                     <button type="button" onclick="setQuickRouteDate('bigday')" title="Fecha Global Big Day (10 de Octubre)" style="background: rgba(245, 158, 11, 0.16); border: 1px solid rgba(245, 158, 11, 0.4); color: #b45309; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; cursor: pointer;">10 Oct</button>
                   </div>
                 </div>
@@ -240,7 +240,7 @@
 
           <!-- Compact Quick Export Action -->
           <div style="margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem;">
-            <button type="button" onclick="downloadRouteFieldPdf()" class="btn-secondary" style="width: 100%; justify-content: center; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--emerald-dark); border-color: var(--border-glow); background: rgba(5, 150, 105, 0.07);">
+            <button type="button" onclick="downloadRouteFieldPdf()" class="btn-secondary" style="width: 100%; justify-content: center; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: #c2410c; border-color: rgba(234, 88, 12, 0.3); background: rgba(234, 88, 12, 0.06);">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
               </svg>
@@ -298,6 +298,9 @@
               <p style="font-size: 0.8rem; color: var(--text-secondary);">Orden flexible sugerido según actividad de las aves, traslados y condiciones del día</p>
             </div>
             <div class="itinerary-action-buttons">
+              <button type="button" class="btn-secondary" onclick="toggleTripReportHelpModal()" id="btnTripReportHelp" style="border-color: #059669; color: #059669; font-weight: 600;">
+                ℹ Tips eBird & Reporte ↗
+              </button>
               <button type="button" class="btn-secondary" onclick="openGoogleMapsRoute()" id="btnOpenGoogleMaps">
                 Abrir en Google Maps ↗
               </button>
@@ -307,6 +310,79 @@
               <button type="button" class="btn-primary btn-pdf-action" onclick="downloadRouteFieldPdf()" id="btnPrintChecklist">
                 Descargar PDF Hoja de Campo
               </button>
+            </div>
+          </div>
+
+          <!-- Modal / Card Desplegable: Guía eBird y Reportes de Viaje -->
+          <div id="ebirdTripReportModal" class="trip-report-modal-wrapper" style="display: none;">
+            <div class="trip-report-modal-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 1.3rem;">📋</span>
+                  <div>
+                    <h3 style="margin: 0; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">
+                      Buenas Prácticas eBird & Reportes de Viaje (Trip Reports)
+                    </h3>
+                    <p style="margin: 2px 0 0 0; font-size: 0.76rem; color: var(--text-secondary);">
+                      Aprende cómo transformar esta jornada en un reporte de viaje colaborativo de alto rigor científico.
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onclick="toggleTripReportHelpModal()" style="background: none; border: none; font-size: 1.3rem; line-height: 1; cursor: pointer; color: var(--text-muted);">&times;</button>
+              </div>
+
+              <div class="trip-report-modal-body">
+                <div class="ebird-tip-step">
+                  <div class="ebird-step-num" style="background: rgba(5, 150, 105, 0.15); color: #059669; font-weight: 800;">1</div>
+                  <div>
+                    <b>Listas individuales por cada parada (No una lista del día completo)</b>
+                    Inicia una lista nueva en cada parada o hotspot. Mantener las observaciones separadas por sitio geográfico permite que la ciencia ciudadana calcule frecuencias reales de presencia y fenología de migración.
+                  </div>
+                </div>
+
+                <div class="ebird-tip-step">
+                  <div class="ebird-step-num" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; font-weight: 800;">2</div>
+                  <div>
+                    <b>Protocolos y conteo exacto de individuos</b>
+                    Elige protocolo <i>Con desplazamiento</i> si caminas por un sendero (&lt; 5 km) o <i>Estacionario</i> si observas desde un punto fijo. Cuenta o estima el número real de individuos vistos u oídos; evita registrar sólo "X".
+                  </div>
+                </div>
+
+                <div class="ebird-tip-step">
+                  <div class="ebird-step-num" style="background: rgba(217, 119, 6, 0.15); color: #d97706; font-weight: 800;">3</div>
+                  <div>
+                    <b>Evidencia y notas para rarezas o aves inusuales</b>
+                    Si el sistema te marca una especie como "Rara" (alerta amarilla o roja), agrega notas descriptivas de campo (plumaje, silueta, pico, sonido) o adjunta fotografías y grabaciones para facilitar la validación del revisor de eBird.
+                  </div>
+                </div>
+
+                <div class="ebird-tip-step">
+                  <div class="ebird-step-num" style="background: rgba(168, 85, 247, 0.15); color: #9333ea; font-weight: 800;">4</div>
+                  <div>
+                    <b>Crear un Reporte de Viaje (eBird Trip Report)</b>
+                    Al terminar el día o fin de semana, ingresa a <a href="https://ebird.org/tripreports" target="_blank" style="color: var(--cyan); font-weight: 600;">ebird.org/tripreports</a>. Con un clic une automáticamente todas tus listas, genera el mapa del recorrido, la lista combinada y te permite compartir el resumen con tus compañeros de expedición.
+                  </div>
+                </div>
+              </div>
+
+              <div class="trip-report-modal-footer" style="border-top: 1px solid var(--border-color); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                  <button type="button" class="btn-secondary" onclick="copySuggestedTripTitle()" style="font-size: 0.76rem; padding: 0.35rem 0.75rem;">
+                    📋 Copiar Título Sugerido para tu Reporte
+                  </button>
+                  <span id="tripTitleCopiedFeedback" style="display: none; font-size: 0.74rem; color: #059669; font-weight: 600;">
+                    ✓ ¡Copiado al portapapeles!
+                  </span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="https://ebird.org/tripreports" target="_blank" class="ebird-open-submit-btn" style="padding: 0.4rem 0.9rem; font-size: 0.78rem;">
+                    Ir a eBird Trip Reports ↗
+                  </a>
+                  <button type="button" class="btn-secondary" onclick="toggleTripReportHelpModal()" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
+                    Cerrar
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -519,9 +595,9 @@
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="{% static 'planificador/js/route_planner.js' %}?v=10"></script>
-  <script src="{% static 'planificador/js/ebird_explorer.js' %}?v=10"></script>
-  <script src="{% static 'planificador/js/species_radar.js' %}?v=10"></script>
-  <script src="{% static 'planificador/js/app.js' %}?v=10"></script>
+  <script src="{% static 'planificador/js/route_planner.js' %}?v=14"></script>
+  <script src="{% static 'planificador/js/ebird_explorer.js' %}?v=14"></script>
+  <script src="{% static 'planificador/js/species_radar.js' %}?v=14"></script>
+  <script src="{% static 'planificador/js/app.js' %}?v=14"></script>
 </body>
 </html>

@@ -380,27 +380,32 @@ function renderRouteResults(data) {
   }
 
   const tideLabelEl = document.getElementById('metricTideLabel');
-  if (tideLabelEl) {
-    const shortPhase = summary.tides?.short_phase || 'Mareas';
-    tideLabelEl.textContent = `${shortPhase} (${dateInfo.shortLabel})`;
+  const tideEl = document.getElementById('metricTideTimes');
+  if (summary.tides && summary.tides.is_coastal === false) {
+    if (tideLabelEl) tideLabelEl.textContent = `Zona Interior (${dateInfo.shortLabel})`;
+    if (tideEl) tideEl.textContent = 'Sin influencia mareal directa';
+  } else {
+    if (tideLabelEl) {
+      const shortPhase = summary.tides?.short_phase || 'Mareas';
+      const portName = summary.tides?.port_name ? ` (${summary.tides.port_name})` : '';
+      tideLabelEl.textContent = `${shortPhase}${portName}`;
+    }
+    if (tideEl) {
+      if (summary.tides && summary.tides.events && summary.tides.events.length >= 2) {
+        const lows = summary.tides.events.filter(e => e.type === 'Bajamar');
+        const highs = summary.tides.events.filter(e => e.type === 'Pleamar');
+        const b1 = lows[0] || summary.tides.events[0];
+        const p1 = highs[highs.length > 1 ? 1 : 0] || summary.tides.events[1];
+        tideEl.textContent = `Baja ${b1.time} (${b1.height_m}m) / Alta ${p1.time} (${p1.height_m}m)`;
+      } else {
+        tideEl.textContent = 'Baja 07:55 (0.7m) / Alta 14:15 (6.5m)';
+      }
+    }
   }
 
   const itineraryTitleEl = document.getElementById('itineraryTitle');
   if (itineraryTitleEl) {
     itineraryTitleEl.textContent = `Ruta Sugerida por Bloques (${dateInfo.dayMonthLong})`;
-  }
-
-  const tideEl = document.getElementById('metricTideTimes');
-  if (tideEl) {
-    if (summary.tides && summary.tides.events && summary.tides.events.length >= 2) {
-      const lows = summary.tides.events.filter(e => e.type === 'Bajamar');
-      const highs = summary.tides.events.filter(e => e.type === 'Pleamar');
-      const b1 = lows[0] || summary.tides.events[0];
-      const p1 = highs[highs.length > 1 ? 1 : 0] || summary.tides.events[1];
-      tideEl.textContent = `Baja ${b1.time} (${b1.height_m}m) / Alta ${p1.time} (${p1.height_m}m)`;
-    } else {
-      tideEl.textContent = 'Baja 07:55 (0.7m) / Alta 14:15 (6.5m)';
-    }
   }
 
   // Update Guide tab tide card to match selected date
@@ -413,14 +418,18 @@ function renderRouteResults(data) {
     guideSubheading.textContent = `Régimen de Mareas del ${dateInfo.dayMonthLong}:`;
   }
   const guideList = document.getElementById('guideTideList');
-  if (guideList && summary.tides && summary.tides.events) {
-    const evLines = summary.tides.events.map(ev => {
-      const desc = ev.type === 'Bajamar'
-        ? 'Planicies intermareales expuestas; alimentación activa de limícolas y flamencos.'
-        : 'Agua alta cubre los llanos; las aves se concentran en dormideros costeros.';
-      return `• <b>${ev.time} hrs (${ev.height_m}m) - ${ev.label}:</b> ${desc}`;
-    }).join('<br>');
-    guideList.innerHTML = `• Fase Lunar: <b>${summary.tides.lunar_phase}</b> (amplitud ~${summary.tides.tidal_range_m}m).<br>${evLines}`;
+  if (guideList) {
+    if (summary.tides && summary.tides.is_coastal === false) {
+      guideList.innerHTML = `• Zona interior / valles precordilleranos sin influencia de mareas astronómicas directas.<br>• El ritmo biológico está determinado por el amanecer (${summary.sunrise}), la temperatura ambiente y la disponibilidad de alimento en el dosel y matorrales.`;
+    } else if (summary.tides && summary.tides.events) {
+      const evLines = summary.tides.events.map(ev => {
+        const desc = ev.type === 'Bajamar'
+          ? 'Planicies intermareales expuestas; alimentación activa de limícolas y flamencos.'
+          : 'Agua alta cubre los llanos; las aves se concentran en dormideros costeros.';
+        return `• <b>${ev.time} hrs (${ev.height_m}m) - ${ev.label}:</b> ${desc}`;
+      }).join('<br>');
+      guideList.innerHTML = `• Puerto de referencia: <b>${summary.tides.port_name || 'Litoral'}</b> • Fase Lunar: <b>${summary.tides.lunar_phase}</b> (amplitud ~${summary.tides.tidal_range_m}m).<br>${evLines}`;
+    }
   }
 
   // Update Map: Connect Punto Base + Intermediate Stops + Tentative Corridor in a complete circuit
@@ -453,14 +462,14 @@ function renderRouteResults(data) {
     stopLatLngs.push([stop.lat, stop.lng]);
     const blockText = stop.day_block_short || 'En ruta';
     const isEnRoute = stop.stop_role === 'en_route';
-    const pinColor = isEnRoute ? '#0284c7' : '#10b981';
+    const pinColor = isEnRoute ? '#0284c7' : '#ea580c';
     const roleBadgeText = isEnRoute ? 'Punto Intermedio de Camino' : (stop.stop_role_label || 'Ruta Tentativa');
 
     const marker = L.marker([stop.lat, stop.lng], {
       icon: createCustomPin(stop.stop_number, pinColor)
     }).bindPopup(`
       <div style="font-family: sans-serif; min-width: 215px; padding: 4px;">
-        <div style="font-size: 11px; text-transform: uppercase; color: ${isEnRoute ? '#0284c7' : '#059669'}; font-weight: 700;">
+        <div style="font-size: 11px; text-transform: uppercase; color: ${isEnRoute ? '#0284c7' : '#ea580c'}; font-weight: 700;">
           Parada ${stop.stop_number} • ${roleBadgeText}
         </div>
         <h4 style="margin: 4px 0; font-size: 14px; font-weight: 700; color: #0f172a;">${stop.locName}</h4>
@@ -479,6 +488,35 @@ function renderRouteResults(data) {
     routeLayerGroup.addLayer(marker);
   });
 
+  // Render Notable / Rare Species nearby on map
+  window._notableMarkers = {};
+  const nearbyNotables = data.nearby_notables || [];
+  nearbyNotables.forEach(n => {
+    allBoundsLatLngs.push([n.lat, n.lng]);
+    const key = `${Number(n.lat).toFixed(4)},${Number(n.lng).toFixed(4)}`;
+    const nMarker = L.marker([n.lat, n.lng], {
+      icon: createCustomPin('⚡', '#f43f5e')
+    }).bindPopup(`
+      <div style="font-family: sans-serif; min-width: 215px; padding: 4px;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #f43f5e; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+          <span>⚡ Registro Destacado eBird</span>
+        </div>
+        <h4 style="margin: 4px 0 2px 0; font-size: 13.5px; font-weight: 700; color: #0f172a;">${n.comName}</h4>
+        <div style="font-size: 11.5px; font-style: italic; color: #64748b; margin-bottom: 4px;">${n.sciName}</div>
+        <div style="font-size: 11.8px; color: #334155; margin-bottom: 6px; line-height: 1.4;">
+          📍 <b>${n.locName}</b><br>
+          🗓 <b>${n.obsDt}</b> ${n.howMany ? `• Cant.: <b>${n.howMany}</b>` : ''}<br>
+          📏 A <b>${n.distance_km} km</b> de la ruta (${n.nearest_stop_name || 'parada cercana'})
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 6px;">
+          ${n.subId ? `<a href="https://ebird.org/checklist/${n.subId}" target="_blank" style="color: #f43f5e; font-size: 11.5px; font-weight: 700; text-decoration: none;">Ver Lista eBird ↗</a>` : `<a href="https://ebird.org/hotspot/${n.locId}" target="_blank" style="color: #f43f5e; font-size: 11.5px; font-weight: 700; text-decoration: none;">Ver Hotspot ↗</a>`}
+        </div>
+      </div>
+    `);
+    routeLayerGroup.addLayer(nMarker);
+    window._notableMarkers[key] = nMarker;
+  });
+
   // 1. Connection line from Punto Base to First Stop (Approach / Intermediate stop)
   if (stops.length > 0) {
     L.polyline([[origin.lat, origin.lng], [stops[0].lat, stops[0].lng]], {
@@ -493,7 +531,7 @@ function renderRouteResults(data) {
   // 2. Main route polyline connecting birding stops
   if (stopLatLngs.length >= 2) {
     L.polyline(stopLatLngs, {
-      color: '#10b981',
+      color: '#ea580c',
       weight: 4.5,
       opacity: 0.95,
       lineCap: 'round',
@@ -551,7 +589,65 @@ function renderRouteResults(data) {
   ];
 
   const timelineEl = document.getElementById('timelineContainer');
-  let timelineHtml = `
+
+  let notablesBannerHtml = '';
+  if (nearbyNotables && nearbyNotables.length > 0) {
+    let pillsHtml = '';
+    nearbyNotables.forEach(n => {
+      const safeLoc = (n.locName || '').replace(/'/g, "\\'");
+      const checklistUrl = n.subId ? `https://ebird.org/checklist/${n.subId}` : `https://ebird.org/hotspot/${n.locId}`;
+      pillsHtml += `
+        <div class="notable-pill-card">
+          <div style="min-width: 200px; flex: 1;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span style="font-weight: 700; color: #e11d48; font-size: 0.88rem;">⚡ ${n.comName}</span>
+              <span style="font-size: 0.77rem; font-style: italic; color: var(--text-muted);">(${n.sciName})</span>
+              <span style="background: rgba(244, 63, 94, 0.12); color: #e11d48; font-size: 0.68rem; font-weight: 700; padding: 1px 7px; border-radius: 999px;">
+                a ${n.distance_km} km de la ruta
+              </span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">
+              📍 ${n.locName} • 🗓 ${n.obsDt} ${n.howMany ? `(${n.howMany} ind.)` : ''}
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button type="button" class="btn-secondary" onclick="focusNotableOnMap(${n.lat}, ${n.lng}, '${safeLoc}')" style="padding: 3px 8px; font-size: 0.72rem; border-color: rgba(244, 63, 94, 0.4); color: #e11d48;">
+              📍 Ver en Mapa
+            </button>
+            <a href="${checklistUrl}" target="_blank" class="stop-ebird-link" style="color: #e11d48; border-color: rgba(244, 63, 94, 0.35);">
+              Lista eBird ↗
+            </a>
+          </div>
+        </div>
+      `;
+    });
+
+    notablesBannerHtml = `
+      <div class="notable-alert-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.15rem;">⚡</span>
+            <div>
+              <h4 style="margin: 0; font-family: var(--font-heading); font-size: 0.94rem; font-weight: 700; color: #e11d48;">
+                Rarezas y Registros Notables Cercanos (${nearbyNotables.length})
+              </h4>
+              <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: var(--text-secondary);">
+                Aves inusuales reportadas en eBird en los últimos 14 días a &le; 32 km de tu itinerario
+              </p>
+            </div>
+          </div>
+          <span style="background: rgba(244, 63, 94, 0.12); color: #be123c; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;">
+            Últimos 14 días
+          </span>
+        </div>
+        <div class="notable-pills-row">
+          ${pillsHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  let timelineHtml = notablesBannerHtml + `
     <!-- Base Point & Corridor Circuit Summary Card -->
     <div class="base-route-summary-grid">
       <div class="base-route-summary-card base-card">
@@ -572,11 +668,11 @@ function renderRouteResults(data) {
       </div>
 
       <div class="base-route-summary-card route-card">
-        <div class="base-route-icon" style="background: #059669; font-size: 0.88rem;">
+        <div class="base-route-icon" style="background: #ea580c; font-size: 0.88rem;">
           1–${stops.length}
         </div>
         <div style="min-width: 0;">
-          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: #047857; font-weight: 800;">
+          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: #c2410c; font-weight: 800;">
             Ruta Tentativa Seleccionada
           </div>
           <div style="font-size: 0.94rem; font-weight: 700; color: var(--text-primary); margin-top: 1px;">
@@ -595,7 +691,7 @@ function renderRouteResults(data) {
     if (blockStops.length === 0) return;
 
     timelineHtml += `
-      <div style="margin-bottom: 1.35rem;">
+      <div class="day-block-group" style="margin-bottom: 1.35rem;">
         <div class="day-block-header" style="background: ${block.bg}; border-left: 4px solid ${block.accent};">
           <div>
             <h4 style="margin: 0; font-family: var(--font-heading); font-size: 0.98rem; font-weight: 700; color: var(--text-primary);">
@@ -668,6 +764,31 @@ function renderRouteResults(data) {
               <a href="https://ebird.org/hotspot/${stop.locId}" target="_blank" class="stop-ebird-link">
                 eBird ↗
               </a>
+              <div class="ebird-tip-anchor">
+                <button type="button" class="ebird-tip-pill-btn" onclick="toggleEbirdStopTip(event, ${stop.stop_number})" title="Ver consejo para registrar este sitio en eBird">
+                  ℹ Tip eBird
+                </button>
+                <div id="ebirdStopTip_${stop.stop_number}" class="ebird-tip-popover" style="display: none;" onclick="event.stopPropagation()">
+                  <div class="ebird-popover-arrow"></div>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 4px;">
+                      💡 Consejo eBird:
+                    </span>
+                    <button type="button" onclick="toggleEbirdStopTip(event, ${stop.stop_number})" style="background: none; border: none; font-size: 1.15rem; line-height: 1; cursor: pointer; color: var(--text-muted); padding: 0 4px;">&times;</button>
+                  </div>
+                  <p style="margin: 5px 0 7px 0; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.45;">
+                    ${getStopEbirdAdvice(stop)}
+                  </p>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center; justify-content: space-between; border-top: 1px dashed rgba(2, 132, 199, 0.2); padding-top: 5px; margin-top: 4px;">
+                    <span style="font-size: 0.69rem; color: var(--text-muted);">
+                      Protocolo: <b>${isEnRoute ? 'Con desplazamiento (< 1 km)' : 'Desplazamiento (1-2 km) o Estacionario'}</b>
+                    </span>
+                    <a href="https://ebird.org/submit" target="_blank" class="ebird-open-submit-btn" style="padding: 2px 8px; font-size: 0.71rem;">
+                      Subir Lista ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -938,8 +1059,11 @@ function downloadRouteFieldPdf() {
   const logoUrl = window.location.origin + (window.RARA_LOGO_URL || '/static/img/logo_rara.png');
 
   let tideSummaryStr = 'Sin marea relevante';
-  if (summary.tides && Array.isArray(summary.tides.events) && summary.tides.events.length >= 2) {
-    tideSummaryStr = summary.tides.events.map(e => `${e.type} ${e.time} (${e.height_m}m)`).join(' • ');
+  if (summary.tides && summary.tides.is_coastal === false) {
+    tideSummaryStr = 'Zona Interior (sin influencia mareal)';
+  } else if (summary.tides && Array.isArray(summary.tides.events) && summary.tides.events.length >= 2) {
+    const portPrefix = summary.tides.port_name ? `${summary.tides.port_name}: ` : '';
+    tideSummaryStr = portPrefix + summary.tides.events.map(e => `${e.type} ${e.time} (${e.height_m}m)`).join(' • ');
   }
 
   const blockLabels = {
@@ -1320,4 +1444,132 @@ function downloadRouteFieldPdf() {
 
 function printFieldChecklist() {
   downloadRouteFieldPdf();
+}
+
+// ----------------------------------------------------------------------------
+// eBird Best Practices, Trip Reports & Rare Species Map Focus Helpers
+// ----------------------------------------------------------------------------
+
+function getStopEbirdAdvice(stop) {
+  const hab = (stop.habitat || stop.habitat_label || '').toLowerCase();
+  const isEnRoute = stop.stop_role === 'en_route';
+
+  if (isEnRoute) {
+    return 'Al ser una parada intermedia rápida (15 a 30 min), usa protocolo <b>"Con Desplazamiento"</b> corto (&lt; 1 km) o <b>"Estacionario"</b>. Registra todos los individuos detectados y asocia la lista a este hotspot para mantener la coherencia geográfica.';
+  }
+  if (hab.includes('humedal') || hab.includes('costa') || hab.includes('estuario') || hab.includes('marino') || hab.includes('lago') || hab.includes('playa')) {
+    return 'En humedales y costas ingresa conteos numéricos reales o estimados (evita usar solo "X"). Si observas chorlos, playeros o gaviotas poco comunes, añade notas de plumaje, pico o comportamiento para facilitar la validación del revisor de eBird.';
+  }
+  if (hab.includes('bosque') || hab.includes('selva') || hab.includes('cordillera') || hab.includes('parque')) {
+    return 'En bosque templado y sotobosque, la mayoría de los registros serán auditivos (Chucao, Tapaculo, Huet-huet). Camina en silencio y apóyate en Merlin Sound ID o grabaciones de audio de respaldo si dudas de la identificación.';
+  }
+  return 'Abre la app eBird Móvil apenas inicies el recorrido en este sitio. Si reportas todas las especies identificadas con esfuerzo dedicado, responde <b>"Sí"</b> a la pregunta de lista completa.';
+}
+
+function focusNotableOnMap(lat, lng, locName) {
+  if (!routeMap) return;
+  const mapEl = document.getElementById('routeMap');
+  if (mapEl) {
+    mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  routeMap.setView([lat, lng], 13, { animate: true });
+  const key = `${Number(lat).toFixed(4)},${Number(lng).toFixed(4)}`;
+  if (window._notableMarkers && window._notableMarkers[key]) {
+    window._notableMarkers[key].openPopup();
+  }
+}
+
+let activeStopTipId = null;
+
+function toggleEbirdStopTip(event, stopNumber) {
+  if (event) {
+    event.stopPropagation();
+  }
+  const targetId = `ebirdStopTip_${stopNumber}`;
+  const el = document.getElementById(targetId);
+  if (!el) return;
+
+  const isAlreadyOpen = el.style.display === 'block';
+
+  // Close any other open popovers and reset card/block z-indices
+  document.querySelectorAll('.ebird-tip-popover').forEach(pop => {
+    pop.style.display = 'none';
+  });
+  document.querySelectorAll('.stop-card-item').forEach(card => {
+    card.classList.remove('active-tip-card');
+  });
+  document.querySelectorAll('.day-block-group').forEach(blk => {
+    blk.classList.remove('active-tip-block');
+  });
+
+  if (!isAlreadyOpen) {
+    el.style.display = 'block';
+    activeStopTipId = targetId;
+
+    const parentCard = el.closest('.stop-card-item');
+    if (parentCard) {
+      parentCard.classList.add('active-tip-card');
+      const parentBlock = parentCard.closest('.day-block-group');
+      if (parentBlock) {
+        parentBlock.classList.add('active-tip-block');
+      }
+    }
+  } else {
+    activeStopTipId = null;
+  }
+}
+
+// Global click-outside listener to dismiss the floating balloon
+document.addEventListener('click', (e) => {
+  if (activeStopTipId) {
+    const pop = document.getElementById(activeStopTipId);
+    if (pop && !pop.contains(e.target) && !e.target.closest('.ebird-tip-pill-btn')) {
+      pop.style.display = 'none';
+      activeStopTipId = null;
+      document.querySelectorAll('.stop-card-item').forEach(card => {
+        card.classList.remove('active-tip-card');
+      });
+      document.querySelectorAll('.day-block-group').forEach(blk => {
+        blk.classList.remove('active-tip-block');
+      });
+    }
+  }
+});
+
+function toggleTripReportHelpModal() {
+  const el = document.getElementById('ebirdTripReportModal');
+  if (!el) return;
+  if (el.style.display === 'none' || el.style.display === '') {
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function copySuggestedTripTitle() {
+  const regSelect = document.getElementById('routeRegion');
+  const regName = regSelect && regSelect.selectedIndex >= 0 ? regSelect.options[regSelect.selectedIndex].text.split('(')[0].trim() : 'Chile';
+  const dateVal = document.getElementById('routeDate')?.value || new Date().toISOString().slice(0, 10);
+  const dateParts = dateVal.split('-');
+  const y = dateParts[0];
+  const m = dateParts[1];
+  const d = dateParts[2];
+  const title = `Pajareo en ${regName} - ${d}/${m}/${y} [Rara App]`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(title).then(() => {
+      const feedback = document.getElementById('tripTitleCopiedFeedback');
+      if (feedback) {
+        feedback.style.display = 'inline';
+        setTimeout(() => {
+          feedback.style.display = 'none';
+        }, 3500);
+      }
+    }).catch(() => {
+      prompt('Copia el título sugerido:', title);
+    });
+  } else {
+    prompt('Copia el título sugerido:', title);
+  }
 }
