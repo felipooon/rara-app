@@ -422,20 +422,20 @@ if (!links.contains(e.target) && !toggle.contains(e.target)) {
     <div style="padding: 12px 18px; border-bottom: 1px solid rgba(0,0,0,0.06); background: {% if carrito.tiene_entrega_gratis %}rgba(240, 253, 244, 0.92){% else %}rgba(255, 251, 235, 0.92){% endif %}; flex-shrink: 0;">
         {% if carrito.tiene_entrega_gratis %}
             <div style="font-size: 0.82rem; color: #15803d; font-weight: 700; margin-bottom: 6px; line-height: 1.35;">
-                🎉 ¡Desbloqueaste <strong>Entrega Presencial GRATIS ($0)</strong> en Puerto Montt o Puerto Varas!
+                🎉 ¡Desbloqueaste <strong>Reparto Local GRATIS ($0)</strong> en Puerto Montt o Puerto Varas!
             </div>
             <div style="width: 100%; height: 7px; background: #dcfce7; border-radius: 999px; overflow: hidden;">
                 <div style="width: 100%; height: 100%; background: #16a34a; border-radius: 999px;"></div>
             </div>
         {% else %}
             <div style="font-size: 0.82rem; color: #92400e; font-weight: 600; margin-bottom: 6px; line-height: 1.35;">
-                🤝 ¡Te faltan <strong style="color: #d97706;">${{ carrito.falta_para_entrega_gratis }}</strong> para <strong>Entrega Presencial GRATIS</strong> en Puerto Montt o Puerto Varas!
+                🚗 ¡Te faltan <strong style="color: #d97706;">${{ carrito.falta_para_entrega_gratis }}</strong> para <strong>Reparto Local GRATIS</strong> en Puerto Montt o Puerto Varas!
             </div>
             <div style="width: 100%; height: 7px; background: #fde68a; border-radius: 999px; overflow: hidden; margin-bottom: 4px;">
                 <div style="width: {{ carrito.porcentaje_entrega_gratis }}%; height: 100%; background: linear-gradient(90deg, #fca311, #16a34a); border-radius: 999px; transition: width 0.35s ease;"></div>
             </div>
             <div style="font-size: 0.72rem; color: #78350f;">
-                Sobre ${{ carrito.minimo_entrega_gratis }} es Gratis ($0) · Bajo ese monto cuesta solo ${{ carrito.costo_entrega_reducido }}
+                Sobre ${{ carrito.minimo_entrega_gratis }} es Gratis ($0) · Bajo ese monto el reparto local cuesta solo ${{ carrito.costo_entrega_reducido }}
             </div>
         {% endif %}
     </div>

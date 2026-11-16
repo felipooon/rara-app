@@ -407,7 +407,7 @@ class Pedido(models.Model):
     TIPO_ENTREGA_CHOICES = (
         ('PUNTO_BLUE', 'Punto Blue Express / Copec'),
         ('DOMICILIO', 'Entrega a Domicilio'),
-        ('RETIRO', 'Entrega Presencial (Puerto Montt o Puerto Varas)'),
+        ('RETIRO', 'Reparto Local (Puerto Montt o Puerto Varas)'),
     )
 
     # 1. Datos del cliente (Compra como invitado)

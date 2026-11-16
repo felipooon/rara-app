@@ -126,7 +126,7 @@ class Carrito:
     @property
     def minimo_entrega_gratis(self):
         """Monto mínimo para Entrega Presencial Gratis en Puerto Montt o Puerto Varas."""
-        return 15000
+        return 25000
 
     @property
     def costo_entrega_reducido(self):

@@ -15,7 +15,7 @@ from django.conf import settings
 ORIGEN_TIENDA_COMUNA = "Puerto Montt"
 ORIGEN_TIENDA_REGION = "Región de Los Lagos"
 
-MONTO_MINIMO_ENTREGA_PRESENCIAL_GRATIS = 15000
+MONTO_MINIMO_ENTREGA_PRESENCIAL_GRATIS = 25000
 COSTO_ENTREGA_PRESENCIAL_REDUCIDO = 1500
 
 BLUE_API_URL = "https://pudom.api.blue.cl/pdoohd/agencies-external/v3/filters?country_id=75&status=1"

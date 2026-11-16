@@ -348,12 +348,12 @@ def procesar_pedido(request):
             punto_blue_direccion = punto_obj.get('direccion_completa', '')
             direccion_guardar = f"Punto Blue: {punto_blue_nombre} ({punto_blue_direccion})"
         elif tipo_entrega == 'RETIRO':
-            empresa_transporte = 'Entrega Presencial'
+            empresa_transporte = 'Reparto Local'
             nota_retiro = (request.POST.get('nota_retiro') or '').strip()
             direccion_guardar = (
-                f"Entrega presencial en {comuna_canonica} — A coordinar ({nota_retiro})"
+                f"Reparto Local en {comuna_canonica}: {nota_retiro}"
                 if nota_retiro
-                else f"Entrega presencial en {comuna_canonica} — A coordinar con la tienda"
+                else f"Reparto Local en {comuna_canonica} (A coordinar por WhatsApp)"
             )
         else:
             direccion_domicilio = (request.POST.get('direccion') or '').strip()
@@ -407,7 +407,7 @@ def procesar_pedido(request):
         if tipo_entrega == "PUNTO_BLUE":
             modalidad_label = "Punto Blue Express"
         elif tipo_entrega == "RETIRO":
-            modalidad_label = "Entrega Presencial"
+            modalidad_label = "Reparto Local"
         else:
             modalidad_label = "Domicilio Blue Express"
         detalles_creacion = (

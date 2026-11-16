@@ -111,7 +111,7 @@
 
                         <button type="button" class="bx-delivery-card" data-tipo="RETIRO" onclick="seleccionarModalidadCheckout('RETIRO')">
                             <div class="bx-delivery-card-top">
-                                <strong>🤝 Entrega Presencial</strong>
+                                <strong>🚗 Reparto Local</strong>
                                 <span id="bx-card-precio-retiro" class="bx-price-tag {% if costo_retiro_actual == 0 %}bx-price-free{% endif %}">
                                     {% if costo_retiro_actual == 0 %}Gratis ($0){% else %}${{ costo_retiro_actual }}{% endif %}
                                 </span>
@@ -206,20 +206,20 @@
                         >
                     </div>
 
-                    <!-- OPCIÓN C: Entrega Presencial (Exclusivo Puerto Montt o Puerto Varas) -->
+                    <!-- OPCIÓN C: Reparto Local (Exclusivo Puerto Montt o Puerto Varas) -->
                     <div id="bx-bloque-retiro" style="display: none;">
                         <div class="retiro-info-banner">
                             {% if falta_entrega_gratis == 0 %}
                                 <div style="font-weight: 800; font-size: 0.94rem; color: #14532d; margin-bottom: 4px;">
-                                    🎉 ¡Tienes Entrega Presencial GRATIS ($0) en Puerto Montt o Puerto Varas!
+                                    🎉 ¡Tienes Reparto Local GRATIS ($0) en Puerto Montt o Puerto Varas!
                                 </div>
                             {% else %}
                                 <div style="font-weight: 800; font-size: 0.94rem; color: #14532d; margin-bottom: 4px;">
-                                    🤝 Entrega Presencial en Puerto Montt o Puerto Varas (${{ costo_retiro_actual }} · Gratis desde ${{ minimo_entrega_gratis }})
+                                    🚗 Reparto Local en Puerto Montt o Puerto Varas (${{ costo_retiro_actual }} · Gratis desde ${{ minimo_entrega_gratis }})
                                 </div>
                                 <div style="margin: 8px 0 10px 0; background: #fff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 9px 12px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.8rem; color: #166534; font-weight: 700; margin-bottom: 5px;">
-                                        <span>¡Te faltan <strong>${{ falta_entrega_gratis }}</strong> para que tu entrega presencial sea <strong>GRATIS ($0)</strong>!</span>
+                                        <span>¡Te faltan <strong>${{ falta_entrega_gratis }}</strong> para que tu <strong>Reparto Local sea GRATIS ($0)</strong>!</span>
                                         <a href="/#catalogo" style="color: #0055b8; text-decoration: none; white-space: nowrap;">+ Agregar productos</a>
                                     </div>
                                     <div style="width: 100%; height: 7px; background: #dcfce7; border-radius: 999px; overflow: hidden;">
@@ -228,14 +228,14 @@
                                 </div>
                             {% endif %}
                             <p style="margin: 0; font-size: 0.84rem; color: #166534; line-height: 1.45;">
-                                Una vez confirmado tu pago, te contactaremos por WhatsApp para coordinar el punto de encuentro, día y horario de entrega en <strong>Puerto Montt</strong> o <strong>Puerto Varas</strong>.
+                                Te llevamos tu pedido dentro del radio urbano o al punto que más te acomode en <strong>Puerto Montt</strong> o <strong>Puerto Varas</strong>. Una vez confirmado el pago, coordinaremos por WhatsApp la entrega.
                             </p>
                         </div>
 
                         <input type="hidden" id="ciudad_retiro_input" name="ciudad_retiro" value="{{ datos_previos.ciudad_retiro|default:'Puerto Montt' }}">
                         <div style="margin-bottom: 12px;">
                             <label class="field-label" style="color: #002b5c;">
-                                ¿En cuál ciudad prefieres coordinar la entrega?
+                                ¿En cuál ciudad realizamos el reparto local?
                             </label>
                             <div class="retiro-city-pills">
                                 <button type="button" class="retiro-city-pill active" data-ciudad="Puerto Montt" onclick="seleccionarCiudadRetiro('Puerto Montt')">
@@ -249,7 +249,7 @@
 
                         <div>
                             <label for="nota_retiro_input" class="field-label" style="color: #002b5c;">
-                                Comentario o disponibilidad horaria (opcional)
+                                Dirección o punto de entrega en tu ciudad (y horario preferido)
                             </label>
                             <input
                                 type="text"
@@ -258,7 +258,7 @@
                                 value="{{ datos_previos.nota_retiro }}"
                                 class="input-checkout"
                                 style="background: #fff;"
-                                placeholder="Ej: Prefiero coordinar en el centro por la tarde..."
+                                placeholder="Ej: Calle Los Carrera 123, o en mi trabajo en el centro por la tarde..."
                             >
                         </div>
                     </div>
@@ -274,24 +274,24 @@
                     <span class="summary-items-badge">{{ carrito|length }} ítem(s)</span>
                 </div>
 
-                <!-- Barra de Progreso Entrega Presencial Gratis (Puerto Montt o Puerto Varas) -->
+                <!-- Barra de Progreso Reparto Local Gratis (Puerto Montt o Puerto Varas) -->
                 <div style="margin-bottom: 14px; padding: 10px 12px; border-radius: 10px; border: 1px solid {% if falta_entrega_gratis == 0 %}#bbf7d0{% else %}#fde68a{% endif %}; background: {% if falta_entrega_gratis == 0 %}#f0fdf4{% else %}#fffbeb{% endif %};">
                     {% if falta_entrega_gratis == 0 %}
                         <div style="font-size: 0.8rem; color: #15803d; font-weight: 700; margin-bottom: 5px;">
-                            🎉 ¡Entrega Presencial <strong>GRATIS ($0)</strong> disponible en Puerto Montt o Puerto Varas!
+                            🎉 ¡Reparto Local <strong>GRATIS ($0)</strong> disponible en Puerto Montt o Puerto Varas!
                         </div>
                         <div style="width: 100%; height: 6px; background: #dcfce7; border-radius: 999px; overflow: hidden;">
                             <div style="width: 100%; height: 100%; background: #16a34a; border-radius: 999px;"></div>
                         </div>
                     {% else %}
                         <div style="font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 5px; line-height: 1.35;">
-                            🤝 ¡Faltan <strong style="color: #d97706;">${{ falta_entrega_gratis }}</strong> para <strong>Entrega Presencial GRATIS</strong> en Puerto Montt o Puerto Varas!
+                            🚗 ¡Faltan <strong style="color: #d97706;">${{ falta_entrega_gratis }}</strong> para <strong>Reparto Local GRATIS</strong> en Puerto Montt o Puerto Varas!
                         </div>
                         <div style="width: 100%; height: 6px; background: #fde68a; border-radius: 999px; overflow: hidden; margin-bottom: 4px;">
                             <div style="width: {{ porcentaje_entrega_gratis }}%; height: 100%; background: linear-gradient(90deg, #fca311, #16a34a); border-radius: 999px;"></div>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #78350f;">
-                            <span>Bajo ${{ minimo_entrega_gratis }} cuesta solo ${{ costo_entrega_reducido }}</span>
+                            <span>Bajo ${{ minimo_entrega_gratis }} el reparto local cuesta solo ${{ costo_entrega_reducido }}</span>
                             <a href="/#catalogo" style="color: #d97706; font-weight: 700; text-decoration: none;">+ Agregar más</a>
                         </div>
                     {% endif %}
@@ -1467,7 +1467,7 @@
             document.getElementById("bx-card-precio-dom").textContent = formatPesos(data.precio_domicilio);
             document.getElementById("bx-ahorro-badge").textContent = `Ahorras ${formatPesos(data.ahorro_punto)}`;
 
-            const precioRetiro = Number(data.precio_retiro ?? (SUBTOTAL_PRODUCTOS >= 15000 ? 0 : 1500));
+            const precioRetiro = Number(data.precio_retiro ?? (SUBTOTAL_PRODUCTOS >= 25000 ? 0 : 1500));
             const cardRetiroEl = document.getElementById("bx-card-precio-retiro");
             if (cardRetiroEl) {
                 cardRetiroEl.textContent = precioRetiro === 0 ? "Gratis ($0)" : formatPesos(precioRetiro);
@@ -1482,13 +1482,13 @@
 
             if (bxState.tipoEntrega === "RETIRO") {
                 document.getElementById("resumen-envio-texto").textContent =
-                    `🤝 Entrega Presencial (${bxState.ciudadRetiro}):`;
+                    `🚗 Reparto Local (${bxState.ciudadRetiro}):`;
                 document.getElementById("resumen-envio-monto").textContent =
                     costoEnvio === 0 ? "Gratis ($0)" : formatPesos(costoEnvio);
                 if (plazoEl) {
                     plazoEl.textContent = costoEnvio === 0
-                        ? "Gratis por compras sobre $15.000 · Coordinación por WhatsApp"
-                        : "Tarifa reducida bajo $15.000 (Gratis sobre $15.000) · Coordinación por WhatsApp";
+                        ? "Reparto local gratis por compras sobre $25.000 · Coordinación por WhatsApp"
+                        : "Reparto local en tu ciudad (Gratis sobre $25.000) · Coordinación por WhatsApp";
                 }
             } else {
                 const modTexto = bxState.tipoEntrega === "PUNTO_BLUE" ? "Punto Blue" : "Domicilio";
