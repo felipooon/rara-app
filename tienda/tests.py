@@ -479,4 +479,117 @@ class PosYCodigosBarraTests(TestCase):
         self.assertIn("780492711850", resp_html.content.decode('utf-8'))
 
 
+class BlueExpressIntegrationTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth.models import User
+        self.staff_user = User.objects.create_user(username='admin_bx', password='password123', is_staff=True)
+        self.categoria = Categoria.objects.create(nombre="Aves")
+        self.producto = Producto.objects.create(
+            categoria=self.categoria,
+            nombre="Pin Martín Pescador",
+            precio=10000,
+            stock=10,
+            disponible=True
+        )
+
+    def test_calculo_tarifas_desde_puerto_montt(self):
+        from .comunas_chile import calcular_envio_detalle
+        # Misma región (Los Lagos): RM
+        res_local = calcular_envio_detalle(
+            origen_comuna="Puerto Montt",
+            destino_comuna="Puerto Varas",
+            talla="XS",
+            tipo_entrega="PUNTO_BLUE"
+        )
+        self.assertEqual(res_local["zona"], "RM")
+        self.assertEqual(res_local["precio_punto"], 2600)
+        self.assertEqual(res_local["precio_domicilio"], 3100)
+        self.assertEqual(res_local["precio_seleccionado"], 2600)
+
+        # Zona Centro (Santiago): CENTRO
+        res_centro = calcular_envio_detalle(
+            origen_comuna="Puerto Montt",
+            destino_comuna="Santiago",
+            talla="XS",
+            tipo_entrega="DOMICILIO"
+        )
+        self.assertEqual(res_centro["zona"], "CENTRO")
+        self.assertEqual(res_centro["precio_punto"], 3800)
+        self.assertEqual(res_centro["precio_domicilio"], 4300)
+        self.assertEqual(res_centro["precio_seleccionado"], 4300)
+
+        # Zona Extrema (Punta Arenas): EXTREMO
+        res_extremo = calcular_envio_detalle(
+            origen_comuna="Puerto Montt",
+            destino_comuna="Punta Arenas",
+            talla="XS",
+            tipo_entrega="PUNTO_BLUE"
+        )
+        self.assertEqual(res_extremo["zona"], "EXTREMO")
+        self.assertEqual(res_extremo["precio_punto"], 4700)
+        self.assertEqual(res_extremo["precio_domicilio"], 5200)
+
+    def test_api_blue_express_data_y_calcular(self):
+        import json
+        resp_data = self.client.get('/api/blue-express/data/')
+        self.assertEqual(resp_data.status_code, 200)
+        json_data = resp_data.json()
+        self.assertEqual(json_data['origen_tienda_comuna'], 'Puerto Montt')
+        self.assertGreater(json_data['total_puntos'], 100)
+
+        resp_calc = self.client.post(
+            '/api/blue-express/calcular/',
+            data=json.dumps({
+                'origen_comuna': 'Puerto Montt',
+                'destino_comuna': 'Santiago',
+                'talla': 'XS',
+                'tipo_entrega': 'PUNTO_BLUE'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(resp_calc.status_code, 200)
+        calc_json = resp_calc.json()
+        self.assertTrue(calc_json['ok'])
+        self.assertEqual(calc_json['precio_seleccionado'], 3800)
+
+    def test_checkout_con_punto_blue_incluye_envio_en_total(self):
+        from .comunas_chile import obtener_puntos_blue_por_comuna
+        from django.test import override_settings
+
+        puntos_stgo = obtener_puntos_blue_por_comuna("Santiago")
+        self.assertGreater(len(puntos_stgo), 0)
+        punto_elegido = puntos_stgo[0]
+
+        self.client.post(f'/carrito/agregar/{self.producto.id}/', {'cantidad': 2})
+
+        with override_settings(MP_ACCESS_TOKEN=""):
+            resp = self.client.post('/checkout/', {
+                'nombre_completo': 'Cliente Prueba',
+                'rut': '11.111.111-1',
+                'email': 'cliente@ejemplo.com',
+                'telefono': '912345678',
+                'ciudad': 'Santiago',
+                'tipo_entrega': 'PUNTO_BLUE',
+                'punto_blue_id': punto_elegido['id'],
+                'direccion': '',
+                'terminos_aceptados': 'on'
+            })
+        self.assertEqual(resp.status_code, 302)
+        pedido = Pedido.objects.latest('id')
+        self.assertEqual(pedido.ciudad, 'Santiago')
+        self.assertEqual(pedido.tipo_entrega, 'PUNTO_BLUE')
+        self.assertEqual(pedido.punto_blue_id, punto_elegido['id'])
+        self.assertEqual(pedido.costo_envio, 3800)
+        self.assertEqual(pedido.get_total_cost(), 20000)
+        self.assertEqual(pedido.get_total_final(), 23800)
+
+    def test_panel_calculadora_blue_vista(self):
+        self.client.login(username='admin_bx', password='password123')
+        resp = self.client.get('/panel/calculadora-blue/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Calculadora Blue Express")
+        self.assertContains(resp, "Actualizar Puntos")
+
+
+
 

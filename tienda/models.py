@@ -317,6 +317,12 @@ class Pedido(models.Model):
         ('CANCELADO', 'Cancelado'),
     )
 
+    TIPO_ENTREGA_CHOICES = (
+        ('PUNTO_BLUE', 'Punto Blue Express / Copec'),
+        ('DOMICILIO', 'Entrega a Domicilio'),
+        ('RETIRO', 'Entrega Presencial (Puerto Montt o Puerto Varas)'),
+    )
+
     # 1. Datos del cliente (Compra como invitado)
     nombre_completo = models.CharField(max_length=200)
     rut = models.CharField(max_length=12, help_text="Formato: 12.345.678-9")
@@ -324,14 +330,23 @@ class Pedido(models.Model):
     telefono = models.CharField(max_length=20)
     direccion = models.CharField(max_length=250)
     ciudad = models.CharField(max_length=100, default="Puerto Montt")
+    region = models.CharField(max_length=120, blank=True, default="Región de Los Lagos")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
-    # 2. Estado y Seguimiento de Envío
+    # 2. Modalidad y Costo de Envío Blue Express
+    tipo_entrega = models.CharField(max_length=30, choices=TIPO_ENTREGA_CHOICES, default='PUNTO_BLUE')
+    punto_blue_id = models.IntegerField(null=True, blank=True)
+    punto_blue_nombre = models.CharField(max_length=250, blank=True, default='')
+    punto_blue_direccion = models.CharField(max_length=300, blank=True, default='')
+    talla_envio = models.CharField(max_length=10, blank=True, default='XS')
+    costo_envio = models.IntegerField(default=0, help_text="Costo de envío en CLP")
+
+    # 3. Estado y Seguimiento de Envío
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
-    empresa_transporte = models.CharField(max_length=100, blank=True, default='', help_text="Ej: Starken, Chilexpress")
+    empresa_transporte = models.CharField(max_length=100, blank=True, default='', help_text="Ej: Blue Express, Starken, Chilexpress")
     numero_seguimiento = models.CharField(max_length=100, blank=True, default='')
 
-    # 3. Cupón de descuento aplicado
+    # 4. Cupón de descuento aplicado
     cupon = models.ForeignKey(Cupon, null=True, blank=True, on_delete=models.SET_NULL, related_name='pedidos')
     descuento_aplicado = models.IntegerField(default=0)
 
@@ -369,7 +384,7 @@ class Pedido(models.Model):
         return sum(item.get_costo() for item in self.items.all())
         
     def get_total_final(self):
-        return max(0, self.get_total_cost() - self.descuento_aplicado)
+        return max(0, self.get_total_cost() - self.descuento_aplicado) + (self.costo_envio or 0)
     
     def confirmar_pago(self):
         # 1. Marcamos el pedido como pagado

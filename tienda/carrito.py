@@ -123,6 +123,34 @@ class Carrito:
         """
         return sum(item['cantidad'] for item in self.carrito.values())
 
+    @property
+    def minimo_entrega_gratis(self):
+        """Monto mínimo para Entrega Presencial Gratis en Puerto Montt o Puerto Varas."""
+        return 15000
+
+    @property
+    def costo_entrega_reducido(self):
+        """Costo reducido de Entrega Presencial bajo el monto mínimo."""
+        return 1500
+
+    @property
+    def falta_para_entrega_gratis(self):
+        """Cuánto falta en CLP para alcanzar Entrega Presencial Gratis."""
+        return max(0, self.minimo_entrega_gratis - self.get_total())
+
+    @property
+    def porcentaje_entrega_gratis(self):
+        """Porcentaje de avance (0 a 100) hacia Entrega Presencial Gratis."""
+        total = self.get_total()
+        if total <= 0:
+            return 0
+        return min(100, int(round((total / self.minimo_entrega_gratis) * 100)))
+
+    @property
+    def tiene_entrega_gratis(self):
+        """Retorna True si el carrito ya alcanzó el mínimo para Entrega Presencial Gratis."""
+        return self.get_total() >= self.minimo_entrega_gratis
+
     def __iter__(self):
         """
         Permite iterar sobre los items del carrito en los templates HTML y 
@@ -144,6 +172,8 @@ class Carrito:
                 carrito_copia[key]['precio_original'] = str(producto.precio)
                 carrito_copia[key]['en_oferta'] = producto.tiene_descuento
                 carrito_copia[key]['descuento_porcentaje'] = producto.porcentaje_descuento
+                if producto.imagen:
+                    carrito_copia[key]['imagen'] = producto.get_imagen_url_300 or producto.imagen.url
 
         for item in carrito_copia.values():
             item['precio_total'] = int(item['precio']) * item['cantidad']

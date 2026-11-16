@@ -149,8 +149,22 @@ function ejecutarCopiaPedidoModal() {
                 </p>
             </div>
             <div>
-                <p><strong>Dirección:</strong> {{ pedido.direccion }}</p>
-                <p><strong>Ciudad:</strong> {{ pedido.ciudad }}</p>
+                <p><strong>Modalidad Envío:</strong> 
+                    {% if pedido.tipo_entrega == 'PUNTO_BLUE' %}
+                        <span style="background: #e8f1fb; color: #0055b8; padding: 3px 9px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;">📍 Punto Blue Express / Copec</span>
+                    {% elif pedido.tipo_entrega == 'RETIRO' %}
+                        <span style="background: #dcfce7; color: #15803d; padding: 3px 9px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;">🤝 Entrega Presencial (Acordar con la tienda)</span>
+                    {% else %}
+                        <span style="background: #f1f5f9; color: #334155; padding: 3px 9px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;">🏠 Entrega a Domicilio</span>
+                    {% endif %}
+                </p>
+                {% if pedido.punto_blue_nombre %}
+                    <p><strong>Punto Blue:</strong> {{ pedido.punto_blue_nombre }} ({{ pedido.punto_blue_direccion }})</p>
+                {% else %}
+                    <p><strong>Dirección:</strong> {{ pedido.direccion }}</p>
+                {% endif %}
+                <p><strong>Comuna / Región:</strong> {{ pedido.ciudad }}{% if pedido.region %} ({{ pedido.region }}){% endif %}</p>
+                <p><strong>Costo de Envío ({{ pedido.talla_envio|default:"XS" }}):</strong> ${{ pedido.costo_envio }}</p>
                 <p><strong>Fecha del Pedido:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
                 <p><strong>Pago:</strong> 
                     {% if pedido.pagado %}
@@ -199,14 +213,22 @@ function ejecutarCopiaPedidoModal() {
             </tbody>
         </table>
 
+        <div style="text-align: right; margin-top: 15px; color: #475569; font-weight: 600;">
+            Subtotal Productos: ${{ pedido.get_total_cost }}
+        </div>
+
         {% if pedido.descuento_aplicado > 0 %}
-        <div style="text-align: right; margin-top: 15px; color: #27ae60; font-weight: bold;">
+        <div style="text-align: right; margin-top: 8px; color: #27ae60; font-weight: bold;">
             Descuento Cupón ({% if pedido.cupon %}{{ pedido.cupon.codigo }}{% else %}Promocional{% endif %}): -${{ pedido.descuento_aplicado }}
         </div>
         {% endif %}
 
+        <div style="text-align: right; margin-top: 8px; color: #0055b8; font-weight: 700;">
+            Envío Blue Express ({{ pedido.get_tipo_entrega_display }}): ${{ pedido.costo_envio }}
+        </div>
+
         <div style="text-align: right; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
-            <h2 style="margin: 0;">Total del Pedido: <span style="color: #fca311;">${{ pedido.get_total_final }}</span></h2>
+            <h2 style="margin: 0;">Total del Pedido (Productos + Envío): <span style="color: #fca311;">${{ pedido.get_total_final }}</span></h2>
         </div>
     </div>
 

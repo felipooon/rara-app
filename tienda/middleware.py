@@ -1,9 +1,12 @@
 from django.utils import timezone
 from django.db.models import F
-from crawlerdetect import CrawlerDetect
 from .models import MetricaDiaria
 
-crawler_detector = CrawlerDetect()
+try:
+    from crawlerdetect import CrawlerDetect
+    crawler_detector = CrawlerDetect()
+except ImportError:
+    crawler_detector = None
 
 class AnaliticasMiddleware:
     def __init__(self, get_response):
@@ -23,7 +26,7 @@ class AnaliticasMiddleware:
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         
         # 1. Detección avanzada de bots con base de datos amplia de User-Agents
-        es_bot = crawler_detector.isCrawler(user_agent)
+        es_bot = crawler_detector.isCrawler(user_agent) if crawler_detector else ('bot' in user_agent.lower() or 'spider' in user_agent.lower())
         
         hoy = timezone.localdate()
         metrica, created = MetricaDiaria.objects.get_or_create(fecha=hoy)

@@ -11,6 +11,83 @@ from django.db import transaction
 
 from ..models import Producto, Pedido, ItemPedido, Cupon, LogProducto, LogPedido
 from ..carrito import Carrito
+from ..comunas_chile import (
+    ORIGEN_TIENDA_COMUNA,
+    ORIGEN_TIENDA_REGION,
+    MONTO_MINIMO_ENTREGA_PRESENCIAL_GRATIS,
+    COSTO_ENTREGA_PRESENCIAL_REDUCIDO,
+    REGIONES_Y_COMUNAS,
+    cargar_tarifas,
+    cargar_puntos_lista,
+    obtener_fecha_puntos,
+    obtener_region_de_comuna,
+    validar_comuna_existe,
+    obtener_punto_blue_por_id,
+    calcular_costo_envio,
+    calcular_envio_detalle,
+    detectar_comuna_por_ip_o_coords,
+)
+
+
+def api_blue_express_data(request):
+    """Retorna comunas, regiones, tarifario y listado de Puntos Blue Express activos."""
+    tarifas = cargar_tarifas()
+    puntos = cargar_puntos_lista()
+    return JsonResponse(
+        {
+            "origen_tienda_comuna": ORIGEN_TIENDA_COMUNA,
+            "origen_tienda_region": ORIGEN_TIENDA_REGION,
+            "regiones_y_comunas": REGIONES_Y_COMUNAS,
+            "tarifas": tarifas,
+            "puntos": puntos,
+            "total_puntos": len(puntos),
+            "updated_at": obtener_fecha_puntos(),
+        }
+    )
+
+
+def api_blue_express_geolocalizar(request):
+    """
+    Autodetecta la comuna y el Punto Blue Express más cercano usando:
+    - Coordenadas GPS (?lat=...&lng=...) enviadas por el navegador, o
+    - La IP del cliente (o del servidor en desarrollo local).
+    """
+    lat = request.GET.get("lat")
+    lng = request.GET.get("lng")
+    city_hint = request.GET.get("city")
+
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0].strip()
+    else:
+        ip = request.META.get("REMOTE_ADDR", "")
+
+    res = detectar_comuna_por_ip_o_coords(ip=ip, lat=lat, lng=lng, city_hint=city_hint)
+    return JsonResponse(res)
+
+
+@csrf_exempt
+def api_blue_express_calcular(request):
+    """Calcula el costo de envío entre origen y destino según peso/talla y modalidad."""
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "error": "Método no permitido"}, status=405)
+    try:
+        payload = json.loads(request.body.decode("utf-8")) if request.body else {}
+        res = calcular_envio_detalle(
+            origen_comuna=payload.get("origen_comuna", ORIGEN_TIENDA_COMUNA),
+            destino_comuna=payload.get("destino_comuna", ORIGEN_TIENDA_COMUNA),
+            origen_region=payload.get("origen_region"),
+            destino_region=payload.get("destino_region"),
+            peso_kg=payload.get("peso_kg", 0.4),
+            talla=payload.get("talla"),
+            tipo_entrega=payload.get("tipo_entrega", "PUNTO_BLUE"),
+            punto_origen_id=payload.get("punto_origen_id"),
+            punto_destino_id=payload.get("punto_destino_id"),
+            total_carrito=payload.get("total_carrito", 0),
+        )
+        return JsonResponse(res)
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=400)
 
 
 def validar_rut_chileno(rut):
@@ -175,41 +252,127 @@ def procesar_pedido(request):
 
     total_bruto = carrito.get_total()
     cupon_obj, descuento_aplicado = obtener_descuento_cupon(request, total_bruto, carrito=carrito)
-    total_final = max(0, total_bruto - descuento_aplicado)
+    subtotal_productos = max(0, total_bruto - descuento_aplicado)
+
+    comuna_default = ORIGEN_TIENDA_COMUNA
+    tipo_entrega_default = 'PUNTO_BLUE'
+    costo_envio_inicial = calcular_costo_envio(
+        comuna_default,
+        total_carrito=subtotal_productos,
+        tipo_entrega=tipo_entrega_default,
+        origen_comuna=ORIGEN_TIENDA_COMUNA,
+        talla='XS',
+    )
+    costo_retiro_actual = calcular_costo_envio(
+        comuna_default,
+        total_carrito=subtotal_productos,
+        tipo_entrega='RETIRO',
+    )
+    falta_entrega_gratis = max(0, MONTO_MINIMO_ENTREGA_PRESENCIAL_GRATIS - subtotal_productos)
+    porcentaje_entrega_gratis = (
+        min(100, int(round((subtotal_productos / MONTO_MINIMO_ENTREGA_PRESENCIAL_GRATIS) * 100)))
+        if subtotal_productos > 0
+        else 0
+    )
+    total_final = subtotal_productos + costo_envio_inicial
 
     if request.method == 'POST':
         rut_ingresado = request.POST.get('rut', '')
         terminos_aceptados = request.POST.get('terminos_aceptados')
+        ciudad_raw = request.POST.get('ciudad', comuna_default)
+        comuna_canonica = validar_comuna_existe(ciudad_raw)
+        tipo_entrega = request.POST.get('tipo_entrega', 'PUNTO_BLUE')
+        if tipo_entrega not in ('PUNTO_BLUE', 'DOMICILIO', 'RETIRO'):
+            tipo_entrega = 'PUNTO_BLUE'
+
+        comuna_para_calculo = comuna_canonica or comuna_default
+        costo_envio = calcular_costo_envio(
+            comuna_para_calculo,
+            total_carrito=subtotal_productos,
+            tipo_entrega=tipo_entrega,
+            origen_comuna=ORIGEN_TIENDA_COMUNA,
+            talla='XS',
+        )
+        total_final = subtotal_productos + costo_envio
+
+        base_context = {
+            'carrito': carrito,
+            'cupon': cupon_obj,
+            'descuento': descuento_aplicado,
+            'subtotal_productos': subtotal_productos,
+            'costo_envio': costo_envio,
+            'costo_retiro_actual': costo_retiro_actual,
+            'minimo_entrega_gratis': MONTO_MINIMO_ENTREGA_PRESENCIAL_GRATIS,
+            'costo_entrega_reducido': COSTO_ENTREGA_PRESENCIAL_REDUCIDO,
+            'falta_entrega_gratis': falta_entrega_gratis,
+            'porcentaje_entrega_gratis': porcentaje_entrega_gratis,
+            'total_final': total_final,
+            'origen_tienda': ORIGEN_TIENDA_COMUNA,
+            'datos_previos': request.POST,
+        }
 
         if not terminos_aceptados:
-            context = {
-                'carrito': carrito,
-                'cupon': cupon_obj,
-                'descuento': descuento_aplicado,
-                'total_final': total_final,
-                'error_terminos': "Debes aceptar los Términos y Condiciones y Políticas de Devolución para realizar tu pedido.",
-                'datos_previos': request.POST
-            }
-            return render(request, 'checkout.html', context)
+            base_context['error_terminos'] = "Debes aceptar los Términos y Condiciones y Políticas de Devolución para realizar tu pedido."
+            return render(request, 'checkout.html', base_context)
 
         if not validar_rut_chileno(rut_ingresado):
-            context = {
-                'carrito': carrito,
-                'cupon': cupon_obj,
-                'descuento': descuento_aplicado,
-                'total_final': total_final,
-                'error_rut': "El RUT ingresado no es válido. Por favor, revísalo y escríbelo correctamente.",
-                'datos_previos': request.POST
-            }
-            return render(request, 'checkout.html', context)
+            base_context['error_rut'] = "El RUT ingresado no es válido. Por favor, revísalo y escríbelo correctamente."
+            return render(request, 'checkout.html', base_context)
+
+        if tipo_entrega == 'RETIRO':
+            ciudad_retiro = (request.POST.get('ciudad_retiro') or '').strip()
+            if ciudad_retiro not in ('Puerto Montt', 'Puerto Varas'):
+                ciudad_retiro = 'Puerto Montt'
+            comuna_canonica = ciudad_retiro
+        elif not comuna_canonica:
+            base_context['error_envio'] = "Por favor selecciona una comuna válida del listado de Chile."
+            return render(request, 'checkout.html', base_context)
+
+        region_destino = obtener_region_de_comuna(comuna_canonica)
+        punto_blue_id = None
+        punto_blue_nombre = ''
+        punto_blue_direccion = ''
+        empresa_transporte = 'Blue Express'
+
+        if tipo_entrega == 'PUNTO_BLUE':
+            punto_obj = obtener_punto_blue_por_id(request.POST.get('punto_blue_id'))
+            if not punto_obj:
+                base_context['error_envio'] = "Por favor selecciona el Punto Blue Express / Copec donde retirarás tu pedido, o cambia la modalidad de entrega."
+                return render(request, 'checkout.html', base_context)
+            punto_blue_id = punto_obj.get('id')
+            punto_blue_nombre = punto_obj.get('nombre', '')
+            punto_blue_direccion = punto_obj.get('direccion_completa', '')
+            direccion_guardar = f"Punto Blue: {punto_blue_nombre} ({punto_blue_direccion})"
+        elif tipo_entrega == 'RETIRO':
+            empresa_transporte = 'Entrega Presencial'
+            nota_retiro = (request.POST.get('nota_retiro') or '').strip()
+            direccion_guardar = (
+                f"Entrega presencial en {comuna_canonica} — A coordinar ({nota_retiro})"
+                if nota_retiro
+                else f"Entrega presencial en {comuna_canonica} — A coordinar con la tienda"
+            )
+        else:
+            direccion_domicilio = (request.POST.get('direccion') or '').strip()
+            if not direccion_domicilio:
+                base_context['error_envio'] = "Por favor ingresa tu dirección exacta (calle y número) para el despacho a domicilio."
+                return render(request, 'checkout.html', base_context)
+            direccion_guardar = direccion_domicilio
 
         pedido = Pedido.objects.create(
             nombre_completo=request.POST.get('nombre_completo'),
             rut=rut_ingresado,
             email=request.POST.get('email'),
             telefono=request.POST.get('telefono'),
-            direccion=request.POST.get('direccion'),
-            ciudad=request.POST.get('ciudad', 'Puerto Montt'),
+            direccion=direccion_guardar,
+            ciudad=comuna_canonica,
+            region=region_destino,
+            tipo_entrega=tipo_entrega,
+            punto_blue_id=punto_blue_id,
+            punto_blue_nombre=punto_blue_nombre,
+            punto_blue_direccion=punto_blue_direccion,
+            talla_envio='XS' if tipo_entrega != 'RETIRO' else '-',
+            costo_envio=costo_envio,
+            empresa_transporte=empresa_transporte,
             cupon=cupon_obj,
             descuento_aplicado=descuento_aplicado
         )
@@ -237,7 +400,17 @@ def procesar_pedido(request):
             )
 
         items_summary = ", ".join([f"{item['producto_real'].nombre} (x{item['cantidad']})" for item in carrito])
-        detalles_creacion = f"Pedido iniciado por total ${total_final} | Ítems: {items_summary} | Dirección: {pedido.direccion}, {pedido.ciudad} | RUT: {pedido.rut} | Teléfono: +56{pedido.telefono}"
+        if tipo_entrega == "PUNTO_BLUE":
+            modalidad_label = "Punto Blue Express"
+        elif tipo_entrega == "RETIRO":
+            modalidad_label = "Entrega Presencial"
+        else:
+            modalidad_label = "Domicilio Blue Express"
+        detalles_creacion = (
+            f"Pedido iniciado por total ${total_final} (Productos: ${subtotal_productos} + Envío {modalidad_label}: ${costo_envio}) | "
+            f"Ítems: {items_summary} | Destino: {pedido.direccion}, {pedido.ciudad} ({pedido.region}) | "
+            f"RUT: {pedido.rut} | Teléfono: +56{pedido.telefono}"
+        )
         if cupon_obj:
             detalles_creacion += f" | Cupón: {cupon_obj.codigo} (-${descuento_aplicado})"
 
@@ -256,8 +429,11 @@ def procesar_pedido(request):
                 mensaje_admin = f"""¡Atención! Acaba de entrar un nuevo pedido.
 
 Cliente: {pedido.nombre_completo}
-Ciudad: {pedido.ciudad}
-Total: ${total_final}
+Modalidad de Envío: {pedido.get_tipo_entrega_display()}
+Destino: {pedido.direccion}, {pedido.ciudad} ({pedido.region})
+Subtotal Productos: ${subtotal_productos}
+Envío Blue Express (Talla {pedido.talla_envio}): ${costo_envio}
+Total Final: ${total_final}
 Teléfono: +56{pedido.telefono}
 
 Revisa el panel de administración para ver el detalle completo.
@@ -294,6 +470,14 @@ www.raratienda.cl/panel
                     "title": f"Descuento Cupón ({cupon_obj.codigo})",
                     "quantity": 1,
                     "unit_price": -int(descuento_aplicado),
+                    "currency_id": "CLP"
+                })
+
+            if costo_envio > 0:
+                items_mp.append({
+                    "title": f"Envío {modalidad_label} ({pedido.ciudad})",
+                    "quantity": 1,
+                    "unit_price": int(costo_envio),
                     "currency_id": "CLP"
                 })
 
@@ -354,7 +538,15 @@ www.raratienda.cl/panel
         'carrito': carrito,
         'cupon': cupon_obj,
         'descuento': descuento_aplicado,
-        'total_final': total_final
+        'subtotal_productos': subtotal_productos,
+        'costo_envio': costo_envio_inicial,
+        'costo_retiro_actual': costo_retiro_actual,
+        'minimo_entrega_gratis': MONTO_MINIMO_ENTREGA_PRESENCIAL_GRATIS,
+        'costo_entrega_reducido': COSTO_ENTREGA_PRESENCIAL_REDUCIDO,
+        'falta_entrega_gratis': falta_entrega_gratis,
+        'porcentaje_entrega_gratis': porcentaje_entrega_gratis,
+        'total_final': total_final,
+        'origen_tienda': ORIGEN_TIENDA_COMUNA,
     })
 
 
@@ -413,8 +605,9 @@ def webhook_mercadopago(request):
 Te escribimos de Rara Tienda para contarte que hemos recibido el pago de tu pedido #{pedido.codigo_orden} con éxito a través de Mercado Pago. ✨
 
 ¿Qué viene ahora?
-Estamos preparando tu paquete con mucho cuidado para que llegue perfecto a tu casa. 
+Estamos preparando tu paquete con mucho cuidado para despacharlo por Blue Express. 
 
+📍 Modalidad: {pedido.get_tipo_entrega_display()}
 📍 Destino: {pedido.direccion}, {pedido.ciudad}.
 
 En cuanto realicemos el envío, te contactaremos por WhatsApp al +56{pedido.telefono} para enviarte el comprobante y el número de seguimiento.

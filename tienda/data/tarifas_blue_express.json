@@ -1,0 +1,70 @@
+{
+  "origen": "Puerto Montt",
+  "moneda": "CLP",
+  "incluye_iva": true,
+  "tallas_peso_kg": {
+    "XS": {
+      "max_kg": 0.5
+    },
+    "S": {
+      "max_kg": 3.0
+    },
+    "M": {
+      "max_kg": 6.0
+    },
+    "L": {
+      "max_kg": 20.0
+    }
+  },
+  "regiones_extremo": [
+    "Región de Arica y Parinacota",
+    "Región de Tarapacá",
+    "Región de Antofagasta",
+    "Región de Aysén del Gral. Carlos Ibáñez del Campo",
+    "Región de Magallanes y de la Antártica Chilena"
+  ],
+  "tarifas_domicilio": {
+    "XS": {
+      "RM": 3100,
+      "CENTRO": 4300,
+      "EXTREMO": 5200
+    },
+    "S": {
+      "RM": 4200,
+      "CENTRO": 5600,
+      "EXTREMO": 9500
+    },
+    "M": {
+      "RM": 4800,
+      "CENTRO": 7300,
+      "EXTREMO": 14500
+    },
+    "L": {
+      "RM": 5400,
+      "CENTRO": 9200,
+      "EXTREMO": 17000
+    }
+  },
+  "tarifas_punto_blue": {
+    "XS": {
+      "RM": 2600,
+      "CENTRO": 3800,
+      "EXTREMO": 4700
+    },
+    "S": {
+      "RM": 3700,
+      "CENTRO": 5100,
+      "EXTREMO": 9000
+    },
+    "M": {
+      "RM": 4300,
+      "CENTRO": 6800,
+      "EXTREMO": 14000
+    },
+    "L": {
+      "RM": 4900,
+      "CENTRO": 8700,
+      "EXTREMO": 16500
+    }
+  }
+}

@@ -1,0 +1,1205 @@
+{% extends "panel/base_panel.html" %}
+
+{% block content %}
+<style>
+  .bx-panel-wrap {
+    --blue-dark: #002b5c;
+    --blue-main: #0055b8;
+    --blue-light: #e8f1fb;
+    --accent: #00a8e8;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --border: #dce3ed;
+    --text: #1e293b;
+    --muted: #64748b;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 10px 16px 40px;
+    color: var(--text);
+  }
+
+  .bx-header {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue-main));
+    color: #fff;
+    padding: 20px 24px;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0, 43, 92, 0.16);
+    margin-bottom: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .bx-brand h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+    color: #fff;
+  }
+
+  .bx-brand p {
+    font-size: 0.88rem;
+    opacity: 0.88;
+    margin: 0;
+  }
+
+  .bx-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .bx-badge-info {
+    background: rgba(255, 255, 255, 0.16);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .bx-btn-update {
+    background: #fff;
+    color: var(--blue-dark);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.1s, box-shadow 0.15s;
+  }
+
+  .bx-btn-update:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  }
+
+  .bx-btn-update:disabled {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .bx-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2.5px solid var(--blue-light);
+    border-top-color: var(--blue-main);
+    border-radius: 50%;
+    animation: bxSpin 0.7s linear infinite;
+    display: none;
+  }
+
+  .bx-btn-update.loading .bx-spinner { display: inline-block; }
+
+  @keyframes bxSpin { to { transform: rotate(360deg); } }
+
+  .bx-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  }
+
+  .bx-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  #update-panel {
+    display: none;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--blue-main);
+  }
+
+  #update-panel.visible { display: block; }
+
+  .bx-update-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .bx-stat-box {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .bx-stat-box.new { background: var(--green-bg); border-color: #bbf7d0; color: #14532d; }
+  .bx-stat-box.removed { background: var(--red-bg); border-color: #fecaca; color: #7f1d1d; }
+
+  .bx-stat-box .num { font-size: 1.4rem; font-weight: 700; }
+  .bx-stat-box .lbl { font-size: 0.8rem; opacity: 0.9; }
+
+  .bx-diff-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 760px) {
+    .bx-diff-columns { grid-template-columns: 1fr; }
+  }
+
+  .bx-diff-list-box {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fafcff;
+  }
+
+  .bx-diff-list-box h4 {
+    font-size: 0.85rem;
+    margin: 0 0 8px 0;
+    color: var(--text);
+  }
+
+  .bx-diff-item {
+    font-size: 0.82rem;
+    padding: 6px 0;
+    border-bottom: 1px solid #edf2f7;
+  }
+
+  .bx-diff-item:last-child { border-bottom: none; }
+  .bx-diff-item strong { display: block; color: var(--blue-dark); }
+  .bx-diff-item span { color: var(--muted); }
+
+  .bx-route-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: stretch;
+    margin-bottom: 18px;
+  }
+
+  @media (max-width: 860px) {
+    .bx-route-grid { grid-template-columns: 1fr; }
+    .bx-swap-wrap { justify-content: center; }
+  }
+
+  .bx-swap-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bx-btn-swap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--blue-main);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+  }
+
+  .bx-btn-swap:hover {
+    background: var(--blue-light);
+    transform: scale(1.06);
+  }
+
+  .bx-form-group { margin-bottom: 12px; }
+  .bx-form-group:last-child { margin-bottom: 0; }
+
+  .bx-form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .bx-panel-wrap select,
+  .bx-panel-wrap input[type="number"],
+  .bx-panel-wrap input[type="text"] {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+
+  .bx-panel-wrap select:focus,
+  .bx-panel-wrap input:focus { border-color: var(--blue-main); }
+
+  .bx-autocomplete-wrap { position: relative; }
+
+  .bx-autocomplete-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+  }
+
+  .bx-autocomplete-list.open { display: block; }
+
+  .bx-autocomplete-item {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .bx-autocomplete-item:last-child { border-bottom: none; }
+
+  .bx-autocomplete-item:hover,
+  .bx-autocomplete-item.active {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 600;
+  }
+
+  .bx-autocomplete-empty {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .bx-punto-preview {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--blue-light);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--blue-dark);
+    display: none;
+  }
+
+  .bx-punto-preview.visible { display: block; }
+  .bx-punto-preview .tag-247 {
+    display: inline-block;
+    background: var(--green);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  .bx-calc-bottom {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+  }
+
+  @media (max-width: 860px) {
+    .bx-calc-bottom { grid-template-columns: 1fr; }
+  }
+
+  .bx-talla-pills {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .bx-talla-pill {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .bx-talla-pill strong { display: block; font-size: 0.95rem; color: var(--blue-dark); }
+  .bx-talla-pill span { font-size: 0.75rem; color: var(--muted); }
+  .bx-talla-pill.active {
+    border-color: var(--blue-main);
+    background: var(--blue-light);
+    box-shadow: 0 0 0 1px var(--blue-main);
+  }
+
+  .bx-delivery-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .bx-delivery-opt {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    background: #fff;
+    text-align: left;
+    transition: all 0.15s;
+  }
+
+  .bx-delivery-opt strong { display: block; font-size: 0.9rem; color: var(--blue-dark); }
+  .bx-delivery-opt span { font-size: 0.78rem; color: var(--muted); }
+  .bx-delivery-opt.active {
+    border-color: var(--blue-main);
+    background: var(--blue-light);
+    box-shadow: 0 0 0 1px var(--blue-main);
+  }
+
+  .bx-result-card {
+    background: linear-gradient(160deg, #ffffff 0%, #f0f6ff 100%);
+    border: 1px solid #bfd7f5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .bx-price-hero {
+    text-align: center;
+    padding: 16px 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+
+  .bx-price-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .bx-price-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--blue-dark);
+    margin: 4px 0;
+  }
+
+  .bx-price-sub {
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  .bx-result-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.88rem;
+  }
+
+  .bx-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px dashed #dce3ed;
+  }
+
+  .bx-detail-row:last-child { border-bottom: none; }
+
+  .bx-zone-badge {
+    background: var(--blue-dark);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .bx-savings-badge {
+    background: var(--green-bg);
+    color: var(--green);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .bx-error-msg {
+    background: var(--red-bg);
+    color: var(--red);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .bx-error-msg.visible { display: block; }
+
+  .bx-tallas-section {
+    margin-top: 20px;
+    padding: 0;
+  }
+
+  .bx-tallas-summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 15px 20px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+  }
+
+  .bx-tallas-summary::-webkit-details-marker { display: none; }
+
+  .bx-tallas-summary-hint {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .bx-tallas-section[open] .bx-tallas-summary {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .bx-tallas-content {
+    padding: 16px 20px 20px;
+  }
+
+  .bx-tallas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 760px) {
+    .bx-tallas-grid { grid-template-columns: 1fr; }
+  }
+
+  .bx-talla-spec-card {
+    background: #f1f6fe;
+    border: 1px solid #dbe7fa;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .bx-talla-badge-circle {
+    flex-shrink: 0;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--blue-dark);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .bx-talla-badge-circle strong { font-size: 0.95rem; }
+
+  .bx-talla-spec-body h4 {
+    color: var(--blue-main);
+    font-size: 0.96rem;
+    margin: 0 0 2px 0;
+  }
+
+  .bx-talla-spec-body .dims {
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .bx-talla-spec-body .ej {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .bx-talla-spec-body .max-note {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--red);
+  }
+</style>
+
+<div class="bx-panel-wrap">
+  <div class="bx-header">
+    <div class="bx-brand">
+      <h1><i class="fa-solid fa-truck-ramp-box"></i> Calculadora Blue Express</h1>
+      <p>Cotizador de envíos fuera de ventas y actualización oficial de Puntos Blue Express / Copec en Chile</p>
+    </div>
+    <div class="bx-header-actions">
+      <span class="bx-badge-info" id="puntos-badge">
+        {{ total_puntos }} puntos activos{% if updated_at %} · Act: {{ updated_at }}{% endif %}
+      </span>
+      <button type="button" class="bx-btn-update" id="btn-actualizar" onclick="actualizarPuntos()">
+        <span class="bx-spinner"></span>
+        <i class="fa-solid fa-rotate"></i>
+        <span id="btn-actualizar-txt">Actualizar Puntos</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="error-banner" class="bx-error-msg"></div>
+
+  <!-- Panel de resumen de actualización -->
+  <section id="update-panel" class="bx-card">
+    <div class="bx-card-title">
+      <span>✅ Resultado de Actualización de Puntos Blue Express</span>
+      <button type="button" onclick="document.getElementById('update-panel').classList.remove('visible')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--muted);">✕</button>
+    </div>
+    <div class="bx-update-stats">
+      <div class="bx-stat-box">
+        <div class="num" id="stat-total-nuevo">0</div>
+        <div class="lbl">Puntos activos ahora (antes: <span id="stat-total-antes">0</span>)</div>
+      </div>
+      <div class="bx-stat-box new">
+        <div class="num" id="stat-nuevos">+0</div>
+        <div class="lbl">Puntos nuevos agregados</div>
+      </div>
+      <div class="bx-stat-box removed">
+        <div class="num" id="stat-eliminados">-0</div>
+        <div class="lbl">Puntos que se han ido</div>
+      </div>
+    </div>
+    <div class="bx-diff-columns">
+      <div class="bx-diff-list-box">
+        <h4>Puntos Nuevos</h4>
+        <div id="lista-nuevos"></div>
+      </div>
+      <div class="bx-diff-list-box">
+        <h4>Puntos que se han ido</h4>
+        <div id="lista-eliminados"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Origen y Destino -->
+  <section class="bx-route-grid">
+    <!-- ORIGEN -->
+    <div class="bx-card">
+      <div class="bx-card-title">
+        <span>1. Origen</span>
+        <span style="font-size:0.78rem;font-weight:500;color:var(--muted);" id="origen-count"></span>
+      </div>
+      <input type="hidden" id="origen-region" />
+      <div class="bx-form-group">
+        <label for="origen-comuna">Comuna de Origen</label>
+        <div class="bx-autocomplete-wrap">
+          <input type="text" id="origen-comuna" placeholder="Escribe una comuna..." autocomplete="off" />
+          <div id="origen-comuna-list" class="bx-autocomplete-list"></div>
+        </div>
+      </div>
+      <div class="bx-form-group">
+        <label for="origen-punto">Punto Blue Express de Origen (opcional)</label>
+        <select id="origen-punto"></select>
+        <div id="origen-punto-info" class="bx-punto-preview"></div>
+      </div>
+    </div>
+
+    <div class="bx-swap-wrap">
+      <button type="button" class="bx-btn-swap" title="Intercambiar Origen y Destino" onclick="intercambiarRuta()">⇄</button>
+    </div>
+
+    <!-- DESTINO -->
+    <div class="bx-card">
+      <div class="bx-card-title">
+        <span>2. Destino</span>
+        <span style="font-size:0.78rem;font-weight:500;color:var(--muted);" id="destino-count"></span>
+      </div>
+      <input type="hidden" id="destino-region" />
+      <div class="bx-form-group">
+        <label for="destino-comuna">Comuna de Destino</label>
+        <div class="bx-autocomplete-wrap">
+          <input type="text" id="destino-comuna" placeholder="Escribe una comuna..." autocomplete="off" />
+          <div id="destino-comuna-list" class="bx-autocomplete-list"></div>
+        </div>
+      </div>
+      <div class="bx-form-group">
+        <label for="destino-punto">Punto Blue Express de Destino (opcional)</label>
+        <select id="destino-punto"></select>
+        <div id="destino-punto-info" class="bx-punto-preview"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Parámetros y Resultado -->
+  <section class="bx-calc-bottom">
+    <div class="bx-card">
+      <div class="bx-card-title">3. Detalles del Envío</div>
+
+      <div class="bx-form-group">
+        <label for="peso-kg">Peso del paquete (kg)</label>
+        <input type="number" id="peso-kg" value="0.4" min="0.1" max="20" step="0.1" />
+        <div class="bx-talla-pills" id="talla-pills">
+          <button type="button" class="bx-talla-pill active" data-talla="XS" data-peso="0.4">
+            <strong>XS</strong><span>Hasta 0.5 kg</span>
+          </button>
+          <button type="button" class="bx-talla-pill" data-talla="S" data-peso="2.0">
+            <strong>S</strong><span>Hasta 3.0 kg</span>
+          </button>
+          <button type="button" class="bx-talla-pill" data-talla="M" data-peso="5.0">
+            <strong>M</strong><span>Hasta 6.0 kg</span>
+          </button>
+          <button type="button" class="bx-talla-pill" data-talla="L" data-peso="10.0">
+            <strong>L</strong><span>Hasta 20 kg</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="bx-form-group" style="margin-top:16px;">
+        <label>Modalidad de Entrega</label>
+        <div class="bx-delivery-toggle">
+          <button type="button" class="bx-delivery-opt active" data-tipo="PUNTO_BLUE" onclick="setTipoEntrega('PUNTO_BLUE')">
+            <strong>Punto Blue / Copec</strong>
+            <span>Tarifa reducida retiro en punto</span>
+          </button>
+          <button type="button" class="bx-delivery-opt" data-tipo="DOMICILIO" onclick="setTipoEntrega('DOMICILIO')">
+            <strong>Entrega a Domicilio</strong>
+            <span>Despacho directo a dirección</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bx-card bx-result-card">
+      <div>
+        <div class="bx-card-title">Resultado Estimado</div>
+        <div class="bx-price-hero">
+          <div class="bx-price-label" id="res-modalidad-lbl">Punto Blue Express / Copec</div>
+          <div class="bx-price-value" id="res-precio">$0</div>
+          <div class="bx-price-sub" id="res-iva">IVA incluido</div>
+        </div>
+
+        <div class="bx-result-details">
+          <div class="bx-detail-row">
+            <span>Ruta</span>
+            <strong id="res-ruta">-</strong>
+          </div>
+          <div class="bx-detail-row">
+            <span>Zona tarifaria</span>
+            <span class="bx-zone-badge" id="res-zona">-</span>
+          </div>
+          <div class="bx-detail-row">
+            <span>Talla aplicada</span>
+            <strong id="res-talla">-</strong>
+          </div>
+          <div class="bx-detail-row">
+            <span>Tarifa en Punto Blue</span>
+            <strong id="res-precio-punto">-</strong>
+          </div>
+          <div class="bx-detail-row">
+            <span>Tarifa a Domicilio</span>
+            <strong id="res-precio-domicilio">-</strong>
+          </div>
+          <div class="bx-detail-row" id="row-distancia" style="display:none;">
+            <span>Distancia entre puntos (línea recta)</span>
+            <strong id="res-distancia">-</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Especificaciones de Tallas (compactado por defecto) -->
+  <details class="bx-card bx-tallas-section">
+    <summary class="bx-tallas-summary">
+      <span>Conoce nuestras tallas (XS, S, M, L)</span>
+      <span class="bx-tallas-summary-hint">XS ≤0,5 kg · S ≤3 kg · M ≤6 kg · L ≤20 kg (clic para ver medidas)</span>
+    </summary>
+    <div class="bx-tallas-content">
+      <div class="bx-tallas-grid">
+        <div class="bx-talla-spec-card">
+          <div class="bx-talla-badge-circle"><span>hasta</span><strong>0,5 kg</strong></div>
+          <div class="bx-talla-spec-body">
+            <h4>Talla XS</h4>
+            <div class="dims">Hasta 20 x 15 x 6 cms. o 0,5 kgs.</div>
+            <div class="ej">Ej: sobre, llavero, lápices, cosméticos, bisutería, etc.</div>
+          </div>
+        </div>
+        <div class="bx-talla-spec-card">
+          <div class="bx-talla-badge-circle"><span>hasta</span><strong>3 kg</strong></div>
+          <div class="bx-talla-spec-body">
+            <h4>Talla S</h4>
+            <div class="dims">Hasta 30 x 20 x 20 cms. o 3 kgs.</div>
+            <div class="ej">Ej: Ropa poco voluminosa, iPad, celular, etc.</div>
+          </div>
+        </div>
+        <div class="bx-talla-spec-card">
+          <div class="bx-talla-badge-circle"><span>hasta</span><strong>6 kg</strong></div>
+          <div class="bx-talla-spec-body">
+            <h4>Talla M</h4>
+            <div class="dims">Hasta 30 x 30 x 25 cms. o 6 kgs.</div>
+            <div class="ej">Ej: ropa voluminosa, zapatos, teclado (pc), etc.</div>
+          </div>
+        </div>
+        <div class="bx-talla-spec-card">
+          <div class="bx-talla-badge-circle"><span>hasta</span><strong>20 kg</strong></div>
+          <div class="bx-talla-spec-body">
+            <h4>Talla L</h4>
+            <div class="dims">Hasta 70 x 70 x 70 cms. o 20 kgs.</div>
+            <div class="ej">Ej: impresora, almohada, notebook, cubrecama, etc.</div>
+            <span class="max-note">Dimensiones máximas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<script>
+  const CSRF_TOKEN = "{{ csrf_token }}";
+  const ORIGEN_DEFAULT = "{{ origen_tienda|escapejs }}" || "Puerto Montt";
+
+  let DATA = {
+    regiones_y_comunas: {},
+    comunasLista: [],
+    regionPorComunaNorm: {},
+    tarifas: null,
+    puntos: [],
+    puntosPorComuna: {}
+  };
+
+  let state = {
+    tipoEntrega: "PUNTO_BLUE",
+    tallaManual: null
+  };
+
+  function normalizar(txt) {
+    return (txt || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function formatCLP(num) {
+    return "$" + Number(num || 0).toLocaleString("es-CL");
+  }
+
+  function indexarPuntos(puntos) {
+    const map = {};
+    for (const p of puntos) {
+      const key = normalizar(p.comuna);
+      if (!map[key]) map[key] = [];
+      map[key].push(p);
+    }
+    DATA.puntosPorComuna = map;
+  }
+
+  function indexarComunas(regionesYComunas) {
+    const lista = [];
+    const regMap = {};
+    for (const [region, comunas] of Object.entries(regionesYComunas)) {
+      for (const comuna of comunas) {
+        const norm = normalizar(comuna);
+        lista.push({ comuna, region, norm });
+        regMap[norm] = { comuna, region };
+      }
+    }
+    lista.sort((a, b) => a.norm.localeCompare(b.norm));
+    DATA.comunasLista = lista;
+    DATA.regionPorComunaNorm = regMap;
+  }
+
+  async function cargarInicial() {
+    try {
+      const res = await fetch("{% url 'api_blue_express_data' %}");
+      const json = await res.json();
+      DATA.regiones_y_comunas = json.regiones_y_comunas;
+      indexarComunas(DATA.regiones_y_comunas);
+      DATA.tarifas = json.tarifas;
+      DATA.puntos = json.puntos || [];
+      indexarPuntos(DATA.puntos);
+
+      actualizarBadgePuntos(json.total_puntos, json.updated_at);
+      inicializarAutocomplete("origen");
+      inicializarAutocomplete("destino");
+
+      seleccionarComuna("origen", ORIGEN_DEFAULT, false);
+      seleccionarComuna("destino", "Santiago", false);
+
+      calcular();
+    } catch (err) {
+      mostrarError("Error cargando datos iniciales: " + err.message);
+    }
+  }
+
+  function actualizarBadgePuntos(total, fecha) {
+    const textoFecha = fecha ? ` · Act: ${fecha}` : "";
+    document.getElementById("puntos-badge").textContent = `${Number(total || 0).toLocaleString("es-CL")} puntos activos${textoFecha}`;
+  }
+
+  function seleccionarComuna(lado, comunaNombre, recalcular = true) {
+    const info = DATA.regionPorComunaNorm[normalizar(comunaNombre)];
+    const input = document.getElementById(`${lado}-comuna`);
+    const regionInput = document.getElementById(`${lado}-region`);
+    if (info) {
+      input.value = info.comuna;
+      regionInput.value = info.region;
+    } else {
+      input.value = comunaNombre;
+      regionInput.value = "";
+    }
+    poblarPuntos(lado);
+    if (recalcular) calcular();
+  }
+
+  function inicializarAutocomplete(lado) {
+    const input = document.getElementById(`${lado}-comuna`);
+    const listEl = document.getElementById(`${lado}-comuna-list`);
+    const prevIdInput = document.getElementById(`${lado}-punto`);
+    let activeIdx = -1;
+    let matches = [];
+
+    function renderMatches(query) {
+      const q = normalizar(query);
+      if (!q) {
+        matches = DATA.comunasLista.slice(0, 30);
+      } else {
+        const starts = [];
+        const contains = [];
+        for (const item of DATA.comunasLista) {
+          if (item.norm.startsWith(q)) starts.push(item);
+          else if (item.norm.includes(q)) contains.push(item);
+        }
+        matches = starts.concat(contains).slice(0, 30);
+      }
+      activeIdx = matches.length > 0 ? 0 : -1;
+
+      if (matches.length === 0) {
+        listEl.innerHTML = `<div class="bx-autocomplete-empty">No se encontraron comunas</div>`;
+      } else {
+        listEl.innerHTML = matches.map((m, idx) =>
+          `<div class="bx-autocomplete-item${idx === activeIdx ? " active" : ""}" data-comuna="${m.comuna}">${m.comuna}</div>`
+        ).join("");
+      }
+      listEl.classList.add("open");
+    }
+
+    function commitSelection(comunaNombre) {
+      listEl.classList.remove("open");
+      seleccionarComuna(lado, comunaNombre, true);
+    }
+
+    input.addEventListener("focus", () => {
+      input.select();
+      renderMatches(input.value);
+    });
+
+    input.addEventListener("input", () => {
+      renderMatches(input.value);
+      const exact = DATA.regionPorComunaNorm[normalizar(input.value)];
+      if (exact) {
+        document.getElementById(`${lado}-region`).value = exact.region;
+        poblarPuntos(lado);
+        calcular();
+      }
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (!listEl.classList.contains("open")) return;
+      const items = listEl.querySelectorAll(".bx-autocomplete-item");
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (items.length === 0) return;
+        activeIdx = (activeIdx + 1) % items.length;
+        items.forEach((el, i) => el.classList.toggle("active", i === activeIdx));
+        items[activeIdx].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (items.length === 0) return;
+        activeIdx = (activeIdx - 1 + items.length) % items.length;
+        items.forEach((el, i) => el.classList.toggle("active", i === activeIdx));
+        items[activeIdx].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        if (activeIdx >= 0 && matches[activeIdx]) {
+          e.preventDefault();
+          commitSelection(matches[activeIdx].comuna);
+        }
+      } else if (e.key === "Escape") {
+        listEl.classList.remove("open");
+      }
+    });
+
+    listEl.addEventListener("mousedown", (e) => {
+      const item = e.target.closest(".bx-autocomplete-item");
+      if (item) {
+        e.preventDefault();
+        commitSelection(item.dataset.comuna);
+      }
+    });
+
+    input.addEventListener("blur", () => {
+      setTimeout(() => {
+        listEl.classList.remove("open");
+        const exact = DATA.regionPorComunaNorm[normalizar(input.value)];
+        if (exact) {
+          seleccionarComuna(lado, exact.comuna, true);
+        }
+      }, 120);
+    });
+  }
+
+  function poblarPuntos(lado) {
+    const comuna = document.getElementById(`${lado}-comuna`).value;
+    const sel = document.getElementById(`${lado}-punto`);
+    const puntos = DATA.puntosPorComuna[normalizar(comuna)] || [];
+    document.getElementById(`${lado}-count`).textContent = `${puntos.length} punto(s) en comuna`;
+
+    sel.innerHTML = `<option value="">-- Sin punto específico (solo comuna) --</option>`;
+    for (const p of puntos) {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.nombre} (${p.direccion_completa})`;
+      sel.appendChild(opt);
+    }
+    mostrarInfoPunto(lado);
+  }
+
+  function mostrarInfoPunto(lado) {
+    const id = Number(document.getElementById(`${lado}-punto`).value);
+    const box = document.getElementById(`${lado}-punto-info`);
+    if (!id) {
+      box.classList.remove("visible");
+      box.innerHTML = "";
+      return;
+    }
+    const p = DATA.puntos.find(x => x.id === id);
+    if (!p) {
+      box.classList.remove("visible");
+      return;
+    }
+    const tag247 = p.es_24_7 ? `<span class="tag-247">24/7</span>` : "";
+    box.innerHTML = `
+      <strong>${p.nombre}</strong>${tag247}<br/>
+      Dirección: ${p.direccion_completa}, ${p.comuna}<br/>
+      Horario: ${p.horario} · Tipo: ${p.tipo}
+    `;
+    box.classList.add("visible");
+  }
+
+  function intercambiarRuta() {
+    const oCom = document.getElementById("origen-comuna").value;
+    const oPto = document.getElementById("origen-punto").value;
+
+    const dCom = document.getElementById("destino-comuna").value;
+    const dPto = document.getElementById("destino-punto").value;
+
+    seleccionarComuna("origen", dCom, false);
+    document.getElementById("origen-punto").value = dPto;
+    mostrarInfoPunto("origen");
+
+    seleccionarComuna("destino", oCom, false);
+    document.getElementById("destino-punto").value = oPto;
+    mostrarInfoPunto("destino");
+
+    calcular();
+  }
+
+  function setTipoEntrega(tipo) {
+    state.tipoEntrega = tipo;
+    document.querySelectorAll(".bx-delivery-opt").forEach(el => {
+      el.classList.toggle("active", el.dataset.tipo === tipo);
+    });
+    calcular();
+  }
+
+  function determinarTallaDesdePeso(peso) {
+    const p = parseFloat(peso) || 0.4;
+    if (p <= 0.5) return "XS";
+    if (p <= 3.0) return "S";
+    if (p <= 6.0) return "M";
+    return "L";
+  }
+
+  function sincronizarPillsTalla(talla) {
+    document.querySelectorAll(".bx-talla-pill").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.talla === talla);
+    });
+  }
+
+  async function calcular() {
+    const peso = parseFloat(document.getElementById("peso-kg").value) || 0.4;
+    const talla = state.tallaManual || determinarTallaDesdePeso(peso);
+    sincronizarPillsTalla(talla);
+
+    const payload = {
+      origen_region: document.getElementById("origen-region").value,
+      origen_comuna: document.getElementById("origen-comuna").value,
+      destino_region: document.getElementById("destino-region").value,
+      destino_comuna: document.getElementById("destino-comuna").value,
+      punto_origen_id: Number(document.getElementById("origen-punto").value) || null,
+      punto_destino_id: Number(document.getElementById("destino-punto").value) || null,
+      peso_kg: peso,
+      talla: talla,
+      tipo_entrega: state.tipoEntrega
+    };
+
+    try {
+      const res = await fetch("{% url 'api_blue_express_calcular' %}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        mostrarError(data.error || "Error al calcular");
+        return;
+      }
+      ocultarError();
+
+      document.getElementById("res-modalidad-lbl").textContent =
+        state.tipoEntrega === "PUNTO_BLUE" ? "Punto Blue Express / Copec" : "Entrega a Domicilio";
+
+      document.getElementById("res-precio").textContent = formatCLP(data.precio_seleccionado);
+      document.getElementById("res-iva").textContent = data.incluye_iva ? "IVA incluido (CLP)" : "Sin IVA";
+      document.getElementById("res-ruta").textContent = `${data.origen_comuna} → ${data.destino_comuna}`;
+      document.getElementById("res-zona").textContent = data.zona_desc;
+      document.getElementById("res-talla").textContent = data.talla;
+      document.getElementById("res-precio-punto").innerHTML =
+        `${formatCLP(data.precio_punto)} <span class="bx-savings-badge">Ahorras ${formatCLP(data.ahorro_punto)}</span>`;
+      document.getElementById("res-precio-domicilio").textContent = formatCLP(data.precio_domicilio);
+
+      const rowDist = document.getElementById("row-distancia");
+      if (data.distancia_km !== null) {
+        rowDist.style.display = "flex";
+        document.getElementById("res-distancia").textContent = `${data.distancia_km} km`;
+      } else {
+        rowDist.style.display = "none";
+      }
+    } catch (err) {
+      mostrarError("Error de conexión al calcular envío: " + err.message);
+    }
+  }
+
+  function renderDiffList(containerId, items, emptyText) {
+    const el = document.getElementById(containerId);
+    if (!items || items.length === 0) {
+      el.innerHTML = `<div style="font-size:0.83rem;color:var(--muted);padding:8px 0;">${emptyText}</div>`;
+      return;
+    }
+    el.innerHTML = items.map(p => `
+      <div class="bx-diff-item">
+        <strong>${p.nombre || "Sin nombre"}</strong>
+        <span>${p.direccion_completa || ""} · ${p.comuna || ""}, ${p.region || ""}</span>
+      </div>
+    `).join("");
+  }
+
+  async function actualizarPuntos() {
+    const btn = document.getElementById("btn-actualizar");
+    const txt = document.getElementById("btn-actualizar-txt");
+    btn.disabled = true;
+    btn.classList.add("loading");
+    txt.textContent = "Actualizando...";
+    ocultarError();
+
+    try {
+      const res = await fetch("{% url 'api_panel_actualizar_puntos_blue' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": CSRF_TOKEN,
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        mostrarError(data.error || "No se pudieron actualizar los puntos.");
+        return;
+      }
+
+      DATA.puntos = data.puntos || [];
+      indexarPuntos(DATA.puntos);
+      actualizarBadgePuntos(data.total_nuevo, data.updated_at);
+
+      poblarPuntos("origen");
+      poblarPuntos("destino");
+
+      document.getElementById("stat-total-nuevo").textContent = data.total_nuevo.toLocaleString("es-CL");
+      document.getElementById("stat-total-antes").textContent = data.total_anterior.toLocaleString("es-CL");
+      document.getElementById("stat-nuevos").textContent = `+${data.nuevos_count}`;
+      document.getElementById("stat-eliminados").textContent = `-${data.eliminados_count}`;
+
+      renderDiffList("lista-nuevos", data.nuevos, "No hay puntos nuevos desde la última actualización.");
+      renderDiffList("lista-eliminados", data.eliminados, "No se eliminó ningún punto.");
+
+      document.getElementById("update-panel").classList.add("visible");
+    } catch (err) {
+      mostrarError("Error al actualizar puntos: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove("loading");
+      txt.textContent = "Actualizar Puntos";
+    }
+  }
+
+  function mostrarError(msg) {
+    const el = document.getElementById("error-banner");
+    el.textContent = msg;
+    el.classList.add("visible");
+  }
+
+  function ocultarError() {
+    document.getElementById("error-banner").classList.remove("visible");
+  }
+
+  ["origen", "destino"].forEach(lado => {
+    document.getElementById(`${lado}-punto`).addEventListener("change", () => {
+      mostrarInfoPunto(lado);
+      calcular();
+    });
+  });
+
+  document.getElementById("peso-kg").addEventListener("input", () => {
+    state.tallaManual = null;
+    calcular();
+  });
+
+  document.querySelectorAll(".bx-talla-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.tallaManual = btn.dataset.talla;
+      document.getElementById("peso-kg").value = btn.dataset.peso;
+      calcular();
+    });
+  });
+
+  cargarInicial();
+</script>
+{% endblock %}
+

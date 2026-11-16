@@ -15,6 +15,9 @@ from .tienda_publica import (
 )
 
 from .checkout_pagos import (
+    api_blue_express_data,
+    api_blue_express_calcular,
+    api_blue_express_geolocalizar,
     validar_rut_chileno,
     obtener_descuento_cupon,
     aplicar_cupon,
@@ -64,6 +67,8 @@ from .panel_admin import (
     toggle_resena,
     eliminar_resena,
     panel_guia,
+    panel_calculadora_blue,
+    api_panel_actualizar_puntos_blue,
 )
 
 from .juegos_api import (

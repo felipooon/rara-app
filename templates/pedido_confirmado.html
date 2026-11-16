@@ -1,35 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 85px auto; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    
+<div
+    style="max-width: 600px; margin: 85px auto; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
     <div style="font-size: 5rem; margin-bottom: 20px;">
         🎉🦉
     </div>
-    
+
     <h1 style="color: #27ae60; margin-bottom: 10px;">¡Pago Exitoso!</h1>
     <h2 style="color: #333; margin-top: 0;">Orden #{{ pedido.codigo_orden }}</h2>
-    
-    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; margin: 30px 0;">
+
+    <div
+        style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; margin: 30px 0;">
         <p style="font-size: 1.1rem; color: #555; line-height: 1.6;">
-            Hola <strong>{{ pedido.nombre_completo }}</strong>, hemos recibido tu pago correctamente y tu pedido ya está confirmado. ¡Gracias por tu compra!
+            Hola <strong>{{ pedido.nombre_completo }}</strong>, hemos recibido tu pago correctamente y tu pedido
+            (incluyendo el envío por Blue Express) ya está confirmado. ¡Gracias por tu compra!
         </p>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #27ae60;">
+
+        <div
+            style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #27ae60;">
             <h4 style="margin-top: 0; color: #333;">Próximos pasos:</h4>
             <ul style="margin-bottom: 0; padding-left: 20px; color: #555; line-height: 1.5;">
                 <li>Estamos preparando tu paquete con mucho cuidado. 📦</li>
-                <li>Haremos el envío directamente a <strong>{{ pedido.direccion }}, {{ pedido.ciudad }}</strong>.</li>
-                <li>Te escribiremos a tu WhatsApp (<strong>{{ pedido.telefono }}</strong>) para enviarte el comprobante de envío y los datos de seguimiento.</li>
+                <li>Modalidad de envío: <strong>{{ pedido.get_tipo_entrega_display }}</strong>.</li>
+                <li>Destino: <strong>{{ pedido.direccion }}, {{ pedido.ciudad }}</strong> ({{ pedido.region }}).</li>
+                <li>Te escribiremos a tu WhatsApp (<strong>+56{{ pedido.telefono }}</strong>) para enviarte el
+                    comprobante de envío y los datos de seguimiento.</li>
             </ul>
         </div>
-        
-        <p style="text-align: center; color: #888; margin-top: 30px; font-size: 0.9rem;">
-            Total pagado: <strong style="font-size: 1.2rem; color: #27ae60;">${{ pedido.get_total_cost }}</strong>
-        </p>
+
+        <div
+            style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin-top: 20px; font-size: 0.92rem; color: #475569;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span>Subtotal productos:</span>
+                <strong>${{ pedido.get_total_cost }}</strong>
+            </div>
+            {% if pedido.descuento_aplicado > 0 %}
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #27ae60;">
+                <span>Descuento cupón:</span>
+                <strong>-${{ pedido.descuento_aplicado }}</strong>
+            </div>
+            {% endif %}
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1; color: #0055b8;">
+                <span>Envío Blue Express ({{ pedido.get_tipo_entrega_display }}):</span>
+                <strong>${{ pedido.costo_envio }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; color: #1e293b;">
+                <strong>Total pagado:</strong>
+                <strong style="color: #27ae60; font-size: 1.25rem;">${{ pedido.get_total_final }}</strong>
+            </div>
+        </div>
     </div>
 
-    <a href="{% url 'index' %}" class="btn-categoria" style="display: inline-block; padding: 12px 30px; background: #333; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; transition: background 0.3s;">
+    <a href="{% url 'index' %}" class="btn-categoria"
+        style="display: inline-block; padding: 12px 30px; background: #333; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; transition: background 0.3s;">
         ← Volver a pajarear (Catálogo)
     </a>
 

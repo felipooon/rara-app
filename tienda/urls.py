@@ -92,7 +92,14 @@ urlpatterns = [
     path('panel/resenas/<int:id>/eliminar/', views.eliminar_resena, name='eliminar_resena'),
     path('panel/pedidos/<int:id>/enviar-resena/', views.enviar_resena_email, name='enviar_resena_email'),
     path('panel/guia/', views.panel_guia, name='panel_guia'),
+    path('panel/calculadora-blue/', views.panel_calculadora_blue, name='panel_calculadora_blue'),
+    path('panel/blue-express/actualizar-puntos/', views.api_panel_actualizar_puntos_blue, name='api_panel_actualizar_puntos_blue'),
+
+    # APIs Blue Express (Checkout y Calculadora)
+    path('api/blue-express/data/', views.api_blue_express_data, name='api_blue_express_data'),
+    path('api/blue-express/calcular/', views.api_blue_express_calcular, name='api_blue_express_calcular'),
+    path('api/blue-express/geolocalizar/', views.api_blue_express_geolocalizar, name='api_blue_express_geolocalizar'),
 
     # APIs y Proxies
     path('api/destacados-random/', views.api_destacados_random, name='api_destacados_random'),
-]  
+]

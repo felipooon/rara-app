@@ -8,13 +8,14 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db import models, transaction
 from django.utils import timezone
 
 from ..models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido, MetricaDiaria, MetricaProducto
 from ..forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ConfiguracionSitioForm
 from ..utils import generar_excel_catalogo_pos, generar_html_codigos_barra
+from ..comunas_chile import actualizar_puntos_desde_api, cargar_puntos_lista, obtener_fecha_puntos, ORIGEN_TIENDA_COMUNA
 
 
 class CustomLoginView(LoginView):
@@ -584,7 +585,7 @@ def exportar_pedidos_excel(request):
                          top=Side(style='thin', color='DDDDDD'),
                          bottom=Side(style='thin', color='DDDDDD'))
 
-    headers = ['ID Orden', 'Cliente', 'RUT', 'Email', 'Teléfono', 'Ciudad', 'Dirección', 'Estado', 'Pagado', 'Total', 'Transporte', 'Nº Seguimiento', 'Fecha']
+    headers = ['ID Orden', 'Cliente', 'RUT', 'Email', 'Teléfono', 'Comuna / Ciudad', 'Modalidad Envío', 'Dirección / Punto Blue', 'Costo Envío', 'Estado', 'Pagado', 'Total Final', 'Transporte', 'Nº Seguimiento', 'Fecha']
     ws.append(headers)
     
     for col_num in range(1, len(headers) + 1):
@@ -599,14 +600,16 @@ def exportar_pedidos_excel(request):
     ws.column_dimensions['C'].width = 15
     ws.column_dimensions['D'].width = 25
     ws.column_dimensions['E'].width = 15
-    ws.column_dimensions['F'].width = 15
-    ws.column_dimensions['G'].width = 30
-    ws.column_dimensions['H'].width = 18
-    ws.column_dimensions['I'].width = 10
-    ws.column_dimensions['J'].width = 15
-    ws.column_dimensions['K'].width = 18
-    ws.column_dimensions['L'].width = 20
+    ws.column_dimensions['F'].width = 18
+    ws.column_dimensions['G'].width = 24
+    ws.column_dimensions['H'].width = 35
+    ws.column_dimensions['I'].width = 14
+    ws.column_dimensions['J'].width = 18
+    ws.column_dimensions['K'].width = 10
+    ws.column_dimensions['L'].width = 15
     ws.column_dimensions['M'].width = 18
+    ws.column_dimensions['N'].width = 20
+    ws.column_dimensions['O'].width = 18
 
     pedidos = Pedido.objects.all().order_by('-id')
     
@@ -618,10 +621,12 @@ def exportar_pedidos_excel(request):
             p.email,
             f"+56{p.telefono}",
             p.ciudad,
+            p.get_tipo_entrega_display(),
             p.direccion,
+            f"${p.costo_envio}",
             p.get_estado_display(),
             "Sí" if p.pagado else "No",
-            f"${p.get_total_cost() - p.descuento_aplicado}",
+            f"${p.get_total_final()}",
             p.empresa_transporte,
             p.numero_seguimiento,
             p.creado.strftime("%Y-%m-%d %H:%M")
@@ -630,7 +635,7 @@ def exportar_pedidos_excel(request):
         for col_num in range(1, len(headers) + 1):
             cell = ws.cell(row=row_num, column=col_num)
             cell.border = thin_border
-            if col_num in [1, 3, 5, 8, 9, 10, 13]:
+            if col_num in [1, 3, 5, 7, 9, 10, 11, 12, 15]:
                 cell.alignment = align_center
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -826,3 +831,28 @@ def eliminar_resena(request, id):
 @staff_member_required(login_url='login')
 def panel_guia(request):
     return render(request, "panel/guia.html")
+
+
+@staff_member_required(login_url='login')
+def panel_calculadora_blue(request):
+    puntos = cargar_puntos_lista()
+    return render(request, "panel/calculadora_blue.html", {
+        "total_puntos": len(puntos),
+        "updated_at": obtener_fecha_puntos(),
+        "origen_tienda": ORIGEN_TIENDA_COMUNA,
+    })
+
+
+@staff_member_required(login_url='login')
+def api_panel_actualizar_puntos_blue(request):
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "error": "Método no permitido"}, status=405)
+    try:
+        resultado = actualizar_puntos_desde_api()
+        return JsonResponse(resultado)
+    except Exception as e:
+        return JsonResponse(
+            {"ok": False, "error": f"No se pudo conectar con Blue Express: {e}"},
+            status=500,
+        )
+

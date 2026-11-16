@@ -55,7 +55,7 @@
                 <td style="padding: 14px; font-weight: 500;">{{ p.nombre_completo }}</td>
                 <td style="padding: 14px; color: #666;">{{ p.rut }}</td>
                 <td style="padding: 14px; color: #666; font-size: 0.85rem;">{{ p.creado|date:"d/m/Y H:i" }}</td>
-                <td style="padding: 14px; font-weight: bold;">${{ p.get_total_cost }}</td>
+                <td style="padding: 14px; font-weight: bold;">${{ p.get_total_final }}</td>
                 <td style="padding: 14px;">
                     {% if p.estado == 'PAGADO' or p.pagado %}
                         <span style="background: #e8f8f5; color: #27ae60; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">✅ Pagado</span>

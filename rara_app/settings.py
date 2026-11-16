@@ -48,13 +48,13 @@ MP_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN', '')
 # Application definition
 
 INSTALLED_APPS = [
-    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'django.contrib.sitemaps',
     'tienda',
     'planificador',
@@ -224,6 +224,7 @@ else:
         },
     }
     WHITENOISE_MANIFEST_STRICT = False
+    WHITENOISE_USE_FINDERS = True
 
 
 """
