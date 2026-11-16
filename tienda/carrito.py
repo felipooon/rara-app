@@ -151,6 +151,73 @@ class Carrito:
         """Retorna True si el carrito ya alcanzó el mínimo para Entrega Presencial Gratis."""
         return self.get_total() >= self.minimo_entrega_gratis
 
+    def get_puntos_caja(self):
+        """
+        Calcula los puntos totales de capacidad de empaque del carrito (Caja XS = 12 pts):
+        - Los artículos MINI (pins, stickers) aprovechan los huecos libres de la caja:
+          si hay otros productos en la caja, hasta 2.5 pts (5 pins/stickers) no suman volumen extra.
+        """
+        if not self.carrito:
+            return 0.0
+
+        producto_ids = list(self.carrito.keys())
+        productos_map = {
+            str(p.id): p
+            for p in Producto.objects.select_related('categoria').filter(id__in=producto_ids)
+        }
+
+        puntos_no_mini = 0.0
+        puntos_mini = 0.0
+
+        for pid, data in self.carrito.items():
+            cant = max(0, int(data.get('cantidad', 0)))
+            if cant <= 0:
+                continue
+            prod = productos_map.get(str(pid))
+            if prod:
+                tam = prod.tamano_envio_efectivo
+                pts_unit = prod.puntos_caja_unidad
+            else:
+                tam = 'ESTANDAR'
+                pts_unit = 4.0
+
+            if tam == 'MINI':
+                puntos_mini += cant * pts_unit
+            else:
+                puntos_no_mini += cant * pts_unit
+
+        if puntos_no_mini > 0:
+            # Hasta 6 llaveros/pines/stickers (3.0 pts) caben en los espacios libres junto a 3 pares de calcetines u otros productos
+            puntos_mini_extra = max(0.0, puntos_mini - 3.0)
+            return round(puntos_no_mini + puntos_mini_extra, 1)
+
+        return round(puntos_mini, 1)
+
+    def get_talla_envio(self):
+        """
+        Determina la Talla Blue Express (XS, S, M, L) según los puntos de capacidad:
+        - Hasta 12 pts -> Talla XS (1 caja XS estándar: 3 calcetines + pins, 4 guías, 2 arneses, etc.)
+        - 12.1 a 36 pts -> Talla S (hasta 3 cajas XS o 1-2 libros grandes)
+        - 36.1 a 72 pts -> Talla M (1 casa de pájaros o pedidos medianos)
+        - Más de 72 pts -> Talla L (2+ casas de pájaros o pedidos grandes)
+        """
+        pts = self.get_puntos_caja()
+        if pts <= 12.0:
+            return 'XS'
+        elif pts <= 36.0:
+            return 'S'
+        elif pts <= 72.0:
+            return 'M'
+        return 'L'
+
+    @property
+    def puntos_caja(self):
+        return self.get_puntos_caja()
+
+    @property
+    def talla_envio(self):
+        return self.get_talla_envio()
+
     def __iter__(self):
         """
         Permite iterar sobre los items del carrito en los templates HTML y 

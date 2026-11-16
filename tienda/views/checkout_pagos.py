@@ -256,12 +256,14 @@ def procesar_pedido(request):
 
     comuna_default = ORIGEN_TIENDA_COMUNA
     tipo_entrega_default = 'PUNTO_BLUE'
+    talla_carrito = carrito.get_talla_envio()
+    puntos_caja = carrito.puntos_caja
     costo_envio_inicial = calcular_costo_envio(
         comuna_default,
         total_carrito=subtotal_productos,
         tipo_entrega=tipo_entrega_default,
         origen_comuna=ORIGEN_TIENDA_COMUNA,
-        talla='XS',
+        talla=talla_carrito,
     )
     costo_retiro_actual = calcular_costo_envio(
         comuna_default,
@@ -291,7 +293,7 @@ def procesar_pedido(request):
             total_carrito=subtotal_productos,
             tipo_entrega=tipo_entrega,
             origen_comuna=ORIGEN_TIENDA_COMUNA,
-            talla='XS',
+            talla=talla_carrito,
         )
         total_final = subtotal_productos + costo_envio
 
@@ -306,6 +308,8 @@ def procesar_pedido(request):
             'costo_entrega_reducido': COSTO_ENTREGA_PRESENCIAL_REDUCIDO,
             'falta_entrega_gratis': falta_entrega_gratis,
             'porcentaje_entrega_gratis': porcentaje_entrega_gratis,
+            'talla_envio': talla_carrito,
+            'puntos_caja': puntos_caja,
             'total_final': total_final,
             'origen_tienda': ORIGEN_TIENDA_COMUNA,
             'datos_previos': request.POST,
@@ -370,7 +374,7 @@ def procesar_pedido(request):
             punto_blue_id=punto_blue_id,
             punto_blue_nombre=punto_blue_nombre,
             punto_blue_direccion=punto_blue_direccion,
-            talla_envio='XS' if tipo_entrega != 'RETIRO' else '-',
+            talla_envio=talla_carrito if tipo_entrega != 'RETIRO' else '-',
             costo_envio=costo_envio,
             empresa_transporte=empresa_transporte,
             cupon=cupon_obj,
@@ -545,6 +549,8 @@ www.raratienda.cl/panel
         'costo_entrega_reducido': COSTO_ENTREGA_PRESENCIAL_REDUCIDO,
         'falta_entrega_gratis': falta_entrega_gratis,
         'porcentaje_entrega_gratis': porcentaje_entrega_gratis,
+        'talla_envio': talla_carrito,
+        'puntos_caja': puntos_caja,
         'total_final': total_final,
         'origen_tienda': ORIGEN_TIENDA_COMUNA,
     })

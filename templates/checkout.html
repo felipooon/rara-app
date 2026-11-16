@@ -73,7 +73,7 @@
                         <span class="step-number step-number-blue">2</span>
                         <div>
                             <h3 style="color: #002b5c;">Método de Envío o Entrega</h3>
-                            <p>Origen del envío: <strong>{{ origen_tienda }}</strong> (Talla XS · pagado junto a tu compra)</p>
+                            <p>Origen del envío: <strong>{{ origen_tienda }}</strong> (Talla {{ talla_envio|default:'XS' }} · calculada según tus productos)</p>
                         </div>
                     </div>
                     <span class="shipping-time-pill">
@@ -1082,6 +1082,7 @@
     // INTEGRACIÓN CALCULADORA BLUE EXPRESS + MAPA + GEOLOCALIZACIÓN
     // =====================================================================
     const ORIGEN_TIENDA = "{{ origen_tienda|escapejs }}" || "Puerto Montt";
+    const TALLA_CARRITO = "{{ talla_envio|default:'XS'|escapejs }}" || "XS";
     const TIENE_CIUDAD_PREVIA = Boolean("{{ datos_previos.ciudad|default:''|escapejs }}".trim());
     const SUBTOTAL_PRODUCTOS = parseInt(
         String(document.getElementById("resumen-subtotal").dataset.subtotal || "0").replace(/\D/g, ""),
@@ -1452,7 +1453,7 @@
                 body: JSON.stringify({
                     origen_comuna: ORIGEN_TIENDA,
                     destino_comuna: comunaInput,
-                    talla: "XS",
+                    talla: TALLA_CARRITO,
                     peso_kg: 0.4,
                     tipo_entrega: bxState.tipoEntrega,
                     punto_destino_id: Number(document.getElementById("punto_blue_select").value) || null,

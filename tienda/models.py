@@ -43,6 +43,37 @@ class Categoria(models.Model):
 
 
 class Producto(models.Model):
+    TAMANO_ENVIO_CHOICES = (
+        ('AUTO', '✨ Automático (según nombre/categoría)'),
+        ('MINI', '🟢 Mini — Pin / Llavero / Sticker / Marcapáginas (van en huecos de caja XS)'),
+        ('COMPACTO', '🟢 Compacto — Contador / Libreta chica (caben 8 en XS, o 4 + 1 arnés)'),
+        ('CHICO', '🟢 Chico — Guía desplegable / Bolsillo (caben 4 en caja XS)'),
+        ('ESTANDAR', '🟢 Estándar — Calcetín / Bandana / Gorro (caben 3 en caja XS)'),
+        ('MEDIANO', '🟢 Mediano — Arnés / Tazón / Estuche (caben 2 en caja XS)'),
+        ('GRANDE_S', '🔵 Grande — Libro grande / Caja regalo (pasa directo a Talla S)'),
+        ('VOLUMINOSO_M', '🟠 Voluminoso — Casa de pájaros / Comedero (1 ud = Talla M · 2+ uds = Talla L)'),
+    )
+
+    PUNTOS_POR_TAMANO = {
+        'MINI': 0.5,
+        'COMPACTO': 1.5,
+        'CHICO': 3.0,
+        'ESTANDAR': 4.0,
+        'MEDIANO': 6.0,
+        'GRANDE_S': 16.0,
+        'VOLUMINOSO_M': 40.0,
+    }
+
+    ETIQUETAS_CORTAS_TAMANO = {
+        'MINI': 'Mini — Pin / Llavero / Sticker (0.5 pts · va en huecos de caja XS)',
+        'COMPACTO': 'Compacto — Contador / Libreta (1.5 pts)',
+        'CHICO': 'Chico — Guía (3 pts · 4 por caja XS)',
+        'ESTANDAR': 'Estándar — Calcetín / Bandana (4 pts · 3 por caja XS)',
+        'MEDIANO': 'Mediano — Arnés / Tazón (6 pts · 2 por caja XS)',
+        'GRANDE_S': 'Grande — Libro (16 pts · Talla S)',
+        'VOLUMINOSO_M': 'Voluminoso — Casa de pájaros (40 pts · Talla M/L)',
+    }
+
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True, null=True)
@@ -53,6 +84,13 @@ class Producto(models.Model):
     # Control de inventario y disponibilidad
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en inventario")
     disponible = models.BooleanField(default=True)
+    tamano_envio = models.CharField(
+        max_length=20,
+        choices=TAMANO_ENVIO_CHOICES,
+        default='AUTO',
+        verbose_name="Tamaño en caja de envío",
+        help_text="Define cuánto espacio ocupa en la caja XS (12 pts) o si pasa directo a Talla S, M o L",
+    )
 
     # Ofertas y Descuentos
     en_oferta = models.BooleanField(default=False, verbose_name="En oferta", help_text="Marcar para activar precio de oferta")
@@ -173,6 +211,55 @@ class Producto(models.Model):
     def codigo_barras_svg(self):
         """SVG vectorial del código de barras listo para renderizar o imprimir."""
         return mark_safe(generar_svg_code128c(self.codigo_barras))
+
+    def inferir_tamano_envio(self):
+        """
+        Infiere el tamaño en caja de envío a partir del nombre del producto y su categoría
+        cuando tamano_envio está en 'AUTO'.
+        """
+        import unicodedata
+        cat_txt = self.categoria.nombre if getattr(self, 'categoria_id', None) and self.categoria else ""
+        raw = f"{self.nombre or ''} {cat_txt}".lower()
+        norm = ''.join(
+            c for c in unicodedata.normalize('NFD', raw)
+            if unicodedata.category(c) != 'Mn'
+        )
+        if any(k in norm for k in ('casa', 'comedero', 'anidera', 'caja nido', 'pajarera')):
+            return 'VOLUMINOSO_M'
+        if 'libro' in norm and 'libreta' not in norm:
+            return 'GRANDE_S'
+        if any(k in norm for k in ('arnes', 'tazon', 'mug', 'botella', 'termo', 'binocular')):
+            return 'MEDIANO'
+        if any(k in norm for k in ('calcetin', 'calceta', 'bandana', 'cuello', 'buff', 'gorro', 'jockey', 'polera', 'totebag', 'bolso')):
+            return 'ESTANDAR'
+        if any(k in norm for k in ('guia', 'folleto', 'mapa')):
+            return 'CHICO'
+        if any(k in norm for k in ('contador', 'libreta', 'lapiz', 'cuaderno')):
+            return 'COMPACTO'
+        if any(k in norm for k in ('pin', 'piocha', 'llavero', 'sticker', 'adhesivo', 'calcomania', 'iman', 'parche', 'marcapagina', 'postal', 'print', 'lamina')):
+            return 'MINI'
+        return 'ESTANDAR'
+
+    @property
+    def tamano_envio_efectivo(self):
+        """Retorna el código de tamaño efectivo (resolviendo 'AUTO')."""
+        if not self.tamano_envio or self.tamano_envio == 'AUTO':
+            return self.inferir_tamano_envio()
+        return self.tamano_envio
+
+    @property
+    def puntos_caja_unidad(self):
+        """Puntos de capacidad de caja que ocupa 1 unidad (Caja XS = 12 pts)."""
+        return self.PUNTOS_POR_TAMANO.get(self.tamano_envio_efectivo, 4.0)
+
+    @property
+    def etiqueta_tamano_envio(self):
+        """Etiqueta legible del tamaño de envío efectivo."""
+        efectivo = self.tamano_envio_efectivo
+        base = self.ETIQUETAS_CORTAS_TAMANO.get(efectivo, 'Estándar (4 pts)')
+        if not self.tamano_envio or self.tamano_envio == 'AUTO':
+            return f"Auto: {base}"
+        return base
 
     # --- LÓGICA DE AUTOMATIZACIÓN AL GUARDAR ---
     def save(self, *args, **kwargs):

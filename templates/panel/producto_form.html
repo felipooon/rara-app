@@ -306,6 +306,20 @@ function ejecutarCopiaFormModal() {
                 </div>
             </div>
         </div>
+
+        <div class="form-group" style="background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 16px 18px; margin-bottom: 24px;">
+            <label for="{{ form.tamano_envio.id_for_label }}" style="color: #002b5c; font-weight: 800; margin-bottom: 6px;">
+                📦 Tamaño en Caja de Envío (Blue Express)
+            </label>
+            {{ form.tamano_envio }}
+            <p style="font-size: 0.8rem; color: #334155; margin: 8px 0 0 0; line-height: 1.45;">
+                <strong>¿Cómo calcula el carrito la talla del paquete?</strong> Tu <strong>Caja XS tiene capacidad de 12 puntos</strong>:
+                caben p. ej. <strong>3 calcetines/bandanas</strong> (4 pts c/u) + <strong>llaveros/pines/stickers</strong> libres, o <strong>4 guías</strong> (3 pts c/u), o <strong>2 arneses</strong> (6 pts c/u), o <strong>1 arnés + 4 contadores</strong>. Un <strong>libro grande</strong> pasa directo a <strong>Talla S</strong>, y una <strong>casa de pájaros</strong> a <strong>Talla M</strong> (2+ pasan a <strong>L</strong>).
+                {% if editando and form.instance.id %}
+                    <br><span style="color: #0055b8; font-weight: 700;">Tamaño activo actual: {{ form.instance.etiqueta_tamano_envio }}</span>
+                {% endif %}
+            </p>
+        </div>
         
         <div class="form-group file-upload-box" style="margin-bottom: 25px;">
             <label style="display:block; margin-bottom: 10px; font-weight: 700; color: #1e293b; font-size: 1.05rem;">
