@@ -986,10 +986,10 @@
 
         async function initGame() {
             try {
-                // Fetch species dictionary
-                let res = await fetch('/api/diccionario-especies/');
+                // Fetch species dictionary (aves regulares y emblemáticas de Chile)
+                let res = await fetch('/api/diccionario-especies/?modo=juegos');
                 if(!res.ok) {
-                    res = await fetch('https://raratienda.cl/api/diccionario-especies/');
+                    res = await fetch('https://raratienda.cl/api/diccionario-especies/?modo=juegos');
                 }
                 const rawData = await res.json();
                 speciesList = Object.values(rawData);

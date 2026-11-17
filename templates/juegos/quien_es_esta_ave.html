@@ -455,7 +455,7 @@
         // Iniciar
         async function initGame() {
             try {
-                const res = await fetch('https://raratienda.cl/api/diccionario-especies/');
+                const res = await fetch('/api/diccionario-especies/?modo=juegos');
                 const rawData = await res.json();
                 speciesArray = Object.values(rawData);
                 initRound();

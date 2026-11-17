@@ -1,0 +1,2007 @@
+{
+  "rocpig": {
+    "es": "Paloma doméstica",
+    "en": "Rock Pigeon",
+    "sci": "Columba livia"
+  },
+  "eardov1": {
+    "es": "Tórtola",
+    "en": "Eared Dove",
+    "sci": "Zenaida auriculata"
+  },
+  "grbfir1": {
+    "es": "Picaflor chico",
+    "en": "Green-backed Firecrown",
+    "sci": "Sephanoides sephaniodes"
+  },
+  "tuttyr1": {
+    "es": "Cachudito común",
+    "en": "Tufted Tit-Tyrant",
+    "sci": "Anairetes parulus"
+  },
+  "houwre4": {
+    "es": "Chercán común",
+    "en": "Southern House Wren",
+    "sci": "Troglodytes musculus"
+  },
+  "austhr1": {
+    "es": "Zorzal patagónico",
+    "en": "Austral Thrush",
+    "sci": "Turdus falcklandii"
+  },
+  "rucspa1": {
+    "es": "Chincol",
+    "en": "Rufous-collared Sparrow",
+    "sci": "Zonotrichia capensis"
+  },
+  "pigdov1": {
+    "es": "Tortolita cuyana",
+    "en": "Picui Ground Dove",
+    "sci": "Columbina picui"
+  },
+  "bcbeag1": {
+    "es": "Águila",
+    "en": "Black-chested Buzzard-Eagle",
+    "sci": "Geranoaetus melanoleucus"
+  },
+  "chicar1": {
+    "es": "Tiuque",
+    "en": "Chimango Caracara",
+    "sci": "Daptrius chimango"
+  },
+  "monpar": {
+    "es": "Cotorra",
+    "en": "Monk Parakeet",
+    "sci": "Myiopsitta monachus"
+  },
+  "houspa": {
+    "es": "Gorrión",
+    "en": "House Sparrow",
+    "sci": "Passer domesticus"
+  },
+  "calqua": {
+    "es": "Codorniz",
+    "en": "California Quail",
+    "sci": "Callipepla californica"
+  },
+  "soulap1": {
+    "es": "Queltehue común",
+    "en": "Southern Lapwing",
+    "sci": "Vanellus chilensis"
+  },
+  "ocftap1": {
+    "es": "Churrín de la Mocha",
+    "en": "Ochre-flanked Tapaculo",
+    "sci": "Eugralla paradoxa"
+  },
+  "fiediu1": {
+    "es": "Diucón",
+    "en": "Fire-eyed Diucon",
+    "sci": "Pyrope pyrope"
+  },
+  "pattyr2": {
+    "es": "Viudita",
+    "en": "Patagonian Tyrant",
+    "sci": "Colorhamphus parvirostris"
+  },
+  "chiswa1": {
+    "es": "Golondrina chilena",
+    "en": "Chilean Swallow",
+    "sci": "Tachycineta leucopyga"
+  },
+  "lotmea1": {
+    "es": "Loica común",
+    "en": "Long-tailed Meadowlark",
+    "sci": "Leistes loyca"
+  },
+  "pasfin1": {
+    "es": "Cometocino patagónico",
+    "en": "Patagonian Sierra Finch",
+    "sci": "Phrygilus patagonicus"
+  },
+  "codfin1": {
+    "es": "Diuca común",
+    "en": "Diuca Finch",
+    "sci": "Diuca diuca"
+  },
+  "gryfin1": {
+    "es": "Chirihue común",
+    "en": "Grassland Yellow-Finch",
+    "sci": "Sicalis luteola"
+  },
+  "kelgul": {
+    "es": "Gaviota dominicana",
+    "en": "Kelp Gull",
+    "sci": "Larus dominicanus"
+  },
+  "pmtspi1": {
+    "es": "Tijeral común",
+    "en": "Plain-mantled Tit-Spinetail",
+    "sci": "Leptasthenura aegithaloides"
+  },
+  "blcsis2": {
+    "es": "Jilguero austral",
+    "en": "Black-chinned Siskin",
+    "sci": "Spinus barbatus"
+  },
+  "ausbla1": {
+    "es": "Tordo",
+    "en": "Austral Blackbird",
+    "sci": "Curaeus curaeus"
+  },
+  "greegr": {
+    "es": "Garza grande",
+    "en": "Great Egret",
+    "sci": "Ardea alba"
+  },
+  "hrshaw": {
+    "es": "Peuco",
+    "en": "Harris's Hawk",
+    "sci": "Parabuteo unicinctus"
+  },
+  "pershe2": {
+    "es": "Picaflor de Cora",
+    "en": "Peruvian Sheartail",
+    "sci": "Thaumastura cora"
+  },
+  "sheowl": {
+    "es": "Nuco",
+    "en": "Short-eared Owl",
+    "sci": "Asio flammeus"
+  },
+  "aupowl1": {
+    "es": "Chuncho austral",
+    "en": "Austral Pygmy-Owl",
+    "sci": "Glaucidium nana"
+  },
+  "tatdot1": {
+    "es": "Chorlo de campo",
+    "en": "Tawny-throated Dotterel",
+    "sci": "Oreopholus ruficollis"
+  },
+  "bkfibi1": {
+    "es": "Bandurria común",
+    "en": "Black-faced Ibis",
+    "sci": "Theristicus melanopis"
+  },
+  "cinhar1": {
+    "es": "Vari ceniciento",
+    "en": "Cinereous Harrier",
+    "sci": "Circus cinereus"
+  },
+  "commin1": {
+    "es": "Minero común",
+    "en": "Common Miner",
+    "sci": "Geositta cunicularia"
+  },
+  "brnowl": {
+    "es": "Lechuza",
+    "en": "American Barn Owl",
+    "sci": "Tyto furcata"
+  },
+  "grhowl2": {
+    "es": "Tucúquere",
+    "en": "Lesser Horned Owl",
+    "sci": "Bubo magellanicus"
+  },
+  "plurai1": {
+    "es": "Pidén común",
+    "en": "Plumbeous Rail",
+    "sci": "Pardirallus sanguinolentus"
+  },
+  "gyhsif1": {
+    "es": "Cometocino de Gay",
+    "en": "Gray-hooded Sierra Finch",
+    "sci": "Phrygilus gayi"
+  },
+  "wepdov1": {
+    "es": "Paloma de alas blancas",
+    "en": "West Peruvian Dove",
+    "sci": "Zenaida meloda"
+  },
+  "blaoys1": {
+    "es": "Pilpilén negro",
+    "en": "Blackish Oystercatcher",
+    "sci": "Haematopus ater"
+  },
+  "grygul": {
+    "es": "Gaviota garuma",
+    "en": "Gray Gull",
+    "sci": "Leucophaeus modestus"
+  },
+  "neocor": {
+    "es": "Yeco",
+    "en": "Neotropic Cormorant",
+    "sci": "Nannopterum brasilianum"
+  },
+  "rebhaw2": {
+    "es": "Aguilucho común",
+    "en": "Variable Hawk",
+    "sci": "Geranoaetus polyosoma"
+  },
+  "amekes": {
+    "es": "Cernícalo",
+    "en": "American Kestrel",
+    "sci": "Falco sparverius"
+  },
+  "seacin1": {
+    "es": "Churrete costero",
+    "en": "Seaside Cinclodes",
+    "sci": "Cinclodes nigrofumosus"
+  },
+  "chimoc1": {
+    "es": "Tenca chilena",
+    "en": "Chilean Mockingbird",
+    "sci": "Mimus thenca"
+  },
+  "bawnig1": {
+    "es": "Gallina ciega común",
+    "en": "Band-winged Nightjar",
+    "sci": "Systellura longirostris"
+  },
+  "rinkin1": {
+    "es": "Martín pescador",
+    "en": "Ringed Kingfisher",
+    "sci": "Megaceryle torquata"
+  },
+  "chutap1": {
+    "es": "Chucao",
+    "en": "Chucao Tapaculo",
+    "sci": "Scelorchilus rubecula"
+  },
+  "strwoo6": {
+    "es": "Carpinterito",
+    "en": "Striped Woodpecker",
+    "sci": "Veniliornis lignarius"
+  },
+  "cintea": {
+    "es": "Pato colorado",
+    "en": "Cinnamon Teal",
+    "sci": "Spatula cyanoptera"
+  },
+  "whcpin": {
+    "es": "Pato gargantillo",
+    "en": "White-cheeked Pintail",
+    "sci": "Anas bahamensis"
+  },
+  "comgal1": {
+    "es": "Tagüita del norte",
+    "en": "Common Gallinule",
+    "sci": "Gallinula galeata"
+  },
+  "ameoys": {
+    "es": "Pilpilén común",
+    "en": "American Oystercatcher",
+    "sci": "Haematopus palliatus"
+  },
+  "bkbplo": {
+    "es": "Chorlo ártico",
+    "en": "Black-bellied Plover",
+    "sci": "Pluvialis squatarola"
+  },
+  "amgplo": {
+    "es": "Chorlo dorado",
+    "en": "American Golden-Plover",
+    "sci": "Pluvialis dominica"
+  },
+  "killde": {
+    "es": "Chorlo gritón",
+    "en": "Killdeer",
+    "sci": "Charadrius vociferus"
+  },
+  "whimbr3": {
+    "es": "Zarapito común",
+    "en": "Hudsonian Whimbrel",
+    "sci": "Numenius hudsonicus"
+  },
+  "willet1": {
+    "es": "Playero grande",
+    "en": "Willet",
+    "sci": "Tringa semipalmata"
+  },
+  "greyel": {
+    "es": "Pitotoy grande",
+    "en": "Greater Yellowlegs",
+    "sci": "Tringa melanoleuca"
+  },
+  "leasan": {
+    "es": "Playero enano",
+    "en": "Least Sandpiper",
+    "sci": "Calidris minutilla"
+  },
+  "semsan": {
+    "es": "Playero semipalmado",
+    "en": "Semipalmated Sandpiper",
+    "sci": "Calidris pusilla"
+  },
+  "andgul1": {
+    "es": "Gaviota andina",
+    "en": "Andean Gull",
+    "sci": "Chroicocephalus serranus"
+  },
+  "belgul": {
+    "es": "Gaviota peruana",
+    "en": "Belcher's Gull",
+    "sci": "Larus belcheri"
+  },
+  "blkski": {
+    "es": "Rayador",
+    "en": "Black Skimmer",
+    "sci": "Rynchops niger"
+  },
+  "gubter2": {
+    "es": "Gaviotín de pico negro",
+    "en": "Gull-billed Tern",
+    "sci": "Gelochelidon nilotica"
+  },
+  "eleter1": {
+    "es": "Gaviotín elegante",
+    "en": "Elegant Tern",
+    "sci": "Thalasseus elegans"
+  },
+  "punibi1": {
+    "es": "Cuervo de pantano de la puna",
+    "en": "Puna Ibis",
+    "sci": "Plegadis ridgwayi"
+  },
+  "bcnher": {
+    "es": "Huairavo común",
+    "en": "Black-crowned Night Heron",
+    "sci": "Nycticorax nycticorax"
+  },
+  "perpel1": {
+    "es": "Pelícano de Humboldt",
+    "en": "Peruvian Pelican",
+    "sci": "Pelecanus thagus"
+  },
+  "turvul": {
+    "es": "Jote de cabeza colorada",
+    "en": "Turkey Vulture",
+    "sci": "Cathartes aura"
+  },
+  "chitin1": {
+    "es": "Perdiz chilena",
+    "en": "Chilean Tinamou",
+    "sci": "Nothoprocta perdicaria"
+  },
+  "gresht1": {
+    "es": "Mero grande",
+    "en": "Great Shrike-Tyrant",
+    "sci": "Agriornis lividus"
+  },
+  "mosfin1": {
+    "es": "Yal común",
+    "en": "Mourning Sierra Finch",
+    "sci": "Rhopospina fruticeti"
+  },
+  "shicow": {
+    "es": "Mirlo común",
+    "en": "Shiny Cowbird",
+    "sci": "Molothrus bonariensis"
+  },
+  "chipig2": {
+    "es": "Torcaza",
+    "en": "Chilean Pigeon",
+    "sci": "Patagioenas araucana"
+  },
+  "slbpar1": {
+    "es": "Choroy",
+    "en": "Slender-billed Parakeet",
+    "sci": "Enicognathus leptorhynchus"
+  },
+  "humpen1": {
+    "es": "Pingüino de Humboldt",
+    "en": "Humboldt Penguin",
+    "sci": "Spheniscus humboldti"
+  },
+  "bkbalb": {
+    "es": "Albatros de ceja negra",
+    "en": "Black-browed Albatross",
+    "sci": "Thalassarche melanophris"
+  },
+  "perboo1": {
+    "es": "Piquero de Humboldt",
+    "en": "Peruvian Booby",
+    "sci": "Sula variegata"
+  },
+  "guacor1": {
+    "es": "Guanay",
+    "en": "Guanay Cormorant",
+    "sci": "Leucocarbo bougainvilliorum"
+  },
+  "corcan1": {
+    "es": "Canastero chico",
+    "en": "Cordilleran Canastero",
+    "sci": "Asthenes modesta"
+  },
+  "y00678": {
+    "es": "Traro",
+    "en": "Crested Caracara",
+    "sci": "Caracara plancus"
+  },
+  "magtap1": {
+    "es": "Churrín del sur",
+    "en": "Magellanic Tapaculo",
+    "sci": "Scytalopus magellanicus"
+  },
+  "thtray1": {
+    "es": "Rayadito",
+    "en": "Thorn-tailed Rayadito",
+    "sci": "Aphrastura spinicauda"
+  },
+  "rinphe1": {
+    "es": "Faisán de collar",
+    "en": "Ring-necked Pheasant",
+    "sci": "Phasianus colchicus"
+  },
+  "auspar1": {
+    "es": "Cachaña",
+    "en": "Austral Parakeet",
+    "sci": "Enicognathus ferrugineus"
+  },
+  "chifli1": {
+    "es": "Pitío austral",
+    "en": "Chilean Flicker",
+    "sci": "Colaptes pitius"
+  },
+  "moutur1": {
+    "es": "Turca",
+    "en": "Moustached Turca",
+    "sci": "Pteroptochos megapodius"
+  },
+  "btsfin1": {
+    "es": "Platero",
+    "en": "Band-tailed Sierra Finch",
+    "sci": "Rhopospina alaudina"
+  },
+  "pibgre": {
+    "es": "Picurio",
+    "en": "Pied-billed Grebe",
+    "sci": "Podilymbus podiceps"
+  },
+  "cosswa1": {
+    "es": "Cisne coscoroba",
+    "en": "Coscoroba Swan",
+    "sci": "Coscoroba coscoroba"
+  },
+  "chiwig1": {
+    "es": "Pato real",
+    "en": "Chiloe Wigeon",
+    "sci": "Mareca sibilatrix"
+  },
+  "yebpin1": {
+    "es": "Pato jergón grande",
+    "en": "Yellow-billed Pintail",
+    "sci": "Anas georgica"
+  },
+  "regcoo1": {
+    "es": "Tagua común",
+    "en": "Red-gartered Coot",
+    "sci": "Fulica armillata"
+  },
+  "bknsti": {
+    "es": "Perrito",
+    "en": "Black-necked Stilt",
+    "sci": "Himantopus mexicanus"
+  },
+  "colplo1": {
+    "es": "Chorlo de collar",
+    "en": "Collared Plover",
+    "sci": "Anarhynchus collaris"
+  },
+  "brhgul2": {
+    "es": "Gaviota cáhuil",
+    "en": "Brown-hooded Gull",
+    "sci": "Chroicocephalus maculipennis"
+  },
+  "truter": {
+    "es": "Gaviotín piquerito",
+    "en": "Snowy-crowned Tern",
+    "sci": "Sterna trudeaui"
+  },
+  "gregre1": {
+    "es": "Huala",
+    "en": "Great Grebe",
+    "sci": "Podiceps major"
+  },
+  "snoegr": {
+    "es": "Garza chica",
+    "en": "Snowy Egret",
+    "sci": "Egretta thula"
+  },
+  "whtkit": {
+    "es": "Bailarín",
+    "en": "White-tailed Kite",
+    "sci": "Elanus leucurus"
+  },
+  "buwcin1": {
+    "es": "Churrete acanelado",
+    "en": "Buff-winged Cinclodes",
+    "sci": "Cinclodes fuscus"
+  },
+  "rutpla1": {
+    "es": "Rara",
+    "en": "Rufous-tailed Plantcutter",
+    "sci": "Phytotoma rara"
+  },
+  "mcrtyr1": {
+    "es": "Siete colores",
+    "en": "Many-colored Rush Tyrant",
+    "sci": "Tachuris rubrigastra"
+  },
+  "blnswa2": {
+    "es": "Cisne de cuello negro",
+    "en": "Black-necked Swan",
+    "sci": "Cygnus melancoryphus"
+  },
+  "spfgal1": {
+    "es": "Tagüita común",
+    "en": "Spot-flanked Gallinule",
+    "sci": "Porphyriops melanops"
+  },
+  "refcoo1": {
+    "es": "Tagua de frente roja",
+    "en": "Red-fronted Coot",
+    "sci": "Fulica rufifrons"
+  },
+  "whtgre3": {
+    "es": "Pimpollo común",
+    "en": "White-tufted Grebe",
+    "sci": "Rollandia rolland"
+  },
+  "cocher1": {
+    "es": "Garza cuca",
+    "en": "Cocoi Heron",
+    "sci": "Ardea cocoi"
+  },
+  "blkvul": {
+    "es": "Jote de cabeza negra",
+    "en": "Black Vulture",
+    "sci": "Coragyps atratus"
+  },
+  "ausneg1": {
+    "es": "Colegial austral",
+    "en": "Austral Negrito",
+    "sci": "Lessonia rufa"
+  },
+  "yewbla2": {
+    "es": "Trile",
+    "en": "Yellow-winged Blackbird",
+    "sci": "Agelasticus thilius"
+  },
+  "rucdot1": {
+    "es": "Chorlo chileno",
+    "en": "Rufous-chested Dotterel",
+    "sci": "Zonibyx modestus"
+  },
+  "twbplo1": {
+    "es": "Chorlo de doble collar",
+    "en": "Two-banded Plover",
+    "sci": "Anarhynchus falklandicus"
+  },
+  "snoplo5": {
+    "es": "Chorlo nevado",
+    "en": "Snowy Plover",
+    "sci": "Anarhynchus nivosus"
+  },
+  "sander": {
+    "es": "Playero blanco",
+    "en": "Sanderling",
+    "sci": "Calidris alba"
+  },
+  "bthhue1": {
+    "es": "Hued-hued del sur",
+    "en": "Black-throated Huet-huet",
+    "sci": "Pteroptochos tarnii"
+  },
+  "whttre2": {
+    "es": "Comesebo grande",
+    "en": "White-throated Treerunner",
+    "sci": "Pygarrhichas albogularis"
+  },
+  "torduc1": {
+    "es": "Pato cortacorrientes",
+    "en": "Torrent Duck",
+    "sci": "Merganetta armata"
+  },
+  "andcon1": {
+    "es": "Cóndor",
+    "en": "Andean Condor",
+    "sci": "Vultur gryphus"
+  },
+  "burpar": {
+    "es": "Tricahue",
+    "en": "Burrowing Parakeet",
+    "sci": "Cyanoliseus patagonus"
+  },
+  "dafgrt1": {
+    "es": "Dormilona tontita",
+    "en": "Dark-faced Ground-Tyrant",
+    "sci": "Muscisaxicola maclovianus"
+  },
+  "andgoo1": {
+    "es": "Piuquén",
+    "en": "Andean Goose",
+    "sci": "Oressochen melanopterus"
+  },
+  "redsho1": {
+    "es": "Pato cuchara",
+    "en": "Red Shoveler",
+    "sci": "Spatula platalea"
+  },
+  "yebtea1": {
+    "es": "Pato jergón chico",
+    "en": "Yellow-billed Teal",
+    "sci": "Anas flavirostris"
+  },
+  "blhduc1": {
+    "es": "Pato rinconero",
+    "en": "Black-headed Duck",
+    "sci": "Heteronetta atricapilla"
+  },
+  "whfibi": {
+    "es": "Cuervo de pantano común",
+    "en": "White-faced Ibis",
+    "sci": "Plegadis chihi"
+  },
+  "categr1": {
+    "es": "Garza bueyera",
+    "en": "Western Cattle-Egret",
+    "sci": "Ardea ibis"
+  },
+  "burowl": {
+    "es": "Pequén",
+    "en": "Burrowing Owl",
+    "sci": "Athene cunicularia"
+  },
+  "wrlrus1": {
+    "es": "Trabajador",
+    "en": "Wren-like Rushbird",
+    "sci": "Phleocryptes melanops"
+  },
+  "dutcan1": {
+    "es": "Canastero chileno",
+    "en": "Dusky-tailed Canastero",
+    "sci": "Pseudasthenes humicola"
+  },
+  "robpoc1": {
+    "es": "Pato negro",
+    "en": "Rosy-billed Pochard",
+    "sci": "Netta peposaca"
+  },
+  "pafear1": {
+    "es": "Bandurrilla de los bosques",
+    "en": "Patagonian Forest Earthcreeper",
+    "sci": "Upucerthia saturatior"
+  },
+  "aplfal": {
+    "es": "Halcón perdiguero",
+    "en": "Aplomado Falcon",
+    "sci": "Falco femoralis"
+  },
+  "dabcin1": {
+    "es": "Churrete patagónico",
+    "en": "Dark-bellied Cinclodes",
+    "sci": "Cinclodes patagonicus"
+  },
+  "leasee1": {
+    "es": "Perdicita chica",
+    "en": "Least Seedsnipe",
+    "sci": "Thinocorus rumicivorus"
+  },
+  "soasni3": {
+    "es": "Becacina común",
+    "en": "Magellanic Snipe",
+    "sci": "Gallinago magellanica"
+  },
+  "whwcoo1": {
+    "es": "Tagua chica",
+    "en": "White-winged Coot",
+    "sci": "Fulica leucoptera"
+  },
+  "demwir1": {
+    "es": "Colilarga",
+    "en": "Des Murs's Wiretail",
+    "sci": "Sylviorthorhynchus desmursii"
+  },
+  "sedwre": {
+    "es": "Chercán de las vegas",
+    "en": "Grass Wren",
+    "sci": "Cistothorus platensis"
+  },
+  "corpip1": {
+    "es": "Bailarín chico común",
+    "en": "Correndera Pipit",
+    "sci": "Anthus correndera"
+  },
+  "uplgoo1": {
+    "es": "Caiquén",
+    "en": "Upland Goose",
+    "sci": "Chloephaga picta"
+  },
+  "creduc1": {
+    "es": "Pato juarjual",
+    "en": "Crested Duck",
+    "sci": "Lophonetta specularioides"
+  },
+  "rubmin1": {
+    "es": "Minero cordillerano",
+    "en": "Rufous-banded Miner",
+    "sci": "Geositta rufipennis"
+  },
+  "bkbsht1": {
+    "es": "Mero gaucho",
+    "en": "Black-billed Shrike-Tyrant",
+    "sci": "Agriornis montanus"
+  },
+  "silgre1": {
+    "es": "Blanquillo",
+    "en": "Silvery Grebe",
+    "sci": "Podiceps occipitalis"
+  },
+  "incter1": {
+    "es": "Gaviotín monja",
+    "en": "Inca Tern",
+    "sci": "Larosterna inca"
+  },
+  "relcor1": {
+    "es": "Lile",
+    "en": "Red-legged Cormorant",
+    "sci": "Poikilocarbo gaimardi"
+  },
+  "perfal": {
+    "es": "Halcón peregrino",
+    "en": "Peregrine Falcon",
+    "sci": "Falco peregrinus"
+  },
+  "gyfcin1": {
+    "es": "Churrete chico",
+    "en": "Gray-flanked Cinclodes",
+    "sci": "Cinclodes oustaleti"
+  },
+  "oashum1": {
+    "es": "Picaflor del norte",
+    "en": "Oasis Hummingbird",
+    "sci": "Rhodopis vesper"
+  },
+  "stbbit1": {
+    "es": "Huairavillo",
+    "en": "Stripe-backed Bittern",
+    "sci": "Botaurus involucris"
+  },
+  "libher": {
+    "es": "Garza azul",
+    "en": "Little Blue Heron",
+    "sci": "Egretta caerulea"
+  },
+  "sctear1": {
+    "es": "Bandurrilla común",
+    "en": "Scale-throated Earthcreeper",
+    "sci": "Upucerthia dumetaria"
+  },
+  "flystd1": {
+    "es": "Quetru volador",
+    "en": "Flying Steamer-Duck",
+    "sci": "Tachyeres patachonicus"
+  },
+  "hudgod": {
+    "es": "Zarapito de pico recto",
+    "en": "Hudsonian Godwit",
+    "sci": "Limosa haemastica"
+  },
+  "lesyel": {
+    "es": "Pitotoy chico",
+    "en": "Lesser Yellowlegs",
+    "sci": "Tringa flavipes"
+  },
+  "whshil1": {
+    "es": "Picaflor cordillerano",
+    "en": "White-sided Hillstar",
+    "sci": "Oreotrochilus leucopleurus"
+  },
+  "rudtur": {
+    "es": "Playero vuelvepiedras",
+    "en": "Ruddy Turnstone",
+    "sci": "Arenaria interpres"
+  },
+  "ruthaw1": {
+    "es": "Aguilucho de cola rojiza",
+    "en": "Rufous-tailed Hawk",
+    "sci": "Buteo ventralis"
+  },
+  "fragul": {
+    "es": "Gaviota de Franklin",
+    "en": "Franklin's Gull",
+    "sci": "Leucophaeus pipixcan"
+  },
+  "dolgul2": {
+    "es": "Gaviota austral",
+    "en": "Dolphin Gull",
+    "sci": "Leucophaeus scoresbii"
+  },
+  "angpet1": {
+    "es": "Petrel gigante antártico",
+    "en": "Southern Giant-Petrel",
+    "sci": "Macronectes giganteus"
+  },
+  "souful1": {
+    "es": "Petrel plateado austral",
+    "en": "Southern Fulmar",
+    "sci": "Fulmarus glacialoides"
+  },
+  "impcor6": {
+    "es": "Cormorán imperial",
+    "en": "Imperial Cormorant",
+    "sci": "Leucocarbo atriceps"
+  },
+  "cthhue1": {
+    "es": "Hued-hued castaño",
+    "en": "Chestnut-throated Huet-huet",
+    "sci": "Pteroptochos castaneus"
+  },
+  "sooshe": {
+    "es": "Fardela negra",
+    "en": "Sooty Shearwater",
+    "sci": "Ardenna grisea"
+  },
+  "plsfin1": {
+    "es": "Pájaro plomo",
+    "en": "Plumbeous Sierra Finch",
+    "sci": "Geospizopsis unicolor"
+  },
+  "lakduc1": {
+    "es": "Pato rana de pico delgado",
+    "en": "Lake Duck",
+    "sci": "Oxyura vittata"
+  },
+  "whttap1": {
+    "es": "Tapaculo",
+    "en": "White-throated Tapaculo",
+    "sci": "Scelorchilus albicollis"
+  },
+  "chifla1": {
+    "es": "Flamenco chileno",
+    "en": "Chilean Flamingo",
+    "sci": "Phoenicopterus chilensis"
+  },
+  "dustap1": {
+    "es": "Churrín del norte",
+    "en": "Dusky Tapaculo",
+    "sci": "Scytalopus fuscus"
+  },
+  "surfbi": {
+    "es": "Playero de las rompientes",
+    "en": "Surfbird",
+    "sci": "Calidris virgata"
+  },
+  "baisan": {
+    "es": "Playero de Baird",
+    "en": "Baird's Sandpiper",
+    "sci": "Calidris bairdii"
+  },
+  "auscan1": {
+    "es": "Canastero del sur",
+    "en": "Austral Canastero",
+    "sci": "Asthenes anthoides"
+  },
+  "whbmoc1": {
+    "es": "Tenca de alas blancas",
+    "en": "White-banded Mockingbird",
+    "sci": "Mimus triurus"
+  },
+  "slccoo1": {
+    "es": "Tagua andina",
+    "en": "Slate-colored Coot",
+    "sci": "Fulica ardesiaca"
+  },
+  "sbgtyr1": {
+    "es": "Dormilona chica",
+    "en": "Spot-billed Ground-Tyrant",
+    "sci": "Muscisaxicola maculirostris"
+  },
+  "whcela1": {
+    "es": "Fío-fío",
+    "en": "White-crested Elaenia",
+    "sci": "Elaenia albiceps"
+  },
+  "giahum1": {
+    "es": "Picaflor gigante",
+    "en": "Giant Hummingbird",
+    "sci": "Patagona gigas"
+  },
+  "siltea1": {
+    "es": "Pato capuchino",
+    "en": "Silver Teal",
+    "sci": "Spatula versicolor"
+  },
+  "rulowl1": {
+    "es": "Concón",
+    "en": "Rufous-legged Owl",
+    "sci": "Strix rufipes"
+  },
+  "bichaw4": {
+    "es": "Peuquito",
+    "en": "Chilean Hawk",
+    "sci": "Astur chilensis"
+  },
+  "parjae": {
+    "es": "Salteador chico",
+    "en": "Parasitic Jaeger",
+    "sci": "Stercorarius parasiticus"
+  },
+  "royalb3": {
+    "es": "Albatros real del norte",
+    "en": "Northern Royal Albatross",
+    "sci": "Diomedea sanfordi"
+  },
+  "salalb1": {
+    "es": "Albatros de Salvin",
+    "en": "Salvin's Albatross",
+    "sci": "Thalassarche salvini"
+  },
+  "wispet": {
+    "es": "Golondrina de mar de Wilson/fueguina",
+    "en": "Wilson's Storm-Petrel",
+    "sci": "Oceanites oceanicus"
+  },
+  "norgip1": {
+    "es": "Petrel gigante subantártico",
+    "en": "Northern Giant-Petrel",
+    "sci": "Macronectes halli"
+  },
+  "whcpet1": {
+    "es": "Petrel de barba blanca",
+    "en": "White-chinned Petrel",
+    "sci": "Procellaria aequinoctialis"
+  },
+  "pifshe": {
+    "es": "Fardela blanca",
+    "en": "Pink-footed Shearwater",
+    "sci": "Ardenna creatopus"
+  },
+  "speduc2": {
+    "es": "Pato anteojillo",
+    "en": "Spectacled Duck",
+    "sci": "Speculanas specularis"
+  },
+  "magoys1": {
+    "es": "Pilpilén austral",
+    "en": "Magellanic Oystercatcher",
+    "sci": "Haematopus leucopodus"
+  },
+  "soater1": {
+    "es": "Gaviotín sudamericano",
+    "en": "South American Tern",
+    "sci": "Sterna hirundinacea"
+  },
+  "flistd1": {
+    "es": "Quetru no volador",
+    "en": "Flightless Steamer-Duck",
+    "sci": "Tachyeres pteneres"
+  },
+  "magpen1": {
+    "es": "Pingüino de Magallanes",
+    "en": "Magellanic Penguin",
+    "sci": "Spheniscus magellanicus"
+  },
+  "petkne1": {
+    "es": "Chorlo cabezón",
+    "en": "Peruvian Thick-knee",
+    "sci": "Hesperoburhinus superciliaris"
+  },
+  "pumstp1": {
+    "es": "Golondrina de mar Pincoya",
+    "en": "Pincoya Storm-Petrel",
+    "sci": "Oceanites pincoyae"
+  },
+  "madpet1": {
+    "es": "Yunco de Magallanes",
+    "en": "Magellanic Diving-Petrel",
+    "sci": "Pelecanoides magellani"
+  },
+  "rngtyr1": {
+    "es": "Dormilona de nuca rojiza",
+    "en": "Rufous-naped Ground-Tyrant",
+    "sci": "Muscisaxicola rufivertex"
+  },
+  "bawswa1": {
+    "es": "Golondrina de dorso negro",
+    "en": "Blue-and-white Swallow",
+    "sci": "Pygochelidon cyanoleuca"
+  },
+  "crgdov1": {
+    "es": "Tortolita quiguagua",
+    "en": "Croaking Ground Dove",
+    "sci": "Columbina cruziana"
+  },
+  "slbfin3": {
+    "es": "Pizarrita",
+    "en": "Slender-billed Finch",
+    "sci": "Xenospingus concolor"
+  },
+  "chisku1": {
+    "es": "Salteador chileno",
+    "en": "Chilean Skua",
+    "sci": "Stercorarius chilensis"
+  },
+  "kinpen1": {
+    "es": "Pingüino rey",
+    "en": "King Penguin",
+    "sci": "Aptenodytes patagonicus"
+  },
+  "soppet1": {
+    "es": "Petrel de collar gris",
+    "en": "Soft-plumaged Petrel",
+    "sci": "Pterodroma mollis"
+  },
+  "shbmin1": {
+    "es": "Minero austral",
+    "en": "Short-billed Miner",
+    "sci": "Geositta antarctica"
+  },
+  "ashgoo1": {
+    "es": "Canquén común",
+    "en": "Ashy-headed Goose",
+    "sci": "Chloephaga poliocephala"
+  },
+  "kelgoo1": {
+    "es": "Caranca",
+    "en": "Kelp Goose",
+    "sci": "Chloephaga hybrida"
+  },
+  "lesrhe2": {
+    "es": "Suri/Ñandú",
+    "en": "Lesser Rhea",
+    "sci": "Rhea pennata"
+  },
+  "maspet": {
+    "es": "Golondrina de mar negra",
+    "en": "Markham's Storm-Petrel",
+    "sci": "Hydrobates markhami"
+  },
+  "permar1": {
+    "es": "Golondrina peruana",
+    "en": "Peruvian Martin",
+    "sci": "Progne murphyi"
+  },
+  "magwoo1": {
+    "es": "Carpintero negro",
+    "en": "Magellanic Woodpecker",
+    "sci": "Campephilus magellanicus"
+  },
+  "spwpig3": {
+    "es": "Paloma manchada",
+    "en": "Spot-winged Pigeon",
+    "sci": "Patagioenas maculosa"
+  },
+  "verfly": {
+    "es": "Saca-tu-real",
+    "en": "Vermilion Flycatcher",
+    "sci": "Pyrocephalus rubinus"
+  },
+  "easkin": {
+    "es": "Suirirí boreal",
+    "en": "Eastern Kingbird",
+    "sci": "Tyrannus tyrannus"
+  },
+  "chtsee1": {
+    "es": "Corbatita del norte",
+    "en": "Chestnut-throated Seedeater",
+    "sci": "Sporophila telasco"
+  },
+  "grbani": {
+    "es": "Matacaballos",
+    "en": "Groove-billed Ani",
+    "sci": "Crotophaga sulcirostris"
+  },
+  "andswi1": {
+    "es": "Vencejo chico",
+    "en": "Andean Swift",
+    "sci": "Aeronautes andecolus"
+  },
+  "permea1": {
+    "es": "Loica peruana",
+    "en": "Peruvian Meadowlark",
+    "sci": "Leistes bellicosus"
+  },
+  "bawnig3": {
+    "es": "Gallina ciega chica",
+    "en": "Tschudi's Nightjar",
+    "sci": "Quechuavis decussata"
+  },
+  "scrcow1": {
+    "es": "Mirlo de pico corto",
+    "en": "Screaming Cowbird",
+    "sci": "Molothrus rufoaxillaris"
+  },
+  "hoosis1": {
+    "es": "Jilguero peruano",
+    "en": "Hooded Siskin",
+    "sci": "Spinus magellanicus"
+  },
+  "cincon1": {
+    "es": "Comesebo chico",
+    "en": "Cinereous Conebill",
+    "sci": "Conirostrum cinereum"
+  },
+  "semplo": {
+    "es": "Chorlo semipalmado",
+    "en": "Semipalmated Plover",
+    "sci": "Charadrius semipalmatus"
+  },
+  "cursan": {
+    "es": "Playero zarapito",
+    "en": "Curlew Sandpiper",
+    "sci": "Calidris ferruginea"
+  },
+  "osprey": {
+    "es": "Águila pescadora",
+    "en": "Osprey",
+    "sci": "Pandion haliaetus"
+  },
+  "magcor1": {
+    "es": "Cormorán de las rocas",
+    "en": "Magellanic Cormorant",
+    "sci": "Leucocarbo magellanicus"
+  },
+  "bfgdov1": {
+    "es": "Tortolita boliviana",
+    "en": "Bare-faced Ground Dove",
+    "sci": "Metriopelia ceciliae"
+  },
+  "bwgdov1": {
+    "es": "Tortolita cordillerana",
+    "en": "Black-winged Ground Dove",
+    "sci": "Metriopelia melanoptera"
+  },
+  "bryfin1": {
+    "es": "Chirihue cordillerano",
+    "en": "Bright-rumped Yellow-Finch",
+    "sci": "Sicalis uropygialis"
+  },
+  "crachi1": {
+    "es": "Chiricoca",
+    "en": "Crag Chilia",
+    "sci": "Ochetorhynchus melanurus"
+  },
+  "pcttyr1": {
+    "es": "Cachudito de cresta blanca",
+    "en": "Pied-crested Tit-Tyrant",
+    "sci": "Anairetes reguloides"
+  },
+  "tamcon1": {
+    "es": "Comesebo de los tamarugales",
+    "en": "Tamarugo Conebill",
+    "sci": "Conirostrum tamarugense"
+  },
+  "gryfin3": {
+    "es": "Chirihue verdoso",
+    "en": "Greenish Yellow-Finch",
+    "sci": "Sicalis olivascens"
+  },
+  "cliswa": {
+    "es": "Golondrina grande",
+    "en": "Cliff Swallow",
+    "sci": "Petrochelidon pyrrhonota"
+  },
+  "moupar2": {
+    "es": "Perico cordillerano",
+    "en": "Mountain Parakeet",
+    "sci": "Psilopsiagon aurifrons"
+  },
+  "crbcan4": {
+    "es": "Canastero del norte",
+    "en": "Dark-winged Canastero",
+    "sci": "Asthenes arequipae"
+  },
+  "chithr1": {
+    "es": "Zorzal negro",
+    "en": "Chiguanco Thrush",
+    "sci": "Turdus chiguanco"
+  },
+  "yersis1": {
+    "es": "Jilguero cordillerano",
+    "en": "Yellow-rumped Siskin",
+    "sci": "Spinus uropygialis"
+  },
+  "barswa": {
+    "es": "Golondrina bermeja",
+    "en": "Barn Swallow",
+    "sci": "Hirundo rustica"
+  },
+  "saffin": {
+    "es": "Chirihue azafrán",
+    "en": "Saffron Finch",
+    "sci": "Sicalis flaveola"
+  },
+  "bhsfin1": {
+    "es": "Cometocino del norte",
+    "en": "Black-hooded Sierra Finch",
+    "sci": "Phrygilus atriceps"
+  },
+  "andhil3": {
+    "es": "Picaflor de la puna",
+    "en": "Andean Hillstar",
+    "sci": "Oreotrochilus estella"
+  },
+  "absfin1": {
+    "es": "Plebeyo",
+    "en": "Ash-breasted Sierra Finch",
+    "sci": "Geospizopsis plebejus"
+  },
+  "wilpha": {
+    "es": "Pollito de mar tricolor",
+    "en": "Wilson's Phalarope",
+    "sci": "Phalaropus tricolor"
+  },
+  "stisan": {
+    "es": "Playero de patas largas",
+    "en": "Stilt Sandpiper",
+    "sci": "Calidris himantopus"
+  },
+  "pecsan": {
+    "es": "Playero pectoral",
+    "en": "Pectoral Sandpiper",
+    "sci": "Calidris melanotos"
+  },
+  "ruhgoo1": {
+    "es": "Canquén colorado",
+    "en": "Ruddy-headed Goose",
+    "sci": "Chloephaga rubidiceps"
+  },
+  "whtear1": {
+    "es": "Bandurrilla de Arica",
+    "en": "White-throated Earthcreeper",
+    "sci": "Upucerthia albigula"
+  },
+  "baytan3": {
+    "es": "Naranjero",
+    "en": "Blue-and-yellow Tanager",
+    "sci": "Rauenia bonariensis"
+  },
+  "andavo1": {
+    "es": "Caití",
+    "en": "Andean Avocet",
+    "sci": "Recurvirostra andina"
+  },
+  "punplo1": {
+    "es": "Chorlo de la puna",
+    "en": "Puna Plover",
+    "sci": "Anarhynchus alticola"
+  },
+  "andfla2": {
+    "es": "Parina grande",
+    "en": "Andean Flamingo",
+    "sci": "Phoenicoparrus andinus"
+  },
+  "andswa2": {
+    "es": "Golondrina de los riscos",
+    "en": "Andean Swallow",
+    "sci": "Orochelidon andecola"
+  },
+  "whthaw1": {
+    "es": "Aguilucho chico",
+    "en": "White-throated Hawk",
+    "sci": "Buteo albigula"
+  },
+  "bktflo1": {
+    "es": "Comesebo negro",
+    "en": "Black-throated Flowerpiercer",
+    "sci": "Diglossa brunneiventris"
+  },
+  "orntin1": {
+    "es": "Perdiz cordillerana",
+    "en": "Ornate Tinamou",
+    "sci": "Nothoprocta ornata"
+  },
+  "ybttyr1": {
+    "es": "Cachudito del norte",
+    "en": "Yellow-billed Tit-Tyrant",
+    "sci": "Anairetes flavirostris"
+  },
+  "wbctyr1": {
+    "es": "Pitajo gris",
+    "en": "White-browed Chat-Tyrant",
+    "sci": "Ochthoeca leucophrys"
+  },
+  "batsee1": {
+    "es": "Semillero",
+    "en": "Band-tailed Seedeater",
+    "sci": "Catamenia analis"
+  },
+  "andfli1": {
+    "es": "Pitío del norte",
+    "en": "Andean Flicker",
+    "sci": "Colaptes rupicola"
+  },
+  "crwcin1": {
+    "es": "Churrete de alas cremas",
+    "en": "Cream-winged Cinclodes",
+    "sci": "Cinclodes albiventris"
+  },
+  "wfgtyr1": {
+    "es": "Dormilona gigante",
+    "en": "White-fronted Ground-Tyrant",
+    "sci": "Muscisaxicola albifrons"
+  },
+  "giacon1": {
+    "es": "Comesebo gigante",
+    "en": "Giant Conebill",
+    "sci": "Conirostrum binghami"
+  },
+  "puntea1": {
+    "es": "Pato puna",
+    "en": "Puna Teal",
+    "sci": "Spatula puna"
+  },
+  "andduc1": {
+    "es": "Pato rana de pico ancho",
+    "en": "Andean Duck",
+    "sci": "Oxyura ferruginea"
+  },
+  "giacoo1": {
+    "es": "Tagua gigante",
+    "en": "Giant Coot",
+    "sci": "Fulica gigantea"
+  },
+  "whwcin1": {
+    "es": "Churrete de alas blancas",
+    "en": "White-winged Cinclodes",
+    "sci": "Cinclodes atacamensis"
+  },
+  "andneg1": {
+    "es": "Colegial del norte",
+    "en": "Andean Negrito",
+    "sci": "Lessonia oreas"
+  },
+  "dorcht1": {
+    "es": "Pitajo rojizo",
+    "en": "d'Orbigny's Chat-Tyrant",
+    "sci": "Ochthoeca oenanthoides"
+  },
+  "blasis1": {
+    "es": "Jilguero negro",
+    "en": "Black Siskin",
+    "sci": "Spinus atratus"
+  },
+  "wtsfin1": {
+    "es": "Cometocino de Arica",
+    "en": "White-throated Sierra Finch",
+    "sci": "Idiopsar erythronotus"
+  },
+  "bubear2": {
+    "es": "Bandurrilla de la puna",
+    "en": "Buff-breasted Earthcreeper",
+    "sci": "Upucerthia validirostris"
+  },
+  "pugtyr1": {
+    "es": "Dormilona de la puna",
+    "en": "Puna Ground-Tyrant",
+    "sci": "Muscisaxicola juninensis"
+  },
+  "wwdfin1": {
+    "es": "Diuca de alas blancas",
+    "en": "Glacier Finch",
+    "sci": "Idiopsar speculifer"
+  },
+  "punmin1": {
+    "es": "Minero de la puna",
+    "en": "Puna Miner",
+    "sci": "Geositta punensis"
+  },
+  "andlap1": {
+    "es": "Queltehue de la puna",
+    "en": "Andean Lapwing",
+    "sci": "Vanellus resplendens"
+  },
+  "gybsee1": {
+    "es": "Perdicita cojón",
+    "en": "Gray-breasted Seedsnipe",
+    "sci": "Thinocorus orbignyianus"
+  },
+  "yebfin1": {
+    "es": "Yal cordillerano",
+    "en": "Yellow-bridled Finch",
+    "sci": "Melanodera xanthogramma"
+  },
+  "pepowl1": {
+    "es": "Chuncho del norte",
+    "en": "Peruvian Pygmy-Owl",
+    "sci": "Glaucidium peruanum"
+  },
+  "gramin1": {
+    "es": "Minero chico",
+    "en": "Grayish Miner",
+    "sci": "Geositta maritima"
+  },
+  "strfly1": {
+    "es": "Benteveo rayado",
+    "en": "Streaked Flycatcher",
+    "sci": "Myiodynastes maculatus"
+  },
+  "whrsan": {
+    "es": "Playero de lomo blanco",
+    "en": "White-rumped Sandpiper",
+    "sci": "Calidris fuscicollis"
+  },
+  "andtin1": {
+    "es": "Perdiz andina",
+    "en": "Andean Tinamou",
+    "sci": "Nothoprocta pentlandii"
+  },
+  "dowcra1": {
+    "es": "Burrito negruzco",
+    "en": "Dot-winged Crake",
+    "sci": "Laterallus spiloptera"
+  },
+  "magplo1": {
+    "es": "Chorlo de Magallanes",
+    "en": "Magellanic Plover",
+    "sci": "Pluvianellus socialis"
+  },
+  "spvear1": {
+    "es": "Picaflor azul",
+    "en": "Sparkling Violetear",
+    "sci": "Colibri coruscans"
+  },
+  "sttspi1": {
+    "es": "Tijeral listado",
+    "en": "Streaked Tit-Spinetail",
+    "sci": "Leptasthenura striata"
+  },
+  "cancan1": {
+    "es": "Canastero de las quebradas",
+    "en": "Canyon Canastero",
+    "sci": "Asthenes pudibunda"
+  },
+  "whtcar1": {
+    "es": "Carancho de garganta blanca",
+    "en": "White-throated Caracara",
+    "sci": "Daptrius albogularis"
+  },
+  "moucar1": {
+    "es": "Carancho cordillerano",
+    "en": "Mountain Caracara",
+    "sci": "Daptrius megalopterus"
+  },
+  "gryfin2": {
+    "es": "Chirihue dorado",
+    "en": "Greater Yellow-Finch",
+    "sci": "Sicalis auriventris"
+  },
+  "gybsht1": {
+    "es": "Mero de Tarapacá",
+    "en": "Gray-bellied Shrike-Tyrant",
+    "sci": "Agriornis micropterus"
+  },
+  "banswa": {
+    "es": "Golondrina barranquera",
+    "en": "Bank Swallow",
+    "sci": "Riparia riparia"
+  },
+  "jamfla1": {
+    "es": "Parina chica",
+    "en": "James's Flamingo",
+    "sci": "Phoenicoparrus jamesi"
+  },
+  "brcfly3": {
+    "es": "Cazamoscas de pico chato",
+    "en": "Rufescent Flycatcher",
+    "sci": "Myiophobus rufescens"
+  },
+  "blbgra1": {
+    "es": "Negrillo",
+    "en": "Blue-black Grassquit",
+    "sci": "Volatinia jacarina"
+  },
+  "stbear2": {
+    "es": "Bandurrilla de pico recto",
+    "en": "Straight-billed Earthcreeper",
+    "sci": "Ochetorhynchus ruficaudus"
+  },
+  "wespet1": {
+    "es": "Petrel de Westland",
+    "en": "Westland Petrel",
+    "sci": "Procellaria westlandica"
+  },
+  "ongtyr1": {
+    "es": "Dormilona fraile",
+    "en": "Ochre-naped Ground-Tyrant",
+    "sci": "Muscisaxicola flavinucha"
+  },
+  "gsgdov1": {
+    "es": "Tortolita de la puna",
+    "en": "Golden-spotted Ground Dove",
+    "sci": "Metriopelia aymara"
+  },
+  "puyfin1": {
+    "es": "Chirihue puneño",
+    "en": "Puna Yellow-Finch",
+    "sci": "Sicalis lutea"
+  },
+  "patmoc1": {
+    "es": "Tenca patagónica",
+    "en": "Patagonian Mockingbird",
+    "sci": "Mimus patagonicus"
+  },
+  "uplsan": {
+    "es": "Batitú",
+    "en": "Upland Sandpiper",
+    "sci": "Bartramia longicauda"
+  },
+  "sposan": {
+    "es": "Playero manchado",
+    "en": "Spotted Sandpiper",
+    "sci": "Actitis macularius"
+  },
+  "elctin1": {
+    "es": "Perdiz copetona",
+    "en": "Elegant Crested-Tinamou",
+    "sci": "Eudromia elegans"
+  },
+  "whbsee2": {
+    "es": "Perdicita austral",
+    "en": "White-bellied Seedsnipe",
+    "sci": "Attagis malouinus"
+  },
+  "cawfin1": {
+    "es": "Yal austral",
+    "en": "White-bridled Finch",
+    "sci": "Melanodera melanodera"
+  },
+  "payfin1": {
+    "es": "Chirihue austral",
+    "en": "Patagonian Yellow-Finch",
+    "sci": "Sicalis lebruni"
+  },
+  "puntin1": {
+    "es": "Perdiz de la puna",
+    "en": "Puna Tinamou",
+    "sci": "Tinamotis pentlandii"
+  },
+  "punsni1": {
+    "es": "Becacina de la puna",
+    "en": "Puna Snipe",
+    "sci": "Gallinago andina"
+  },
+  "wtstyr1": {
+    "es": "Mero de la puna",
+    "en": "White-tailed Shrike-Tyrant",
+    "sci": "Agriornis albicauda"
+  },
+  "wbgtyr1": {
+    "es": "Dormilona de ceja blanca",
+    "en": "White-browed Ground-Tyrant",
+    "sci": "Muscisaxicola albilora"
+  },
+  "shbcan2": {
+    "es": "Canastero de cola larga",
+    "en": "Sharp-billed Canastero",
+    "sci": "Asthenes pyrrholeuca"
+  },
+  "blkrai": {
+    "es": "Pidencito",
+    "en": "Black Rail",
+    "sci": "Laterallus jamaicensis"
+  },
+  "horcoo1": {
+    "es": "Tagua cornuda",
+    "en": "Horned Coot",
+    "sci": "Fulica cornuta"
+  },
+  "spetyr1": {
+    "es": "Run-run",
+    "en": "Spectacled Tyrant",
+    "sci": "Hymenops perspicillatus"
+  },
+  "trokin": {
+    "es": "Suirirí real",
+    "en": "Tropical Kingbird",
+    "sci": "Tyrannus melancholicus"
+  },
+  "maspet3": {
+    "es": "Petrel de Masatierra",
+    "en": "Masatierra Petrel",
+    "sci": "Pterodroma defilippiana"
+  },
+  "wbspet1": {
+    "es": "Golondrina de mar de vientre blanco",
+    "en": "White-bellied Storm-Petrel",
+    "sci": "Fregetta grallaria"
+  },
+  "jufpet": {
+    "es": "Petrel de Juan Fernández",
+    "en": "Juan Fernandez Petrel",
+    "sci": "Pterodroma externa"
+  },
+  "masboo": {
+    "es": "Piquero blanco",
+    "en": "Masked Booby",
+    "sci": "Sula dactylatra"
+  },
+  "bulshe": {
+    "es": "Fardela de dorso gris",
+    "en": "Buller's Shearwater",
+    "sci": "Ardenna bulleri"
+  },
+  "grefri": {
+    "es": "Ave fragata grande",
+    "en": "Great Frigatebird",
+    "sci": "Fregata minor"
+  },
+  "pedpet1": {
+    "es": "Yunco de Humboldt",
+    "en": "Peruvian Diving-Petrel",
+    "sci": "Pelecanoides garnotii"
+  },
+  "cibgrt1": {
+    "es": "Dormilona rufa",
+    "en": "Cinnamon-bellied Ground-Tyrant",
+    "sci": "Muscisaxicola capistratus"
+  },
+  "redkno": {
+    "es": "Playero ártico",
+    "en": "Red Knot",
+    "sci": "Calidris canutus"
+  },
+  "soapas1": {
+    "es": "Becacina pintada",
+    "en": "South American Painted-Snipe",
+    "sci": "Nycticryphes semicollaris"
+  },
+  "strcar1": {
+    "es": "Carancho negro",
+    "en": "Striated Caracara",
+    "sci": "Daptrius australis"
+  },
+  "greshe": {
+    "es": "Fardela capirotada",
+    "en": "Great Shearwater",
+    "sci": "Ardenna gravis"
+  },
+  "stepet": {
+    "es": "Petrel de Masafuera",
+    "en": "Stejneger's Petrel",
+    "sci": "Pterodroma longirostris"
+  },
+  "cingrt1": {
+    "es": "Dormilona cenicienta",
+    "en": "Cinereous Ground-Tyrant",
+    "sci": "Muscisaxicola cinereus"
+  },
+  "rettro": {
+    "es": "Ave del trópico de cola roja",
+    "en": "Red-tailed Tropicbird",
+    "sci": "Phaethon rubricauda"
+  },
+  "rubsee2": {
+    "es": "Perdicita cordillerana",
+    "en": "Rufous-bellied Seedsnipe",
+    "sci": "Attagis gayi"
+  },
+  "rbsfin1": {
+    "es": "Cometocino de dorso castaño",
+    "en": "Red-backed Sierra Finch",
+    "sci": "Idiopsar dorsalis"
+  },
+  "cappet": {
+    "es": "Petrel damero",
+    "en": "Pintado Petrel",
+    "sci": "Daption capense"
+  },
+  "bfgtyr1": {
+    "es": "Dormilona de frente negra",
+    "en": "Black-fronted Ground-Tyrant",
+    "sci": "Muscisaxicola frontalis"
+  },
+  "bkfibi2": {
+    "es": "Bandurria de la puna",
+    "en": "Andean Ibis",
+    "sci": "Theristicus branickii"
+  },
+  "diaplo1": {
+    "es": "Chorlito cordillerano",
+    "en": "Diademed Sandpiper-Plover",
+    "sci": "Phegornis mitchellii"
+  },
+  "juffir1": {
+    "es": "Picaflor de Juan Fernández",
+    "en": "Juan Fernandez Firecrown",
+    "sci": "Sephanoides fernandensis"
+  },
+  "jfttyr1": {
+    "es": "Cachudito de Juan Fernández",
+    "en": "Juan Fernandez Tit-Tyrant",
+    "sci": "Anairetes fernandezianus"
+  },
+  "brnnod": {
+    "es": "Gaviotín de San Félix",
+    "en": "Brown Noddy",
+    "sci": "Anous stolidus"
+  },
+  "grynod1": {
+    "es": "Gaviotín de San Ambrosio",
+    "en": "Gray Noddy",
+    "sci": "Anous albivitta"
+  },
+  "kerpet": {
+    "es": "Petrel de Kermadec",
+    "en": "Kermadec Petrel",
+    "sci": "Pterodroma neglecta"
+  },
+  "chrshe": {
+    "es": "Fardela de Pascua",
+    "en": "Christmas Shearwater",
+    "sci": "Puffinus nativitatis"
+  },
+  "wanalb1": {
+    "es": "Albatros errante",
+    "en": "Snowy Albatross",
+    "sci": "Diomedea exulans"
+  },
+  "gyhalb": {
+    "es": "Albatros de cabeza gris",
+    "en": "Gray-headed Albatross",
+    "sci": "Thalassarche chrysostoma"
+  },
+  "blupet1": {
+    "es": "Petrel azulado",
+    "en": "Blue Petrel",
+    "sci": "Halobaena caerulea"
+  },
+  "crrmin1": {
+    "es": "Minero grande",
+    "en": "Creamy-rumped Miner",
+    "sci": "Geositta isabellina"
+  },
+  "genpen1": {
+    "es": "Pingüino papúa",
+    "en": "Gentoo Penguin",
+    "sci": "Pygoscelis papua"
+  },
+  "snoshe2": {
+    "es": "Paloma antártica",
+    "en": "Snowy Sheathbill",
+    "sci": "Chionis albus"
+  },
+  "royalb2": {
+    "es": "Albatros real del sur",
+    "en": "Southern Royal Albatross",
+    "sci": "Diomedea epomophora"
+  },
+  "codpet1": {
+    "es": "Yunco de los canales",
+    "en": "Common Diving-Petrel",
+    "sci": "Pelecanoides urinatrix"
+  },
+  "bulalb2": {
+    "es": "Albatros de Buller",
+    "en": "Buller's Albatross",
+    "sci": "Thalassarche bulleri"
+  },
+  "grhgul": {
+    "es": "Gaviota de capucho gris",
+    "en": "Gray-hooded Gull",
+    "sci": "Chroicocephalus cirrocephalus"
+  },
+  "labter1": {
+    "es": "Gaviotín de pico grande",
+    "en": "Large-billed Tern",
+    "sci": "Phaetusa simplex"
+  },
+  "limalb1": {
+    "es": "Albatros de manto claro",
+    "en": "Light-mantled Albatross",
+    "sci": "Phoebetria palpebrata"
+  },
+  "comter": {
+    "es": "Gaviotín boreal",
+    "en": "Common Tern",
+    "sci": "Sterna hirundo"
+  },
+  "wvspet1": {
+    "es": "Golondrina de mar chica",
+    "en": "Elliot's Storm-Petrel",
+    "sci": "Oceanites gracilis"
+  },
+  "rispet1": {
+    "es": "Golondrina de mar de collar",
+    "en": "Ringed Storm-Petrel",
+    "sci": "Hydrobates hornbyi"
+  },
+  "bbspet1": {
+    "es": "Golondrina de mar de vientre negro",
+    "en": "Black-bellied Storm-Petrel",
+    "sci": "Fregetta tropica"
+  },
+  "atlpet1": {
+    "es": "Petrel Atlántico",
+    "en": "Atlantic Petrel",
+    "sci": "Pterodroma incerta"
+  },
+  "whiter4": {
+    "es": "Gaviotín blanco",
+    "en": "Blue-billed White-Tern",
+    "sci": "Gygis candida"
+  },
+  "ausrai1": {
+    "es": "Pidén austral",
+    "en": "Austral Rail",
+    "sci": "Rallus antarcticus"
+  },
+  "dovpri1": {
+    "es": "Petrel-paloma antártico",
+    "en": "Antarctic Prion",
+    "sci": "Pachyptila desolata"
+  },
+  "slbpri1": {
+    "es": "Petrel-paloma de pico delgado",
+    "en": "Slender-billed Prion",
+    "sci": "Pachyptila belcheri"
+  },
+  "chvtyr2": {
+    "es": "Cazamoscas chocolate",
+    "en": "Chocolate-vented Tyrant",
+    "sci": "Neoxolmis rufiventris"
+  },
+  "wrspet": {
+    "es": "Golondrina de mar peruana",
+    "en": "Wedge-rumped Storm-Petrel",
+    "sci": "Hydrobates tethys"
+  },
+  "wfspet": {
+    "es": "Golondrina de mar de cara blanca",
+    "en": "White-faced Storm-Petrel",
+    "sci": "Pelagodroma marina"
+  },
+  "refboo": {
+    "es": "Piquero de patas rojas",
+    "en": "Red-footed Booby",
+    "sci": "Sula sula"
+  },
+  "kerpet2": {
+    "es": "Petrel de Kerguelen",
+    "en": "Kerguelen Petrel",
+    "sci": "Aphrodroma brevirostris"
+  },
+  "rebtro": {
+    "es": "Ave del trópico de pico rojo",
+    "en": "Red-billed Tropicbird",
+    "sci": "Phaethon aethereus"
+  },
+  "shyalb2": {
+    "es": "Albatros de Chatham",
+    "en": "Chatham Albatross",
+    "sci": "Thalassarche eremita"
+  },
+  "redpha1": {
+    "es": "Pollito de mar rojizo",
+    "en": "Red Phalarope",
+    "sci": "Phalaropus fulicarius"
+  },
+  "whttro": {
+    "es": "Ave del trópico de cola blanca",
+    "en": "White-tailed Tropicbird",
+    "sci": "Phaethon lepturus"
+  },
+  "rocpen2": {
+    "es": "Pingüino de penacho amarillo",
+    "en": "Western Rockhopper Penguin",
+    "sci": "Eudyptes chrysocome"
+  },
+  "fotfly": {
+    "es": "Cazamoscas tijereta",
+    "en": "Fork-tailed Flycatcher",
+    "sci": "Tyrannus savana"
+  },
+  "ticdor1": {
+    "es": "Pájaro amarillo",
+    "en": "Ticking Doradito",
+    "sci": "Pseudocolopteryx citreola"
+  },
+  "litshe4": {
+    "es": "Fardela chica",
+    "en": "Subantarctic Shearwater",
+    "sci": "Puffinus elegans"
+  },
+  "blacin1": {
+    "es": "Churrete austral",
+    "en": "Blackish Cinclodes",
+    "sci": "Cinclodes antarcticus"
+  },
+  "antalb1": {
+    "es": "Albatros de las Antípodas/de Gibson",
+    "en": "Antipodean Albatross",
+    "sci": "Diomedea antipodensis"
+  },
+  "yelpip3": {
+    "es": "Bailarín chico peruano",
+    "en": "Peruvian Pipit",
+    "sci": "Anthus peruvianus"
+  },
+  "laugul": {
+    "es": "Gaviota reidora",
+    "en": "Laughing Gull",
+    "sci": "Leucophaeus atricilla"
+  },
+  "batear1": {
+    "es": "Patagón",
+    "en": "Band-tailed Earthcreeper",
+    "sci": "Ochetorhynchus phoenicurus"
+  },
+  "manshe": {
+    "es": "Fardela atlántica",
+    "en": "Manx Shearwater",
+    "sci": "Puffinus puffinus"
+  },
+  "thbsis1": {
+    "es": "Jilguero grande",
+    "en": "Thick-billed Siskin",
+    "sci": "Spinus crassirostris"
+  },
+  "wessan": {
+    "es": "Playero occidental",
+    "en": "Western Sandpiper",
+    "sci": "Calidris mauri"
+  },
+  "santer1": {
+    "es": "Gaviotín de Sandwich",
+    "en": "Sandwich Tern",
+    "sci": "Thalasseus sandvicensis"
+  },
+  "macpen1": {
+    "es": "Pingüino macaroni",
+    "en": "Macaroni Penguin",
+    "sci": "Eudyptes chrysolophus"
+  },
+  "lotjae": {
+    "es": "Salteador de cola larga",
+    "en": "Long-tailed Jaeger",
+    "sci": "Stercorarius longicaudus"
+  },
+  "brnsku3": {
+    "es": "Salteador pardo",
+    "en": "Brown Skua",
+    "sci": "Stercorarius antarcticus"
+  },
+  "helpip1": {
+    "es": "Bailarín chico pálido",
+    "en": "Hellmayr's Pipit",
+    "sci": "Anthus hellmayri"
+  },
+  "pattin1": {
+    "es": "Perdiz austral",
+    "en": "Patagonian Tinamou",
+    "sci": "Tinamotis ingoufi"
+  },
+  "fuesni1": {
+    "es": "Becacina grande",
+    "en": "Fuegian Snipe",
+    "sci": "Gallinago stricklandii"
+  },
+  "masray1": {
+    "es": "Rayadito de Masafuera",
+    "en": "Masafuera Rayadito",
+    "sci": "Aphrastura masafuerae"
+  },
+  "arcter": {
+    "es": "Gaviotín ártico",
+    "en": "Arctic Tern",
+    "sci": "Sterna paradisaea"
+  },
+  "chiwoo1": {
+    "es": "Picaflor de Arica",
+    "en": "Chilean Woodstar",
+    "sci": "Eulidia yarrellii"
+  },
+  "lessht1": {
+    "es": "Mero chico",
+    "en": "Lesser Shrike-Tyrant",
+    "sci": "Agriornis murinus"
+  },
+  "rocear1": {
+    "es": "Bandurrilla de las piedras",
+    "en": "Rock Earthcreeper",
+    "sci": "Ochetorhynchus andaecola"
+  }
+}

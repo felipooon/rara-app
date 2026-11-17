@@ -148,7 +148,12 @@ def ebird_proxy(request, ebird_path):
 
 
 def get_species_dict(request):
-    file_path = os.path.join(settings.BASE_DIR, 'tienda', 'species.json')
+    modo = request.GET.get('modo', '').strip().lower()
+    if modo == 'juegos':
+        juegos_path = os.path.join(settings.BASE_DIR, 'tienda', 'species_juegos.json')
+        file_path = juegos_path if os.path.exists(juegos_path) else os.path.join(settings.BASE_DIR, 'tienda', 'species.json')
+    else:
+        file_path = os.path.join(settings.BASE_DIR, 'tienda', 'species.json')
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
