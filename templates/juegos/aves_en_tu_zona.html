@@ -711,10 +711,12 @@
         <p class="subtitle">Descubre las especies avistadas recientemente en Chile vía eBird. ¡Las mismas que dan vida a
             nuestras ilustraciones y productos de autor!</p>
         <div class="nav-buttons">
+            <a href="{% url 'planificador:index' %}" class="btn-nav"
+                style="background: #ea580c; color: white; border: none; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);">🗺️
+                Planificador de Rutas</a>
             <a href="{% url 'radar_realtime' %}" class="btn-nav"
-                style="background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px rgba(239, 157, 113, 0.3);">🗺️
-                Ver en Mapa</a>
-            <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver a Juegos</a>
+                style="background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px rgba(239, 157, 113, 0.3);">📡
+                Radar en Vivo</a>
             <a href="{% url 'index' %}" class="btn-nav">🛍️ Ir a la Tienda</a>
         </div>
     </header>

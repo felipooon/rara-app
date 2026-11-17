@@ -49,8 +49,17 @@
       -->
     </nav>
 
-    <!-- Header Actions / API Key status & Theme toggle -->
+    <!-- Header Actions / Direct Links & Theme toggle -->
     <div class="header-actions">
+      <a href="{% url 'radar_realtime' %}" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: var(--radius-full); text-decoration: none; color: var(--text-primary); display: inline-flex; align-items: center; gap: 5px;" title="Ver Radar de Avistamientos eBird en Tiempo Real">
+        <span>📡 Radar en Vivo</span>
+      </a>
+      <a href="{% url 'aves_en_tu_zona' %}" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: var(--radius-full); text-decoration: none; color: var(--text-primary); display: inline-flex; align-items: center; gap: 5px;" title="Ver aves cerca de tu ubicación">
+        <span>📍 Aves en tu Zona</span>
+      </a>
+      <a href="{% url 'index' %}" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: var(--radius-full); text-decoration: none; color: #ea580c; border-color: rgba(234, 88, 12, 0.4); font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" title="Volver a la Tienda">
+        <span>🛍️ Tienda</span>
+      </a>
       <button type="button" id="themeToggleBtn" class="btn-secondary" onclick="toggleTheme()" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: var(--radius-full); cursor: pointer;" title="Cambiar tema de la aplicación">
         Modo Oscuro
       </button>

@@ -606,7 +606,6 @@
             <a href="{% url 'index' %}" class="rara-nav-link">Inicio</a>
             <a href="{% url 'index' %}#catalogo" class="rara-nav-link">Catálogo</a>
             <a href="{% url 'menu_juegos' %}" class="rara-nav-link active">Juegos</a>
-            <a href="{% url 'aves_en_tu_zona' %}" class="rara-nav-link">Aves en tu Zona</a>
             <a href="{% url 'index' %}?cart=open" class="rara-cart-btn" title="Ver carrito de compras">
                 <span>Tu Nido 🪺</span>
                 {% if carrito and carrito.total_items > 0 %}
@@ -624,7 +623,6 @@
             ilustraciones y creaciones artesanales.</p>
         <div class="header-actions">
             <a href="{% url 'index' %}" class="btn-header btn-header-store">🛍️ Ir a la Tienda</a>
-            <a href="{% url 'aves_en_tu_zona' %}" class="btn-header btn-header-radar">📡 Explorar Aves en tu Zona</a>
         </div>
     </header>
 
