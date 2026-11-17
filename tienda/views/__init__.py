@@ -69,6 +69,7 @@ from .panel_admin import (
     panel_guia,
     panel_calculadora_blue,
     api_panel_actualizar_puntos_blue,
+    panel_ranking_juegos,
 )
 
 from .juegos_api import (
@@ -83,4 +84,6 @@ from .juegos_api import (
     generar_avistamientos_fallback,
     ebird_proxy,
     get_species_dict,
+    api_ranking_juego,
+    api_guardar_puntaje_juego,
 )

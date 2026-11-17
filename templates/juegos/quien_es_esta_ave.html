@@ -252,16 +252,18 @@
     </style>
 </head>
 <body>
+    <div class="game-page-layout">
     <div class="game-container" id="gameContainer">
         <h1>¿Quién es esta ave?</h1>
-        <div class="subtitle">Adivina la especie por su silueta</div>
+        <div class="subtitle">Adivina la especie por su silueta en 90 segundos</div>
         <div class="nav-buttons">
             <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
             <a href="{% url 'index' %}" class="btn-nav">🛍️ Volver a la Tienda</a>
         </div>
 
-        <div class="stats">
+        <div class="stats" style="flex-wrap: wrap; gap: 8px; align-items: center;">
             <div>Puntos: <span id="scoreDisplay" style="color: var(--primary)">0</span></div>
+            <div><span id="timerDisplay" class="timer-pill">⏱️ 90s</span></div>
             <div>
                 Dificultad: 
                 <select id="diffSelect" onchange="changeDifficulty(this.value)" style="padding: 0.2rem 0.5rem; border-radius: 8px; font-weight: 700; border: 1px solid #d1d5db; color: var(--text-main); outline: none;">
@@ -297,16 +299,26 @@
         </div>
     </div>
 
+    {% include "juegos/_ranking_widget.html" %}
+    </div>
+
     <script>
         let speciesArray = [];
         let score = 0;
         let streak = 0;
+        let bestStreak = 0;
+        let correctCount = 0;
         let currentBird = null;
+        let usedHintThisRound = false;
+        let timeLeft = 90;
+        let timerInterval = null;
+        let gameEnded = false;
         
         const optionsGridEl = document.getElementById('optionsGrid');
         const nextBtn = document.getElementById('nextBtn');
         const scoreDisplay = document.getElementById('scoreDisplay');
         const streakDisplay = document.getElementById('streakDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
         const gameContainer = document.getElementById('gameContainer');
         const loadingText = document.getElementById('loadingText');
         const birdImage = document.getElementById('birdImage');
@@ -359,15 +371,66 @@
             const numBlur = parseInt(currentBlur);
             const newBlur = Math.max(2, Math.floor(numBlur / 2)) + 'px';
             document.documentElement.style.setProperty('--blur-level', newBlur);
+            usedHintThisRound = true;
             if (focusHintBtn) focusHintBtn.disabled = true;
         }
 
+        function startMatchTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameEnded) return;
+                timeLeft--;
+                if (timerDisplay) {
+                    timerDisplay.textContent = `⏱️ ${Math.max(0, timeLeft)}s`;
+                    timerDisplay.classList.toggle('urgent', timeLeft <= 15);
+                }
+                if (timeLeft <= 0) {
+                    endMatch();
+                }
+            }, 1000);
+        }
+
+        function endMatch() {
+            if (gameEnded) return;
+            gameEnded = true;
+            clearInterval(timerInterval);
+            const buttons = optionsGridEl.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            nextBtn.classList.remove('show');
+
+            RaraRanking.openEndModal({
+                title: '⏱️ ¡Tiempo Cumplido!',
+                subtitle: 'Registra tu puntaje en ¿Quién es esta ave?',
+                score: score,
+                detail: `${correctCount} aciertos · Mejor racha ${bestStreak}`
+            });
+        }
+
+        function restartMatch() {
+            score = 0;
+            streak = 0;
+            bestStreak = 0;
+            correctCount = 0;
+            timeLeft = 90;
+            gameEnded = false;
+            scoreDisplay.textContent = '0';
+            streakDisplay.textContent = '0';
+            if (timerDisplay) {
+                timerDisplay.textContent = '⏱️ 90s';
+                timerDisplay.classList.remove('urgent');
+            }
+            startMatchTimer();
+            initRound();
+        }
+
         async function initRound() {
+            if (gameEnded) return;
             nextBtn.classList.remove('show');
             optionsGridEl.innerHTML = '';
             const storeBox = document.getElementById('storePillContainer');
             if (storeBox) storeBox.style.display = 'none';
             
+            usedHintThisRound = false;
             document.documentElement.style.setProperty('--blur-level', currentBlur);
             if (focusHintBtn) focusHintBtn.disabled = false;
 
@@ -423,8 +486,12 @@
             
             if(isCorrect) {
                 btn.classList.add('correct');
-                score += 10 + (streak * 2); // bonus for streak
+                const mult = currentBlur === '16px' ? 1.5 : (currentBlur === '11px' ? 1.25 : 1.0);
+                const basePts = 100 + (streak * 20) - (usedHintThisRound ? 30 : 0);
+                score += Math.max(20, Math.round(basePts * mult));
                 streak += 1;
+                correctCount += 1;
+                if (streak > bestStreak) bestStreak = streak;
             } else {
                 btn.classList.add('wrong');
                 streak = 0;
@@ -454,10 +521,12 @@
 
         // Iniciar
         async function initGame() {
+            RaraRanking.init('quien_es_esta_ave', restartMatch);
             try {
                 const res = await fetch('/api/diccionario-especies/?modo=juegos');
                 const rawData = await res.json();
                 speciesArray = Object.values(rawData);
+                startMatchTimer();
                 initRound();
             } catch(err) {
                 console.error("Error al cargar el diccionario", err);

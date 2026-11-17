@@ -267,16 +267,18 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="game-page-layout">
+    <div class="container" style="margin: 0;">
         <h1>Memorice Pajarero</h1>
-        <div class="subtitle" style="margin-bottom: 0.5rem;">Encuentra los pares de imágenes</div>
+        <div class="subtitle" style="margin-bottom: 0.5rem;">Encuentra los 10 pares en menos de 120 segundos</div>
         <div class="nav-buttons">
             <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
             <a href="{% url 'index' %}" class="btn-nav">🛍️ Volver a la Tienda</a>
         </div>
 
-        <div class="stats">
+        <div class="stats" style="flex-wrap: wrap; gap: 8px; align-items: center;">
             <div>Movimientos: <span id="movesDisplay" style="color: var(--primary)">0</span></div>
+            <div><span id="timerDisplay" class="timer-pill">⏱️ 120s</span></div>
             <div>Pares: <span id="pairsDisplay" style="color: var(--primary)">0/10</span></div>
         </div>
 
@@ -287,10 +289,16 @@
         <button class="action-btn" id="nextBtn" onclick="initRound()">Jugar otra vez ➔</button>
     </div>
 
+    {% include "juegos/_ranking_widget.html" %}
+    </div>
+
     <script>
         let speciesArray = [];
         let moves = 0;
         let pairsMatched = 0;
+        let timeLeft = 120;
+        let timerInterval = null;
+        let gameEnded = false;
 
         let firstCard = null;
         let secondCard = null;
@@ -299,6 +307,7 @@
         const gridContainer = document.getElementById('gridContainer');
         const movesDisplay = document.getElementById('movesDisplay');
         const pairsDisplay = document.getElementById('pairsDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
         const nextBtn = document.getElementById('nextBtn');
         const loadingEl = document.getElementById('loadingEl');
 
@@ -338,11 +347,53 @@
             return validBirds;
         }
 
+        function startMatchTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameEnded) return;
+                timeLeft--;
+                if (timerDisplay) {
+                    timerDisplay.textContent = `⏱️ ${Math.max(0, timeLeft)}s`;
+                    timerDisplay.classList.toggle('urgent', timeLeft <= 15);
+                }
+                if (timeLeft <= 0) {
+                    endMatch(false);
+                }
+            }, 1000);
+        }
+
+        function endMatch(completed) {
+            if (gameEnded) return;
+            gameEnded = true;
+            lockBoard = true;
+            clearInterval(timerInterval);
+
+            const basePts = pairsMatched * 100;
+            const timeBonus = completed ? (timeLeft * 10) : 0;
+            const accuracyBonus = completed ? Math.max(0, (25 - moves) * 25) : 0;
+            const totalScore = basePts + timeBonus + accuracyBonus;
+
+            RaraRanking.openEndModal({
+                title: completed ? '🎉 ¡Tablero Completado!' : '⏱️ ¡Tiempo Cumplido!',
+                subtitle: completed ? '¡Excelente memoria pajarera!' : 'Registra tu puntaje en el ranking',
+                score: totalScore,
+                detail: `${pairsMatched}/10 pares · ${moves} movs · ${timeLeft}s rest.`
+            });
+        }
+
         async function initRound() {
+            clearInterval(timerInterval);
             moves = 0;
             pairsMatched = 0;
+            timeLeft = 120;
+            gameEnded = false;
+            resetBoard();
             movesDisplay.textContent = moves;
             pairsDisplay.textContent = "0/10";
+            if (timerDisplay) {
+                timerDisplay.textContent = '⏱️ 120s';
+                timerDisplay.classList.remove('urgent');
+            }
             nextBtn.classList.remove('show');
             gridContainer.innerHTML = '';
 
@@ -380,6 +431,7 @@
 
             loadingEl.style.display = 'none';
             gridContainer.style.display = 'grid';
+            startMatchTimer();
         }
 
         function flipCard() {
@@ -422,7 +474,11 @@
             pairsMatched++;
             pairsDisplay.textContent = `${pairsMatched}/10`;
             if (pairsMatched === 10) {
-                setTimeout(() => nextBtn.classList.add('show'), 1000);
+                clearInterval(timerInterval);
+                setTimeout(() => {
+                    nextBtn.classList.add('show');
+                    endMatch(true);
+                }, 750);
             }
 
             setTimeout(() => {
@@ -447,6 +503,7 @@
         }
 
         async function initGame() {
+            RaraRanking.init('memorice', initRound);
             try {
                 const res = await fetch('/api/diccionario-especies/?modo=juegos');
                 const rawData = await res.json();

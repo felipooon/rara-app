@@ -558,6 +558,35 @@
                 justify-content: center;
             }
         }
+
+        .game-card.featured-prize {
+            border: 2.5px solid #f59e0b;
+            background: linear-gradient(165deg, #fffbeb 0%, #ffffff 55%);
+            box-shadow: 0 12px 28px rgba(245, 158, 11, 0.16);
+            position: relative;
+        }
+        .prize-ribbon-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 999px;
+            box-shadow: 0 3px 8px rgba(234, 88, 12, 0.25);
+            letter-spacing: 0.3px;
+        }
+        .prize-card-note {
+            margin: 6px 0 0 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #b45309;
+            background: #fef3c7;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 
@@ -602,42 +631,52 @@
     <!-- GRILLA DE JUEGOS -->
     <div class="grid-container">
         <!-- Card 1 -->
-        <a href="{% url 'quien_es_esta_ave' %}" class="game-card">
+        <a href="{% url 'quien_es_esta_ave' %}" class="game-card{% if config_sitio.juego_premio_mes == 'quien_es_esta_ave' %} featured-prize{% endif %}">
+            {% if config_sitio.juego_premio_mes == 'quien_es_esta_ave' %}<span class="prize-ribbon-badge">🎁 PREMIO DEL MES</span>{% endif %}
             <div class="icon-container">🦜</div>
             <h2 class="game-title">¿Quién es esta ave?</h2>
             <p class="game-desc">Adivina la especie chilena a partir de pistas, fotos y detalles únicos.</p>
+            {% if config_sitio.juego_premio_mes == 'quien_es_esta_ave' and config_sitio.texto_premio_mes %}<p class="prize-card-note">🏆 {{ config_sitio.texto_premio_mes }}</p>{% endif %}
             <div class="play-btn">Jugar</div>
         </a>
 
         <!-- Card 2 -->
-        <a href="{% url 'memorice' %}" class="game-card">
+        <a href="{% url 'memorice' %}" class="game-card{% if config_sitio.juego_premio_mes == 'memorice' %} featured-prize{% endif %}">
+            {% if config_sitio.juego_premio_mes == 'memorice' %}<span class="prize-ribbon-badge">🎁 PREMIO DEL MES</span>{% endif %}
             <div class="icon-container">🧠</div>
             <h2 class="game-title">Memorice</h2>
             <p class="game-desc">Encuentra todas las parejas de aves nativas ocultas en el tablero.</p>
+            {% if config_sitio.juego_premio_mes == 'memorice' and config_sitio.texto_premio_mes %}<p class="prize-card-note">🏆 {{ config_sitio.texto_premio_mes }}</p>{% endif %}
             <div class="play-btn">Jugar</div>
         </a>
 
         <!-- Card 3 -->
-        <a href="{% url 'letras_locas' %}" class="game-card">
+        <a href="{% url 'letras_locas' %}" class="game-card{% if config_sitio.juego_premio_mes == 'letras_locas' %} featured-prize{% endif %}">
+            {% if config_sitio.juego_premio_mes == 'letras_locas' %}<span class="prize-ribbon-badge">🎁 PREMIO DEL MES</span>{% endif %}
             <div class="icon-container">🔠</div>
             <h2 class="game-title">Letras Locas</h2>
             <p class="game-desc">Ordena las letras para descubrir el nombre de nuestras especies.</p>
+            {% if config_sitio.juego_premio_mes == 'letras_locas' and config_sitio.texto_premio_mes %}<p class="prize-card-note">🏆 {{ config_sitio.texto_premio_mes }}</p>{% endif %}
             <div class="play-btn">Jugar</div>
         </a>
 
         <!-- Card 4 -->
-        <a href="{% url 'minijuego' %}" class="game-card">
+        <a href="{% url 'minijuego' %}" class="game-card{% if config_sitio.juego_premio_mes == 'trivia_cientifica' %} featured-prize{% endif %}">
+            {% if config_sitio.juego_premio_mes == 'trivia_cientifica' %}<span class="prize-ribbon-badge">🎁 PREMIO DEL MES</span>{% endif %}
             <div class="icon-container">🧪</div>
             <h2 class="game-title">Trivia Científica</h2>
             <p class="game-desc">Pon a prueba tus conocimientos sobre ornitología y ecosistemas.</p>
+            {% if config_sitio.juego_premio_mes == 'trivia_cientifica' and config_sitio.texto_premio_mes %}<p class="prize-card-note">🏆 {{ config_sitio.texto_premio_mes }}</p>{% endif %}
             <div class="play-btn">Jugar</div>
         </a>
 
         <!-- Card 5 -->
-        <a href="{% url 'rosco' %}" class="game-card">
+        <a href="{% url 'rosco' %}" class="game-card{% if config_sitio.juego_premio_mes == 'rosco' %} featured-prize{% endif %}">
+            {% if config_sitio.juego_premio_mes == 'rosco' %}<span class="prize-ribbon-badge">🎁 PREMIO DEL MES</span>{% endif %}
             <div class="icon-container">🎡</div>
             <h2 class="game-title">Rosco Pajarero</h2>
             <p class="game-desc">Completa el rosco ornitológico de la A a la Z sin equivocarte.</p>
+            {% if config_sitio.juego_premio_mes == 'rosco' and config_sitio.texto_premio_mes %}<p class="prize-card-note">🏆 {{ config_sitio.texto_premio_mes }}</p>{% endif %}
             <div class="play-btn">Jugar</div>
         </a>
     </div>

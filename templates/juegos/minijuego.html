@@ -231,18 +231,20 @@
 </head>
 <body>
     <button class="lang-toggle" id="langToggle">Adivinar: Español</button>
+    <div class="game-page-layout">
     <div class="game-container" id="gameContainer">
         <div class="header" style="margin-bottom: 1rem;">
             <h1>OrnitoQuiz</h1>
-            <p style="color: var(--text-muted)">Adivina la especie por su nombre científico</p>
+            <p style="color: var(--text-muted)">Adivina la especie por su nombre científico en 90 segundos</p>
             <div class="nav-buttons">
                 <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
                 <a href="{% url 'index' %}" class="btn-nav">🛍️ Volver a la Tienda</a>
             </div>
         </div>
 
-        <div class="stats">
+        <div class="stats" style="flex-wrap: wrap; gap: 8px; align-items: center;">
             <div>Puntuación: <span id="scoreDisplay">0</span></div>
+            <div><span id="timerDisplay" class="timer-pill">⏱️ 90s</span></div>
             <div>Racha: <span id="streakDisplay">0</span> 🔥</div>
         </div>
 
@@ -261,19 +263,28 @@
         <button class="next-btn" id="nextBtn" onclick="initRound()">Siguiente Especie ➔</button>
     </div>
 
+    {% include "juegos/_ranking_widget.html" %}
+    </div>
+
     <script>
         let speciesArray = [];
         
         let score = 0;
         let streak = 0;
+        let bestStreak = 0;
+        let correctCount = 0;
         let currentSpecies = null;
         let targetLang = 'es'; // 'es' or 'en'
+        let timeLeft = 90;
+        let timerInterval = null;
+        let gameEnded = false;
         
         const questionNameEl = document.getElementById('questionName');
         const optionsGridEl = document.getElementById('optionsGrid');
         const nextBtn = document.getElementById('nextBtn');
         const scoreDisplay = document.getElementById('scoreDisplay');
         const streakDisplay = document.getElementById('streakDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
         const gameContainer = document.getElementById('gameContainer');
         const langToggle = document.getElementById('langToggle');
         
@@ -296,7 +307,56 @@
             return array;
         }
 
+        function startMatchTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameEnded) return;
+                timeLeft--;
+                if (timerDisplay) {
+                    timerDisplay.textContent = `⏱️ ${Math.max(0, timeLeft)}s`;
+                    timerDisplay.classList.toggle('urgent', timeLeft <= 15);
+                }
+                if (timeLeft <= 0) {
+                    endMatch();
+                }
+            }, 1000);
+        }
+
+        function endMatch() {
+            if (gameEnded) return;
+            gameEnded = true;
+            clearInterval(timerInterval);
+            const buttons = optionsGridEl.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            nextBtn.classList.remove('show');
+
+            RaraRanking.openEndModal({
+                title: '⏱️ ¡Tiempo Cumplido!',
+                subtitle: 'Registra tu puntaje en OrnitoQuiz',
+                score: score,
+                detail: `${correctCount} aciertos · Mejor racha ${bestStreak}`
+            });
+        }
+
+        function restartMatch() {
+            score = 0;
+            streak = 0;
+            bestStreak = 0;
+            correctCount = 0;
+            timeLeft = 90;
+            gameEnded = false;
+            scoreDisplay.textContent = '0';
+            streakDisplay.textContent = '0';
+            if (timerDisplay) {
+                timerDisplay.textContent = '⏱️ 90s';
+                timerDisplay.classList.remove('urgent');
+            }
+            startMatchTimer();
+            initRound();
+        }
+
         function initRound() {
+            if (gameEnded) return;
             nextBtn.classList.remove('show');
             optionsGridEl.innerHTML = '';
             
@@ -357,8 +417,10 @@
             
             if(isCorrect) {
                 btn.classList.add('correct');
-                score += 10;
+                score += 100 + (streak * 25);
                 streak += 1;
+                correctCount += 1;
+                if (streak > bestStreak) bestStreak = streak;
             } else {
                 btn.classList.add('wrong');
                 streak = 0;
@@ -381,10 +443,12 @@
 
         // Iniciar
         async function initGame() {
+            RaraRanking.init('trivia_cientifica', restartMatch);
             try {
                 const res = await fetch('/api/diccionario-especies/?modo=juegos');
                 const rawData = await res.json();
                 speciesArray = Object.values(rawData);
+                startMatchTimer();
                 initRound();
             } catch(err) {
                 console.error("Error al cargar el diccionario", err);

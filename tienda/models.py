@@ -512,7 +512,29 @@ class ItemPedido(models.Model):
 
 class ConfiguracionSitio(models.Model):
     mostrar_blog = models.BooleanField(default=False, help_text="Mostrar u ocultar la sección de Blog en la tienda")
+    JUEGO_PREMIO_CHOICES = (
+        ('', 'Sin juego premiado este mes'),
+        ('quien_es_esta_ave', '¿Quién es esta ave?'),
+        ('memorice', 'Memorice Pajarero'),
+        ('letras_locas', 'Letras Locas'),
+        ('trivia_cientifica', 'Trivia Científica'),
+        ('rosco', 'Rosco Pajarero'),
+    )
+
     mostrar_resenas = models.BooleanField(default=False, help_text="Mostrar u ocultar la sección de reseñas en los productos")
+    juego_premio_mes = models.CharField(
+        max_length=40,
+        choices=JUEGO_PREMIO_CHOICES,
+        blank=True,
+        default='',
+        help_text="Juego destacado con premio oficial durante el mes actual",
+    )
+    texto_premio_mes = models.CharField(
+        max_length=160,
+        blank=True,
+        default='Cupón de descuento para el #1 del mes',
+        help_text="Descripción del premio que aparece en el ranking del juego destacado",
+    )
 
     class Meta:
         verbose_name = 'Configuración del Sitio'
@@ -525,6 +547,23 @@ class ConfiguracionSitio(models.Model):
     def get_solo(cls):
         obj, created = cls.objects.get_or_create(id=1)
         return obj
+
+    @property
+    def juego_premio_url_name(self):
+        mapping = {
+            'quien_es_esta_ave': 'quien_es_esta_ave',
+            'memorice': 'memorice',
+            'letras_locas': 'letras_locas',
+            'trivia_cientifica': 'minijuego',
+            'rosco': 'rosco',
+        }
+        return mapping.get(self.juego_premio_mes, 'menu_juegos')
+
+    @property
+    def juego_premio_nombre(self):
+        if not self.juego_premio_mes:
+            return ''
+        return dict(self.JUEGO_PREMIO_CHOICES).get(self.juego_premio_mes, '')
 
 
 class BlogPost(models.Model):
@@ -681,3 +720,28 @@ class MetricaProducto(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} - {self.fecha} ({self.vistas} vistas)"
+
+
+class PuntajeJuego(models.Model):
+    JUEGO_CHOICES = (
+        ('quien_es_esta_ave', '¿Quién es esta ave?'),
+        ('memorice', 'Memorice Pajarero'),
+        ('letras_locas', 'Letras Locas'),
+        ('trivia_cientifica', 'Trivia Científica'),
+        ('rosco', 'Rosco Pajarero'),
+    )
+
+    juego = models.CharField(max_length=40, choices=JUEGO_CHOICES, db_index=True)
+    nombre = models.CharField(max_length=80)
+    email = models.EmailField()
+    puntaje = models.PositiveIntegerField(default=0, db_index=True)
+    detalle = models.CharField(max_length=120, blank=True, default='')
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-puntaje', 'fecha_registro']
+        verbose_name = 'Puntaje de Juego'
+        verbose_name_plural = 'Puntajes de Juegos'
+
+    def __str__(self):
+        return f"[{self.get_juego_display()}] {self.nombre} - {self.puntaje} pts"

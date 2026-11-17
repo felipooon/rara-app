@@ -513,7 +513,8 @@
         </div>
     </div>
 
-    <!-- Main Game Area -->
+    <!-- Main Game Area + Ranking -->
+    <div class="game-page-layout" style="align-items: center; padding: 0 1rem; box-sizing: border-box;">
     <div class="game-wrapper" id="gameWrapper">
         <div class="rosco-ring" id="roscoRing"></div>
 
@@ -542,6 +543,9 @@
                 </a>
             </div>
         </div>
+    </div>
+
+    {% include "juegos/_ranking_widget.html" %}
     </div>
 
     <!-- Results Modal -->
@@ -962,13 +966,15 @@
             const wrongCount = roscoItems.filter(i => i.state === 'wrong').length;
             const unansweredCount = roscoItems.filter(i => i.state === 'pending').length;
 
-            document.getElementById('modalTitle').textContent = reasonTitle || "¡Rosco Finalizado! 🎉";
-            document.getElementById('modalCorrect').textContent = correctCount;
-            document.getElementById('modalWrong').textContent = wrongCount;
-            document.getElementById('modalUnanswered').textContent = unansweredCount;
-            document.getElementById('modalTime').textContent = `${timeLeft}s`;
+            const timeBonus = unansweredCount === 0 ? (timeLeft * 6) : 0;
+            const totalScore = Math.max(0, (correctCount * 150) + timeBonus - (wrongCount * 25));
 
-            resultsModal.style.display = 'flex';
+            RaraRanking.openEndModal({
+                title: reasonTitle || '¡Rosco Finalizado! 🎉',
+                subtitle: 'Registra tu puntaje en el Ranking del Rosco Pajarero',
+                score: totalScore,
+                detail: `${correctCount}/24 aciertos · ${wrongCount} fallos · ${timeLeft}s rest.`
+            });
         }
 
         function restartGame() {
@@ -985,6 +991,7 @@
         }
 
         async function initGame() {
+            RaraRanking.init('rosco', restartGame);
             try {
                 // Fetch species dictionary (aves regulares y emblemáticas de Chile)
                 let res = await fetch('/api/diccionario-especies/?modo=juegos');

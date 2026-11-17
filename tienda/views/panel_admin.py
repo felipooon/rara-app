@@ -12,10 +12,11 @@ from django.http import HttpResponse, JsonResponse
 from django.db import models, transaction
 from django.utils import timezone
 
-from ..models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido, MetricaDiaria, MetricaProducto
+from ..models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido, MetricaDiaria, MetricaProducto, PuntajeJuego
 from ..forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ConfiguracionSitioForm
 from ..utils import generar_excel_catalogo_pos, generar_html_codigos_barra
 from ..comunas_chile import actualizar_puntos_desde_api, cargar_puntos_lista, obtener_fecha_puntos, ORIGEN_TIENDA_COMUNA
+from .juegos_api import _rango_mes_actual_y_anterior
 
 
 class CustomLoginView(LoginView):
@@ -855,4 +856,54 @@ def api_panel_actualizar_puntos_blue(request):
             {"ok": False, "error": f"No se pudo conectar con Blue Express: {e}"},
             status=500,
         )
+
+
+@staff_member_required(login_url='login')
+def panel_ranking_juegos(request):
+    config = ConfiguracionSitio.get_solo()
+    if request.method == "POST":
+        juego_premio = (request.POST.get("juego_premio_mes") or "").strip()
+        texto_premio = (request.POST.get("texto_premio_mes") or "").strip()[:160]
+        validos = {k for k, _ in ConfiguracionSitio.JUEGO_PREMIO_CHOICES}
+        if juego_premio in validos:
+            config.juego_premio_mes = juego_premio
+            config.texto_premio_mes = texto_premio
+            config.save()
+            messages.success(request, "Configuración de Juego con Premio del Mes actualizada.")
+        return redirect("panel_ranking_juegos")
+
+    rango = _rango_mes_actual_y_anterior()
+    juegos_info = []
+    for slug, nombre_juego in PuntajeJuego.JUEGO_CHOICES:
+        top_mes = list(
+            PuntajeJuego.objects.filter(
+                juego=slug,
+                fecha_registro__gte=rango["inicio_mes_actual"],
+                fecha_registro__lt=rango["inicio_mes_siguiente"],
+            ).order_by("-puntaje", "fecha_registro")[:10]
+        )
+        campeon_anterior = (
+            PuntajeJuego.objects.filter(
+                juego=slug,
+                fecha_registro__gte=rango["inicio_mes_anterior"],
+                fecha_registro__lt=rango["inicio_mes_actual"],
+            )
+            .order_by("-puntaje", "fecha_registro")
+            .first()
+        )
+        juegos_info.append({
+            "slug": slug,
+            "nombre": nombre_juego,
+            "es_premio": (config.juego_premio_mes == slug),
+            "top_mes": top_mes,
+            "campeon_anterior": campeon_anterior,
+        })
+
+    return render(request, "panel/ranking_juegos.html", {
+        "config": config,
+        "juegos_info": juegos_info,
+        "mes_actual": rango["mes_actual_nombre"],
+        "mes_anterior": rango["mes_anterior_nombre"],
+        "opciones_premio": ConfiguracionSitio.JUEGO_PREMIO_CHOICES,
+    })
 

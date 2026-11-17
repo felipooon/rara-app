@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido
+from .models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido, PuntajeJuego
 
 class ImagenProductoInline(admin.TabularInline):
     model = ImagenProducto
@@ -85,3 +85,11 @@ class LogPedidoAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(PuntajeJuego)
+class PuntajeJuegoAdmin(admin.ModelAdmin):
+    list_display = ('juego', 'nombre', 'email', 'puntaje', 'detalle', 'fecha_registro')
+    list_filter = ('juego', 'fecha_registro')
+    search_fields = ('nombre', 'email', 'detalle')
+    ordering = ('juego', '-puntaje', 'fecha_registro')

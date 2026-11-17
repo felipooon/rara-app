@@ -4,10 +4,20 @@ import random
 import requests
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.utils import timezone
+from ..models import PuntajeJuego, ConfiguracionSitio
+
+MESES_ES = {
+    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
+    5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
+    9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
+}
 
 
 def menu_juegos(request):
@@ -163,3 +173,180 @@ def get_species_dict(request):
         return response
     except FileNotFoundError:
         return JsonResponse({"error": "Archivo no encontrado"}, status=404)
+
+
+def _rango_mes_actual_y_anterior():
+    ahora = timezone.localtime(timezone.now())
+    inicio_mes_actual = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    if ahora.month == 12:
+        inicio_mes_siguiente = inicio_mes_actual.replace(year=ahora.year + 1, month=1)
+    else:
+        inicio_mes_siguiente = inicio_mes_actual.replace(month=ahora.month + 1)
+
+    if ahora.month == 1:
+        prev_year, prev_month = ahora.year - 1, 12
+    else:
+        prev_year, prev_month = ahora.year, ahora.month - 1
+    inicio_mes_anterior = inicio_mes_actual.replace(year=prev_year, month=prev_month)
+
+    return {
+        "mes_actual_nombre": MESES_ES.get(ahora.month, ""),
+        "mes_anterior_nombre": MESES_ES.get(prev_month, ""),
+        "inicio_mes_actual": inicio_mes_actual,
+        "inicio_mes_siguiente": inicio_mes_siguiente,
+        "inicio_mes_anterior": inicio_mes_anterior,
+    }
+
+
+def _serializar_ranking(juego_slug, inicio_mes, fin_mes, limite=10):
+    qs = (
+        PuntajeJuego.objects.filter(
+            juego=juego_slug,
+            fecha_registro__gte=inicio_mes,
+            fecha_registro__lt=fin_mes,
+        )
+        .order_by('-puntaje', 'fecha_registro')[:limite]
+    )
+    return [
+        {
+            "pos": idx,
+            "id": p.id,
+            "nombre": p.nombre,
+            "puntaje": p.puntaje,
+            "detalle": p.detalle,
+            "fecha": timezone.localtime(p.fecha_registro).strftime("%d/%m/%Y"),
+        }
+        for idx, p in enumerate(qs, 1)
+    ]
+
+
+def _obtener_campeon_anterior(juego_slug, inicio_mes_anterior, inicio_mes_actual, mes_anterior_nombre):
+    campeon = (
+        PuntajeJuego.objects.filter(
+            juego=juego_slug,
+            fecha_registro__gte=inicio_mes_anterior,
+            fecha_registro__lt=inicio_mes_actual,
+        )
+        .order_by('-puntaje', 'fecha_registro')
+        .first()
+    )
+    if not campeon:
+        return None
+    return {
+        "nombre": campeon.nombre,
+        "puntaje": campeon.puntaje,
+        "detalle": campeon.detalle,
+        "mes": mes_anterior_nombre,
+    }
+
+
+@require_GET
+def api_ranking_juego(request):
+    juego_slug = (request.GET.get('juego') or '').strip()
+    validos = dict(PuntajeJuego.JUEGO_CHOICES)
+    if juego_slug not in validos:
+        return JsonResponse({"ok": False, "error": "Juego no válido"}, status=400)
+
+    rango = _rango_mes_actual_y_anterior()
+    ranking = _serializar_ranking(juego_slug, rango["inicio_mes_actual"], rango["inicio_mes_siguiente"], limite=10)
+    total = PuntajeJuego.objects.filter(
+        juego=juego_slug,
+        fecha_registro__gte=rango["inicio_mes_actual"],
+        fecha_registro__lt=rango["inicio_mes_siguiente"],
+    ).count()
+    campeon_anterior = _obtener_campeon_anterior(
+        juego_slug,
+        rango["inicio_mes_anterior"],
+        rango["inicio_mes_actual"],
+        rango["mes_anterior_nombre"],
+    )
+
+    config = ConfiguracionSitio.get_solo()
+    es_juego_premio = (config.juego_premio_mes == juego_slug)
+
+    return JsonResponse({
+        "ok": True,
+        "juego": juego_slug,
+        "mes_actual": rango["mes_actual_nombre"],
+        "total_registros": total,
+        "ranking": ranking,
+        "campeon_anterior": campeon_anterior,
+        "es_juego_premio": es_juego_premio,
+        "texto_premio": config.texto_premio_mes if es_juego_premio else "",
+    })
+
+
+@csrf_exempt
+@require_POST
+def api_guardar_puntaje_juego(request):
+    try:
+        payload = json.loads(request.body.decode('utf-8')) if request.body else {}
+    except Exception:
+        return JsonResponse({"ok": False, "error": "JSON inválido"}, status=400)
+
+    juego_slug = (payload.get('juego') or '').strip()
+    nombre = (payload.get('nombre') or '').strip()[:80]
+    email = (payload.get('email') or '').strip().lower()[:150]
+    detalle = (payload.get('detalle') or '').strip()[:120]
+
+    validos = dict(PuntajeJuego.JUEGO_CHOICES)
+    if juego_slug not in validos:
+        return JsonResponse({"ok": False, "error": "Juego no válido"}, status=400)
+    if len(nombre) < 2:
+        return JsonResponse({"ok": False, "error": "Ingresa tu nombre o apodo (mínimo 2 caracteres)."}, status=400)
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({"ok": False, "error": "Ingresa un correo electrónico válido."}, status=400)
+
+    try:
+        puntaje = max(0, int(payload.get('puntaje', 0)))
+    except (TypeError, ValueError):
+        return JsonResponse({"ok": False, "error": "Puntaje inválido."}, status=400)
+
+    rango = _rango_mes_actual_y_anterior()
+    qs_mes = PuntajeJuego.objects.filter(
+        juego=juego_slug,
+        fecha_registro__gte=rango["inicio_mes_actual"],
+        fecha_registro__lt=rango["inicio_mes_siguiente"],
+    )
+
+    existente = qs_mes.filter(email__iexact=email).first()
+    supero_record = True
+    if existente:
+        if puntaje > existente.puntaje:
+            existente.nombre = nombre
+            existente.puntaje = puntaje
+            existente.detalle = detalle
+            existente.fecha_registro = timezone.now()
+            existente.save()
+            registro = existente
+        else:
+            registro = existente
+            supero_record = False
+    else:
+        registro = PuntajeJuego.objects.create(
+            juego=juego_slug,
+            nombre=nombre,
+            email=email,
+            puntaje=puntaje,
+            detalle=detalle,
+        )
+
+    mejores_antes = qs_mes.filter(puntaje__gt=registro.puntaje).count()
+    empatados_antes = qs_mes.filter(
+        puntaje=registro.puntaje,
+        fecha_registro__lt=registro.fecha_registro,
+    ).count()
+    posicion = mejores_antes + empatados_antes + 1
+
+    return JsonResponse({
+        "ok": True,
+        "id": registro.id,
+        "posicion": posicion,
+        "supero_record": supero_record,
+        "mejor_puntaje": registro.puntaje,
+        "mes_actual": rango["mes_actual_nombre"],
+        "ranking": _serializar_ranking(juego_slug, rango["inicio_mes_actual"], rango["inicio_mes_siguiente"], limite=10),
+        "total_registros": qs_mes.count(),
+    })

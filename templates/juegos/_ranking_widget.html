@@ -1,0 +1,569 @@
+<!-- WIDGET DE RANKING LATERAL + MODAL DE FIN DE PARTIDA -->
+<style>
+    .game-page-layout {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 1060px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 960px) {
+        .game-page-layout {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    .ranking-sidebar {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 340px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 1.5px solid #f1ece4;
+        flex-shrink: 0;
+        text-align: left;
+    }
+
+    @media (max-width: 960px) {
+        .ranking-sidebar {
+            max-width: 580px;
+        }
+    }
+
+    .ranking-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.85rem;
+        border-bottom: 2px solid #ef9d71;
+    }
+
+    .ranking-header h3 {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #4a4a4a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ranking-count-badge {
+        background: rgba(239, 157, 113, 0.16);
+        color: #c26332;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 3px 9px;
+        border-radius: 999px;
+    }
+
+    .ranking-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 410px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ranking-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        background: #fdfaf6;
+        border: 1px solid #f0ebe1;
+        font-size: 0.88rem;
+    }
+
+    .ranking-item.top-1 {
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        border-color: #fcd34d;
+    }
+
+    .ranking-item.top-2 {
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-color: #cbd5e1;
+    }
+
+    .ranking-item.top-3 {
+        background: linear-gradient(135deg, #fff7ed, #ffedd5);
+        border-color: #fdba74;
+    }
+
+    .ranking-item.highlight-mine {
+        box-shadow: 0 0 0 2px #65C18C;
+        background: #f0fdf4;
+    }
+
+    .ranking-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .ranking-pos {
+        font-weight: 800;
+        min-width: 24px;
+        text-align: center;
+        color: #737373;
+        font-size: 0.9rem;
+    }
+
+    .ranking-name-wrap {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .ranking-name {
+        font-weight: 800;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ranking-detail {
+        font-size: 0.72rem;
+        color: #737373;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ranking-score {
+        font-weight: 800;
+        color: #e2895a;
+        white-space: nowrap;
+        font-size: 0.95rem;
+    }
+
+    .timer-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #fff7ed;
+        color: #c26332;
+        border: 1.5px solid #fed7aa;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.92rem;
+        transition: all 0.2s;
+    }
+
+    .timer-pill.urgent {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fca5a5;
+        animation: raraTimerPulse 0.8s infinite;
+    }
+
+    @keyframes raraTimerPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+    }
+
+    /* Modal Fin de Partida y Registro */
+    .rara-end-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 1rem;
+    }
+
+    .rara-end-backdrop.open {
+        display: flex;
+    }
+
+    .rara-end-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 1.8rem 1.6rem;
+        width: 100%;
+        max-width: 430px;
+        text-align: center;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.22);
+        animation: raraEndPop 0.28s ease;
+    }
+
+    @keyframes raraEndPop {
+        from { transform: scale(0.92); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .rara-end-score-box {
+        background: linear-gradient(135deg, #fff7ed, #ffedd5);
+        border: 1.5px solid #fdba74;
+        border-radius: 16px;
+        padding: 0.9rem 1rem;
+        margin: 0.9rem 0;
+    }
+
+    .rara-end-score-num {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #c26332;
+        line-height: 1.1;
+    }
+
+    .rara-end-stats {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+        font-size: 0.82rem;
+        color: #7c2d12;
+        font-weight: 700;
+    }
+
+    .rara-end-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 1rem;
+        text-align: left;
+    }
+
+    .rara-end-input {
+        width: 100%;
+        padding: 10px 13px;
+        border-radius: 10px;
+        border: 1.5px solid #d1d5db;
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .rara-end-input:focus {
+        border-color: #ef9d71;
+        box-shadow: 0 0 0 3px rgba(239, 157, 113, 0.2);
+    }
+
+    .rara-btn-save {
+        width: 100%;
+        padding: 12px;
+        background: #ef9d71;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .rara-btn-save:hover:not(:disabled) {
+        background: #e2895a;
+    }
+
+    .rara-btn-save:disabled {
+        opacity: 0.65;
+        cursor: wait;
+    }
+
+    .rara-btn-replay {
+        width: 100%;
+        padding: 10px;
+        background: #f3f4f6;
+        color: #4b5563;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+
+    .rara-btn-replay:hover {
+        background: #e5e7eb;
+    }
+</style>
+
+<aside class="ranking-sidebar" aria-label="Ranking del juego">
+    <div id="raraPremioMesBanner" style="display:none; background: linear-gradient(135deg, #fff7ed, #ffedd5); border: 1.5px solid #fb923c; border-radius: 14px; padding: 10px 12px; margin-bottom: 12px;">
+        <div style="font-size: 0.78rem; font-weight: 800; color: #c2410c; text-transform: uppercase; letter-spacing: 0.4px;">
+            🎁 ¡Juego con Premio del Mes!
+        </div>
+        <div id="raraPremioMesTexto" style="font-size: 0.82rem; font-weight: 700; color: #7c2d12; margin-top: 2px;"></div>
+    </div>
+
+    <div id="raraCampeonAnteriorCard" style="display:none; background: linear-gradient(135deg, #fefce8, #fef3c7); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 10px 12px; margin-bottom: 12px;">
+        <div style="font-size: 0.72rem; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 0.4px;" id="raraCampeonMesLabel">
+            👑 Campeón del mes anterior
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px;">
+            <strong id="raraCampeonNombre" style="font-size: 0.95rem; color: #78350f;"></strong>
+            <span id="raraCampeonPuntaje" style="font-weight: 800; color: #b45309; font-size: 0.92rem; white-space: nowrap;"></span>
+        </div>
+        <div id="raraCampeonDetalle" style="font-size: 0.72rem; color: #92400e; margin-top: 2px;"></div>
+    </div>
+
+    <div class="ranking-header">
+        <h3 id="raraRankingTitle">🏆 Top 10 del Mes</h3>
+        <span class="ranking-count-badge" id="raraRankingTotal">0 reg.</span>
+    </div>
+    <ul class="ranking-list" id="raraRankingList">
+        <li style="text-align:center;color:#737373;font-size:0.85rem;padding:14px 0;">Cargando ranking...</li>
+    </ul>
+    <p style="margin: 10px 0 0 0; font-size: 0.73rem; color: #737373; text-align: center;">
+        El ranking se renueva cada 1 de mes. Se guarda tu mejor puntaje mensual.
+    </p>
+</aside>
+
+<div class="rara-end-backdrop" id="raraEndModal">
+    <div class="rara-end-card">
+        <h2 id="raraEndTitle" style="color: #ef9d71; font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0;">⏱️ ¡Tiempo Cumplido!</h2>
+        <p id="raraEndSubtitle" style="color: #737373; font-size: 0.9rem; margin: 0;">Registra tu puntaje en el ranking de Rara Tienda</p>
+
+        <div class="rara-end-score-box">
+            <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: #9a3412; font-weight: 800;">Puntaje Final</div>
+            <div class="rara-end-score-num" id="raraEndScore">0 pts</div>
+            <div class="rara-end-stats" id="raraEndDetail"></div>
+        </div>
+
+        <form id="raraEndForm" class="rara-end-form" onsubmit="RaraRanking.submitScore(event)">
+            <div>
+                <label style="display:block;font-size:0.8rem;font-weight:700;color:#4a4a4a;margin-bottom:4px;">Tu Nombre o Apodo</label>
+                <input type="text" id="raraRankNombre" class="rara-end-input" placeholder="Ej: Camila P." required maxlength="60">
+            </div>
+            <div>
+                <label style="display:block;font-size:0.8rem;font-weight:700;color:#4a4a4a;margin-bottom:4px;">Tu Correo Electrónico (privado)</label>
+                <input type="email" id="raraRankEmail" class="rara-end-input" placeholder="correo@ejemplo.com" required maxlength="120">
+            </div>
+            <div id="raraRankFeedback" style="display:none;font-size:0.84rem;font-weight:700;padding:8px 10px;border-radius:8px;text-align:center;"></div>
+            <button type="submit" id="raraRankSubmitBtn" class="rara-btn-save">🏆 Registrar mi Puntaje</button>
+        </form>
+
+        <button type="button" class="rara-btn-replay" onclick="RaraRanking.replay()">🔄 Jugar otra vez</button>
+    </div>
+</div>
+
+<script>
+window.RaraRanking = (function () {
+    let currentGame = '';
+    let currentScore = 0;
+    let currentDetail = '';
+    let onReplayCb = null;
+    let lastSavedId = null;
+
+    function formatPts(n) {
+        return Number(n || 0).toLocaleString('es-CL') + ' pts';
+    }
+
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function renderRanking(ranking, total) {
+        const listEl = document.getElementById('raraRankingList');
+        const totalEl = document.getElementById('raraRankingTotal');
+        if (totalEl) totalEl.textContent = `${total || 0} reg.`;
+        if (!listEl) return;
+
+        if (!ranking || ranking.length === 0) {
+            listEl.innerHTML = `<li style="text-align:center;color:#737373;font-size:0.85rem;padding:16px 6px;">¡Sé la primera persona en registrar un puntaje! 🦉</li>`;
+            return;
+        }
+
+        listEl.innerHTML = ranking.map(item => {
+            const medal = item.pos === 1 ? '🥇' : item.pos === 2 ? '🥈' : item.pos === 3 ? '🥉' : `#${item.pos}`;
+            const topCls = item.pos <= 3 ? ` top-${item.pos}` : '';
+            const mineCls = lastSavedId && item.id === lastSavedId ? ' highlight-mine' : '';
+            const detHtml = item.detalle ? `<span class="ranking-detail">${escapeHtml(item.detalle)}</span>` : '';
+            return `
+                <li class="ranking-item${topCls}${mineCls}">
+                    <div class="ranking-left">
+                        <span class="ranking-pos">${medal}</span>
+                        <div class="ranking-name-wrap">
+                            <span class="ranking-name">${escapeHtml(item.nombre)}</span>
+                            ${detHtml}
+                        </div>
+                    </div>
+                    <span class="ranking-score">${formatPts(item.puntaje)}</span>
+                </li>
+            `;
+        }).join('');
+    }
+
+    async function fetchRanking() {
+        if (!currentGame) return;
+        try {
+            const res = await fetch(`/api/juegos/ranking/?juego=${encodeURIComponent(currentGame)}`);
+            const data = await res.json();
+            if (data.ok) {
+                const titleEl = document.getElementById('raraRankingTitle');
+                if (titleEl && data.mes_actual) {
+                    titleEl.textContent = `🏆 Top 10 · ${data.mes_actual}`;
+                }
+
+                const premioBanner = document.getElementById('raraPremioMesBanner');
+                const premioTxt = document.getElementById('raraPremioMesTexto');
+                if (premioBanner) {
+                    if (data.es_juego_premio) {
+                        premioBanner.style.display = 'block';
+                        if (premioTxt) premioTxt.textContent = data.texto_premio || '¡El #1 de este mes gana un cupón de descuento!';
+                    } else {
+                        premioBanner.style.display = 'none';
+                    }
+                }
+
+                const campCard = document.getElementById('raraCampeonAnteriorCard');
+                if (campCard) {
+                    if (data.campeon_anterior) {
+                        document.getElementById('raraCampeonMesLabel').textContent = `👑 Campeón de ${data.campeon_anterior.mes}`;
+                        document.getElementById('raraCampeonNombre').textContent = data.campeon_anterior.nombre;
+                        document.getElementById('raraCampeonPuntaje').textContent = formatPts(data.campeon_anterior.puntaje);
+                        document.getElementById('raraCampeonDetalle').textContent = data.campeon_anterior.detalle || '';
+                        campCard.style.display = 'block';
+                    } else {
+                        campCard.style.display = 'none';
+                    }
+                }
+
+                renderRanking(data.ranking, data.total_registros);
+            }
+        } catch (e) {
+            console.error('Error cargando ranking:', e);
+        }
+    }
+
+    function init(gameSlug, replayCallback) {
+        currentGame = gameSlug;
+        onReplayCb = replayCallback || null;
+        fetchRanking();
+    }
+
+    function openEndModal(opts) {
+        currentScore = Math.max(0, Math.round(opts.score || 0));
+        currentDetail = opts.detail || '';
+
+        document.getElementById('raraEndTitle').textContent = opts.title || '⏱️ ¡Partida Finalizada!';
+        document.getElementById('raraEndSubtitle').textContent = opts.subtitle || 'Registra tu nombre y correo para entrar al ranking';
+        document.getElementById('raraEndScore').textContent = formatPts(currentScore);
+        document.getElementById('raraEndDetail').textContent = currentDetail;
+
+        const savedName = localStorage.getItem('rara_rank_nombre') || '';
+        const savedEmail = localStorage.getItem('rara_rank_email') || '';
+        const nameInput = document.getElementById('raraRankNombre');
+        const emailInput = document.getElementById('raraRankEmail');
+        if (nameInput && savedName && !nameInput.value) nameInput.value = savedName;
+        if (emailInput && savedEmail && !emailInput.value) emailInput.value = savedEmail;
+
+        const fb = document.getElementById('raraRankFeedback');
+        const btn = document.getElementById('raraRankSubmitBtn');
+        const form = document.getElementById('raraEndForm');
+        if (fb) fb.style.display = 'none';
+        if (btn) {
+            btn.disabled = false;
+            btn.style.display = 'block';
+            btn.textContent = '🏆 Registrar mi Puntaje';
+        }
+        if (form) form.style.display = 'flex';
+
+        document.getElementById('raraEndModal').classList.add('open');
+    }
+
+    function closeEndModal() {
+        document.getElementById('raraEndModal').classList.remove('open');
+    }
+
+    function replay() {
+        closeEndModal();
+        if (typeof onReplayCb === 'function') {
+            onReplayCb();
+        }
+    }
+
+    async function submitScore(e) {
+        e.preventDefault();
+        const nombre = document.getElementById('raraRankNombre').value.trim();
+        const email = document.getElementById('raraRankEmail').value.trim();
+        const btn = document.getElementById('raraRankSubmitBtn');
+        const fb = document.getElementById('raraRankFeedback');
+
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+        fb.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/juegos/ranking/guardar/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    juego: currentGame,
+                    nombre,
+                    email,
+                    puntaje: currentScore,
+                    detalle: currentDetail
+                })
+            });
+            const data = await res.json();
+            if (!data.ok) {
+                fb.textContent = data.error || 'No se pudo guardar el puntaje.';
+                fb.style.background = '#fef2f2';
+                fb.style.color = '#dc2626';
+                fb.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = '🏆 Registrar mi Puntaje';
+                return;
+            }
+
+            localStorage.setItem('rara_rank_nombre', nombre);
+            localStorage.setItem('rara_rank_email', email);
+            lastSavedId = data.id;
+
+            renderRanking(data.ranking, data.total_registros);
+            if (data.supero_record === false) {
+                fb.textContent = `ℹ️ Tu mejor marca de ${data.mes_actual || 'este mes'} sigue siendo ${formatPts(data.mejor_puntaje)} (Puesto #${data.posicion})`;
+            } else {
+                fb.textContent = `✅ ¡Registrado en ${data.mes_actual || 'el ranking'}! Quedaste en el puesto #${data.posicion}`;
+            }
+            fb.style.background = '#f0fdf4';
+            fb.style.color = '#15803d';
+            fb.style.display = 'block';
+            btn.style.display = 'none';
+        } catch (err) {
+            fb.textContent = 'Error de conexión al guardar el puntaje.';
+            fb.style.background = '#fef2f2';
+            fb.style.color = '#dc2626';
+            fb.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = '🏆 Registrar mi Puntaje';
+        }
+    }
+
+    return {
+        init,
+        openEndModal,
+        closeEndModal,
+        replay,
+        submitScore,
+        refresh: fetchRanking
+    };
+})();
+</script>
+

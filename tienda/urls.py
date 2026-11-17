@@ -63,6 +63,8 @@ urlpatterns = [
     # Ruta pública para acceder al radar
     path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),
     path('api/diccionario-especies/', views.get_species_dict, name='species_dict'),
+    path('api/juegos/ranking/', views.api_ranking_juego, name='api_ranking_juego'),
+    path('api/juegos/ranking/guardar/', views.api_guardar_puntaje_juego, name='api_guardar_puntaje_juego'),
     
     # Juegos
     path('juegos/', views.menu_juegos, name='menu_juegos'),
@@ -94,6 +96,7 @@ urlpatterns = [
     path('panel/guia/', views.panel_guia, name='panel_guia'),
     path('panel/calculadora-blue/', views.panel_calculadora_blue, name='panel_calculadora_blue'),
     path('panel/blue-express/actualizar-puntos/', views.api_panel_actualizar_puntos_blue, name='api_panel_actualizar_puntos_blue'),
+    path('panel/ranking-juegos/', views.panel_ranking_juegos, name='panel_ranking_juegos'),
 
     # APIs Blue Express (Checkout y Calculadora)
     path('api/blue-express/data/', views.api_blue_express_data, name='api_blue_express_data'),

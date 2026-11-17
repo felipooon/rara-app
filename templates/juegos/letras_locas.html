@@ -177,16 +177,18 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="game-page-layout" style="padding: 1rem; box-sizing: border-box;">
+    <div class="container" style="margin: 0;">
         <h1>Letras Locas</h1>
-        <div class="subtitle" style="margin-bottom: 0.5rem;">Ordena las letras para descubrir la especie</div>
+        <div class="subtitle" style="margin-bottom: 0.5rem;">Ordena las letras antes que acabe el tiempo (120s)</div>
         <div class="nav-buttons">
             <a href="{% url 'menu_juegos' %}" class="btn-nav">⬅️ Volver al Menú</a>
             <a href="{% url 'index' %}" class="btn-nav">🛍️ Volver a la Tienda</a>
         </div>
         
-        <div class="stats">
+        <div class="stats" style="flex-wrap: wrap; gap: 8px; align-items: center;">
             <span>Nivel: <span id="levelDisplay" style="color: var(--primary)">1</span></span>
+            <span id="timerDisplay" class="timer-pill">⏱️ 120s</span>
             <span>Puntos: <span id="scoreDisplay" style="color: var(--success)">0</span></span>
         </div>
         
@@ -199,9 +201,18 @@
         
         <div class="slots-container" id="slotsContainer"></div>
         <div class="letters-container" id="lettersContainer"></div>
+
+        <div style="margin-top: 0.8rem;">
+            <button type="button" id="skipBtn" onclick="skipRound()" style="background: transparent; border: 1.5px solid #cbd5e1; color: #64748b; padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                ⏭️ Saltar ave
+            </button>
+        </div>
         
-        <div class="victory" id="victoryMsg">¡Excelente! +50 pts ✨</div>
+        <div class="victory" id="victoryMsg">¡Excelente! ✨</div>
         <button class="action-btn" id="nextBtn" onclick="nextRound()">Siguiente Ave ➔</button>
+    </div>
+
+    {% include "juegos/_ranking_widget.html" %}
     </div>
 
     <script>
@@ -209,8 +220,12 @@
         
         let level = 1;
         let score = 0;
+        let solvedCount = 0;
         let currentSpecies = null;
         let targetWord = "";
+        let timeLeft = 120;
+        let timerInterval = null;
+        let gameEnded = false;
         
         // Elementos DOM
         const sciNameEl = document.getElementById('sciName');
@@ -220,8 +235,10 @@
         const lettersCont = document.getElementById('lettersContainer');
         const victoryMsg = document.getElementById('victoryMsg');
         const nextBtn = document.getElementById('nextBtn');
+        const skipBtn = document.getElementById('skipBtn');
         const lvlDisp = document.getElementById('levelDisplay');
         const scoreDisp = document.getElementById('scoreDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
         
         function normalizeWord(str) {
             // Elimina acentos y caracteres raros, pone en mayúsculas
@@ -322,7 +339,60 @@
             }
         }
         
+        function startMatchTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameEnded) return;
+                timeLeft--;
+                if (timerDisplay) {
+                    timerDisplay.textContent = `⏱️ ${Math.max(0, timeLeft)}s`;
+                    timerDisplay.classList.toggle('urgent', timeLeft <= 15);
+                }
+                if (timeLeft <= 0) {
+                    endMatch();
+                }
+            }, 1000);
+        }
+
+        function endMatch() {
+            if (gameEnded) return;
+            gameEnded = true;
+            clearInterval(timerInterval);
+            nextBtn.classList.remove('show');
+            if (skipBtn) skipBtn.style.display = 'none';
+
+            RaraRanking.openEndModal({
+                title: '⏱️ ¡Tiempo Cumplido!',
+                subtitle: 'Registra tu puntaje de Letras Locas',
+                score: score,
+                detail: `${solvedCount} aves resueltas · Nivel ${level}`
+            });
+        }
+
+        function restartMatch() {
+            level = 1;
+            score = 0;
+            solvedCount = 0;
+            timeLeft = 120;
+            gameEnded = false;
+            lvlDisp.textContent = '1';
+            scoreDisp.textContent = '0';
+            if (skipBtn) skipBtn.style.display = 'inline-block';
+            if (timerDisplay) {
+                timerDisplay.textContent = '⏱️ 120s';
+                timerDisplay.classList.remove('urgent');
+            }
+            startMatchTimer();
+            initRound();
+        }
+
+        function skipRound() {
+            if (gameEnded) return;
+            initRound();
+        }
+
         function checkWin() {
+            if (gameEnded) return;
             const slots = Array.from(slotsCont.querySelectorAll('.slot'));
             const currentWord = slots.map(s => s.textContent).join("");
             const lettersOnlyTarget = targetWord.replace(/[^A-Z]/g, "");
@@ -330,10 +400,13 @@
             if(currentWord.length === lettersOnlyTarget.length) {
                 if(currentWord === lettersOnlyTarget) {
                     // Win
+                    const ptsGanados = 100 + (lettersOnlyTarget.length * 10) + (solvedCount * 15);
+                    solvedCount++;
+                    score += ptsGanados;
+                    scoreDisp.textContent = score;
+                    victoryMsg.textContent = `¡Excelente! +${ptsGanados} pts ✨`;
                     victoryMsg.style.display = 'block';
                     nextBtn.classList.add('show');
-                    score += 50 * level;
-                    scoreDisp.textContent = score;
                     
                     // Deshabilitar slots para no quitarlos accidentalmente luego de ganar
                     slots.forEach(s => s.onclick = null);
@@ -346,16 +419,19 @@
         }
         
         function nextRound() {
+            if (gameEnded) return;
             level++;
             lvlDisp.textContent = level;
             initRound();
         }
         
         async function initGame() {
+            RaraRanking.init('letras_locas', restartMatch);
             try {
                 const res = await fetch('/api/diccionario-especies/?modo=juegos');
                 const rawData = await res.json();
                 speciesArray = Object.values(rawData);
+                startMatchTimer();
                 initRound();
             } catch(err) {
                 console.error("Error al cargar diccionario", err);
