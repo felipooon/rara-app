@@ -84,6 +84,11 @@ class Producto(models.Model):
     # Control de inventario y disponibilidad
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en inventario")
     disponible = models.BooleanField(default=True)
+    exportado_pos = models.BooleanField(
+        default=False,
+        verbose_name="Exportado al POS",
+        help_text="Indica si este producto ya fue exportado en una planilla para el POS",
+    )
     tamano_envio = models.CharField(
         max_length=20,
         choices=TAMANO_ENVIO_CHOICES,

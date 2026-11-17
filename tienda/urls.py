@@ -29,6 +29,7 @@ urlpatterns = [
     path('panel/pedidos/<int:id>/confirmar/', views.confirmar_pago_pedido, name='confirmar_pago_pedido'),
     path('panel/productos/exportar/', views.exportar_stock_excel, name='exportar_stock_excel'),
     path('panel/productos/exportar-pos/', views.exportar_catalogo_pos_excel, name='exportar_catalogo_pos_excel'),
+    path('panel/productos/marcar-todos-pos/', views.marcar_todos_pos, name='marcar_todos_pos'),
     path('panel/productos/codigos-barra/', views.panel_codigos_barra, name='panel_codigos_barra'),
     path('panel/productos/codigos-barra/descargar/', views.descargar_codigos_barra_html, name='descargar_codigos_barra_html'),
 

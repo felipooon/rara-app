@@ -30,7 +30,7 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        exclude = ['slug']
+        exclude = ['slug', 'exportado_pos']
         widgets = {
             'stock': forms.NumberInput(attrs={'min': '0', 'style': 'text-align: center; font-weight: 700; font-size: 1.05rem;'}),
             'especie_nombre_comun': forms.TextInput(attrs={'placeholder': 'Ej: Cometocino Patagónico, Amanita muscaria'}),

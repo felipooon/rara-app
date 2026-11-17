@@ -56,6 +56,7 @@ from .panel_admin import (
     exportar_pedidos_excel,
     exportar_stock_excel,
     exportar_catalogo_pos_excel,
+    marcar_todos_pos,
     panel_codigos_barra,
     descargar_codigos_barra_html,
     panel_configuracion,

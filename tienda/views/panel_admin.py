@@ -93,8 +93,11 @@ def panel_productos(request):
         productos_list = productos_list.filter(disponible=True)
     elif estado == "agotado":
         productos_list = productos_list.filter(disponible=False)
+    elif estado == "pendiente_pos":
+        productos_list = productos_list.filter(exportado_pos=False)
 
     categorias = Categoria.objects.all()
+    pendientes_pos_count = Producto.objects.exclude(nombre__iexact='test').filter(exportado_pos=False).count()
 
     paginator = Paginator(productos_list, int(per_page))
     page_number = request.GET.get('page')
@@ -105,7 +108,8 @@ def panel_productos(request):
         "categorias": categorias,
         "categoria_actual": categoria_id,
         "estado_actual": estado,
-        "per_page": per_page
+        "per_page": per_page,
+        "pendientes_pos_count": pendientes_pos_count,
     })
 
 
@@ -702,24 +706,59 @@ def exportar_stock_excel(request):
 
 @staff_member_required(login_url='login')
 def exportar_catalogo_pos_excel(request):
-    productos = Producto.objects.exclude(nombre__iexact='test').order_by('nombre')
+    productos = Producto.objects.exclude(nombre__iexact='test').order_by('id')
 
+    modo = (request.GET.get("modo") or "").strip().lower()
+    ids_raw = (request.GET.get("ids") or "").strip()
     categoria_id = request.GET.get("categoria", "")
     estado = request.GET.get("estado", "")
-    if categoria_id:
-        productos = productos.filter(categoria_id=categoria_id)
-    if estado == "disponible":
-        productos = productos.filter(disponible=True, stock__gt=0)
-    elif estado == "agotado":
-        productos = productos.filter(models.Q(disponible=False) | models.Q(stock=0))
 
+    if ids_raw:
+        id_list = [int(x) for x in ids_raw.split(",") if x.strip().isdigit()]
+        if not id_list:
+            messages.warning(request, "No seleccionaste ningún producto para exportar al POS.")
+            return redirect('panel_productos')
+        productos = productos.filter(id__in=id_list)
+        filename = "catalogo_pos_seleccionados.xlsx"
+        marcar_exportados = True
+    elif modo == "nuevos":
+        productos = productos.filter(exportado_pos=False)
+        if not productos.exists():
+            messages.info(request, "No hay productos pendientes nuevos por exportar al POS.")
+            return redirect('panel_productos')
+        filename = "catalogo_pos_solo_nuevos.xlsx"
+        marcar_exportados = True
+    else:
+        productos = productos.order_by('nombre')
+        if categoria_id:
+            productos = productos.filter(categoria_id=categoria_id)
+        if estado == "disponible":
+            productos = productos.filter(disponible=True, stock__gt=0)
+        elif estado == "agotado":
+            productos = productos.filter(models.Q(disponible=False) | models.Q(stock=0))
+        filename = "catalogo_importacion_rara_tienda.xlsx"
+        marcar_exportados = False
+
+    ids_a_marcar = list(productos.values_list('id', flat=True))
     xlsx_bytes = generar_excel_catalogo_pos(productos)
+
+    if marcar_exportados and ids_a_marcar:
+        Producto.objects.filter(id__in=ids_a_marcar).update(exportado_pos=True)
+
     response = HttpResponse(
         xlsx_bytes,
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename="catalogo_importacion_rara_tienda.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+@staff_member_required(login_url='login')
+def marcar_todos_pos(request):
+    if request.method == 'POST':
+        actualizados = Producto.objects.filter(exportado_pos=False).update(exportado_pos=True)
+        messages.success(request, f"Se marcaron {actualizados} producto(s) como ya registrados en el POS.")
+    return redirect('panel_productos')
 
 
 @staff_member_required(login_url='login')

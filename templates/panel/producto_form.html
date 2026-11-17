@@ -3,603 +3,723 @@
 {% block content %}
 
 <style>
-    .form-card {
-        background: rgba(255, 255, 255, 0.95); /* Fondo blanco casi sólido para separar del patrón de aves */
-        padding: 30px 40px;
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1); /* Sombra elegante */
-        max-width: 700px; /* Evita que los inputs se estiren al infinito */
-        margin: 20px auto; /* Centra la tarjeta en la pantalla */
+    .pf-shell {
+        max-width: 1120px;
+        margin: 12px auto 40px;
+        padding: 0 12px;
     }
 
-    .form-header {
-        border-bottom: 2px solid #eee;
-        padding-bottom: 15px;
-        margin-bottom: 25px;
-        color: #333;
+    .pf-topbar {
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px 22px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    .pf-topbar h2 {
+        margin: 0;
+        font-size: 1.45rem;
+        color: #1e293b;
+        font-weight: 800;
+    }
+
+    .pf-topbar-sub {
+        margin: 2px 0 0 0;
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    .pf-topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .pf-layout {
+        display: grid;
+        grid-template-columns: 1.45fr 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+
+    @media (max-width: 920px) {
+        .pf-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pf-col {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .pf-card {
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 20px 22px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .pf-card-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 14px 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
     }
 
     .form-group label {
         display: block;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #555;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #475569;
+        font-size: 0.88rem;
     }
 
-    /* Apuntamos a los inputs automáticos de Django para estilizarlos */
     .form-group input[type="text"],
     .form-group input[type="number"],
     .form-group textarea,
     .form-group select {
         width: 100%;
-        padding: 12px 15px;
-        border: 1px solid #ccd0d5;
+        padding: 10px 13px;
+        border: 1.5px solid #cbd5e1;
         border-radius: 8px;
         font-family: inherit;
-        font-size: 1rem;
+        font-size: 0.95rem;
         box-sizing: border-box;
-        transition: border-color 0.3s, box-shadow 0.3s;
+        background: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    /* Efecto al hacer clic en un campo */
-    .form-group input:focus, 
-    .form-group textarea:focus, 
+    .form-group input:focus,
+    .form-group textarea:focus,
     .form-group select:focus {
-        border-color: #fca311; /* Color naranjo/turquesa de tu tienda si prefieres */
+        border-color: #fca311;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(252, 163, 17, 0.2);
+        box-shadow: 0 0 0 3px rgba(252, 163, 17, 0.18);
     }
 
     .form-group textarea {
-        resize: vertical; /* Solo permite agrandar hacia abajo */
-        min-height: 120px;
+        resize: vertical;
+        min-height: 115px;
     }
 
-    /* Grilla para poner campos lado a lado */
     .grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        gap: 14px;
     }
 
-    /* Estilo para el archivo de imagen */
+    @media (max-width: 600px) {
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .file-upload-box {
-        background: #f8f9fa;
-        padding: 15px;
-        border: 2px dashed #ccc;
-        border-radius: 8px;
+        background: #f8fafc;
+        padding: 14px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 10px;
         text-align: center;
     }
 
-    /* Estilo para el Checkbox */
     .checkbox-inline {
         display: flex;
         align-items: center;
         gap: 10px;
-        background: #eef2f5;
-        padding: 15px;
-        border-radius: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 12px 14px;
+        border-radius: 10px;
     }
-    
+
     .checkbox-inline input {
-        transform: scale(1.5); /* Hace el cuadrito más grande y fácil de presionar */
+        transform: scale(1.35);
         cursor: pointer;
     }
-    
+
     .checkbox-inline label {
         margin-bottom: 0;
         cursor: pointer;
-        font-weight: bold;
-        color: #2c3e50;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.9rem;
     }
 
-    /* Estilos del Toggle Switch */
     .switch-wrapper {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 10px;
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
-        padding: 16px 20px;
+        padding: 13px 16px;
         border-radius: 12px;
-        margin-top: 20px;
-        margin-bottom: 20px;
         cursor: pointer;
-        transition: background 0.2s, border-color 0.2s;
+        transition: background 0.2s;
     }
+
     .switch-wrapper:hover {
-        background: #e6f4ea;
+        background: #dcfce7;
     }
+
     .switch-label-text {
         font-weight: 700;
         color: #166534;
-        font-size: 1.02rem;
+        font-size: 0.94rem;
         display: flex;
         align-items: center;
         gap: 8px;
         user-select: none;
     }
+
     .toggle-switch {
         position: relative;
         display: inline-block;
-        width: 52px;
-        height: 28px;
+        width: 48px;
+        height: 26px;
         flex-shrink: 0;
     }
+
     .toggle-switch input {
         opacity: 0;
         width: 0;
         height: 0;
     }
+
     .toggle-slider {
         position: absolute;
         cursor: pointer;
         top: 0; left: 0; right: 0; bottom: 0;
         background-color: #cbd5e1;
-        transition: .3s;
+        transition: .25s;
         border-radius: 34px;
     }
+
     .toggle-slider:before {
         position: absolute;
         content: "";
-        height: 20px;
-        width: 20px;
+        height: 18px;
+        width: 18px;
         left: 4px;
         bottom: 4px;
         background-color: white;
-        transition: .3s;
+        transition: .25s;
         border-radius: 50%;
         box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
+
     .toggle-switch input:checked + .toggle-slider {
         background-color: #22c55e;
     }
+
     .toggle-switch input:checked + .toggle-slider:before {
-        transform: translateX(24px);
+        transform: translateX(22px);
     }
 
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 15px;
-        margin-top: 30px;
-        border-top: 2px solid #eee;
-        padding-top: 20px;
+    .pf-tools-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    @media (max-width: 780px) {
+        .pf-tools-bar {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pf-btn-cancel {
+        padding: 9px 16px;
+        text-decoration: none;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .pf-btn-save {
+        padding: 10px 22px;
+        border: none;
+        border-radius: 8px;
+        background: #fca311;
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.96rem;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(252, 163, 17, 0.28);
+        transition: background 0.15s;
+    }
+
+    .pf-btn-save:hover {
+        background: #e89205;
     }
 </style>
 
-<div class="form-card">
-    <h2 class="form-header">
-        {% if editando %}✏️ Editar Producto{% else %}✨ Crear Nuevo Producto{% endif %}
-    </h2>
+<div class="pf-shell">
 
     {% if editando and form.instance.id %}
-    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-        <div>
-            <div style="font-weight: 700; color: #1e293b; font-size: 0.93rem;">
-                <i class="fa-solid fa-barcode"></i> SKU POS: <span style="font-family: monospace;">{{ form.instance.codigo_sku }}</span> &bull; Código: <span style="font-family: monospace;">{{ form.instance.codigo_barras }}</span>
+    <!-- Barra rápida de herramientas para producto existente (Código de barras + Link reseña) -->
+    <div class="pf-tools-bar">
+        <div style="background: rgba(255,255,255,0.96); border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+            <div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 0.86rem;">
+                    <i class="fa-solid fa-barcode"></i> SKU: <span style="font-family: monospace;">{{ form.instance.codigo_sku }}</span> &bull; <span style="font-family: monospace;">{{ form.instance.codigo_barras }}</span>
+                </div>
+                <div style="margin-top: 4px; background: white; padding: 3px 6px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block;">
+                    {{ form.instance.codigo_barras_svg }}
+                </div>
             </div>
-            <div style="margin-top: 6px; background: white; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block;">
-                {{ form.instance.codigo_barras_svg }}
-            </div>
-        </div>
-        <a href="{% url 'panel_codigos_barra' %}?q={{ form.instance.codigo_barras }}" style="background: #111827; color: white; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-            🖨️ Imprimir Etiquetas
-        </a>
-    </div>
-
-    <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 10px; padding: 14px 18px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #92400e; font-size: 0.93rem;">
-            <span>⭐ Link de Valoración para este producto:</span>
-        </div>
-        <div style="display: flex; gap: 8px;">
-            <button type="button" onclick="abrirModalResenaForm('https://www.raratienda.cl/evaluar-producto/{{ form.instance.id }}/', '{{ form.instance.nombre|escapejs }}')" style="background: #f59e0b; color: white; border: none; padding: 7px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                📋 Copiar Link
-            </button>
-            <a href="https://wa.me/?text=Hola!%20%C2%BFNos%20dejar%C3%ADas%20tu%20opini%C3%B3n%20sobre%20{{ form.instance.nombre|urlencode }}%3F%20https://www.raratienda.cl/evaluar-producto/{{ form.instance.id }}/" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                <i class="fab fa-whatsapp"></i> WhatsApp
+            <a href="{% url 'panel_codigos_barra' %}?q={{ form.instance.codigo_barras }}" style="background: #111827; color: white; text-decoration: none; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px;">
+                🖨️ Etiquetas
             </a>
         </div>
-    </div>
 
-<!-- Modal Estética Rara Tienda -->
-<div id="modalResenaForm" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center;">
-    <div style="background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #fef3c7;">
-        <button onclick="cerrarModalResenaForm()" style="position: absolute; top: 15px; right: 18px; background: #f1f5f9; border: none; font-size: 14px; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #64748b;">✕</button>
-        
-        <div style="font-size: 2.8rem; margin-bottom: 8px;">⭐</div>
-        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #1e293b; margin: 0 0 6px 0;">Link de Valoración</h3>
-        <p id="modalResenaFormSubtitulo" style="color: #64748b; font-size: 0.95rem; margin: 0 0 20px 0; font-weight: 600;"></p>
-        
-        <div style="margin-bottom: 20px;">
-            <input type="text" id="modalResenaFormInput" readonly style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: monospace; background: #f8fafc; color: #334155; text-align: center; box-sizing: border-box; outline: none;">
-        </div>
-
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button type="button" id="btnCopiarFormModal" onclick="ejecutarCopiaFormModal()" style="background: #ef9d71; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-copy"></i> Copiar Link
-            </button>
-            <a id="btnWhatsappFormModal" href="#" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fab fa-whatsapp"></i> Compartir WhatsApp
-            </a>
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+            <div style="font-weight: 700; color: #92400e; font-size: 0.88rem;">
+                ⭐ Link de Valoración del Producto
+            </div>
+            <div style="display: flex; gap: 6px;">
+                <button type="button" onclick="abrirModalResenaForm('https://www.raratienda.cl/evaluar-producto/{{ form.instance.id }}/', '{{ form.instance.nombre|escapejs }}')" style="background: #f59e0b; color: white; border: none; padding: 7px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem;">
+                    📋 Copiar Link
+                </button>
+                <a href="https://wa.me/?text=Hola!%20%C2%BFNos%20dejar%C3%ADas%20tu%20opini%C3%B3n%20sobre%20{{ form.instance.nombre|urlencode }}%3F%20https://www.raratienda.cl/evaluar-producto/{{ form.instance.id }}/" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-function abrirModalResenaForm(url, nombre) {
-    document.getElementById('modalResenaFormSubtitulo').innerText = 'Producto: "' + nombre + '"';
-    document.getElementById('modalResenaFormInput').value = url;
-    document.getElementById('btnWhatsappFormModal').href = "https://wa.me/?text=" + encodeURIComponent("Hola! ¿Nos dejarías tu opinión sobre " + nombre + "? " + url);
-    document.getElementById('btnCopiarFormModal').innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Link';
-    document.getElementById('btnCopiarFormModal').style.background = '#ef9d71';
-    document.getElementById('modalResenaForm').style.display = 'flex';
-}
+    <!-- Modal Link de Valoración -->
+    <div id="modalResenaForm" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #fef3c7;">
+            <button type="button" onclick="cerrarModalResenaForm()" style="position: absolute; top: 15px; right: 18px; background: #f1f5f9; border: none; font-size: 14px; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #64748b;">✕</button>
+            <div style="font-size: 2.8rem; margin-bottom: 8px;">⭐</div>
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #1e293b; margin: 0 0 6px 0;">Link de Valoración</h3>
+            <p id="modalResenaFormSubtitulo" style="color: #64748b; font-size: 0.95rem; margin: 0 0 20px 0; font-weight: 600;"></p>
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="modalResenaFormInput" readonly style="width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: monospace; background: #f8fafc; color: #334155; text-align: center; box-sizing: border-box; outline: none;">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" id="btnCopiarFormModal" onclick="ejecutarCopiaFormModal()" style="background: #ef9d71; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-copy"></i> Copiar Link
+                </button>
+                <a id="btnWhatsappFormModal" href="#" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fab fa-whatsapp"></i> Compartir WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
 
-function cerrarModalResenaForm() {
-    document.getElementById('modalResenaForm').style.display = 'none';
-}
-
-document.getElementById('modalResenaForm').addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalResenaForm();
+    <script>
+    function abrirModalResenaForm(url, nombre) {
+        document.getElementById('modalResenaFormSubtitulo').innerText = 'Producto: "' + nombre + '"';
+        document.getElementById('modalResenaFormInput').value = url;
+        document.getElementById('btnWhatsappFormModal').href = "https://wa.me/?text=" + encodeURIComponent("Hola! ¿Nos dejarías tu opinión sobre " + nombre + "? " + url);
+        document.getElementById('btnCopiarFormModal').innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Link';
+        document.getElementById('btnCopiarFormModal').style.background = '#ef9d71';
+        document.getElementById('modalResenaForm').style.display = 'flex';
     }
-});
-
-function ejecutarCopiaFormModal() {
-    var input = document.getElementById('modalResenaFormInput');
-    navigator.clipboard.writeText(input.value).then(function() {
-        var btn = document.getElementById('btnCopiarFormModal');
-        btn.innerHTML = '✓ ¡Copiado!';
-        btn.style.background = '#22c55e';
-        setTimeout(function() {
-            btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Link';
-            btn.style.background = '#ef9d71';
-        }, 2500);
-    }, function() {
-        input.select();
+    function cerrarModalResenaForm() {
+        document.getElementById('modalResenaForm').style.display = 'none';
+    }
+    document.getElementById('modalResenaForm').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalResenaForm();
     });
-}
-</script>
-{% endif %}
+    function ejecutarCopiaFormModal() {
+        var input = document.getElementById('modalResenaFormInput');
+        navigator.clipboard.writeText(input.value).then(function() {
+            var btn = document.getElementById('btnCopiarFormModal');
+            btn.innerHTML = '✓ ¡Copiado!';
+            btn.style.background = '#22c55e';
+            setTimeout(function() {
+                btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Link';
+                btn.style.background = '#ef9d71';
+            }, 2500);
+        }, function() {
+            input.select();
+        });
+    }
+    </script>
+    {% endif %}
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="producto-main-form">
         {% csrf_token %}
 
-        <div class="form-group">
-            <label for="{{ form.categoria.id_for_label }}">Categoría</label>
-            {{ form.categoria }}
-        </div>
-
-        <div class="form-group">
-            <label for="{{ form.nombre.id_for_label }}">Nombre del Producto</label>
-            {{ form.nombre }}
-        </div>
-
-        <div class="form-group">
-            <label for="{{ form.descripcion.id_for_label }}">Descripción detallada</label>
-            {{ form.descripcion }}
-        </div>
-
-        <div class="grid-2">
-            <div class="form-group">
-                <label for="{{ form.precio.id_for_label }}">Precio ($)</label>
-                {{ form.precio }}
+        <!-- Cabecera con título y botones principales -->
+        <div class="pf-topbar">
+            <div>
+                <h2>{% if editando %}✏️ Editar Producto{% else %}✨ Crear Nuevo Producto{% endif %}</h2>
+                <p class="pf-topbar-sub">Completa la información básica, imágenes, precio y tamaño de envío.</p>
             </div>
-            
-            <div class="form-group">
-                <label for="{{ form.stock.id_for_label }}">Stock (Unidades)</label>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <button type="button" onclick="modificarStock(-1)" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; width: 44px; height: 44px; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" title="Disminuir stock">
-                        <i class="fa-solid fa-minus"></i>
-                    </button>
-                    <div style="flex: 1;">
-                        {{ form.stock }}
+            <div class="pf-topbar-actions">
+                <a href="{% if next %}{{ next }}{% else %}{% url 'panel_productos' %}{% endif %}" class="pf-btn-cancel">
+                    Cancelar
+                </a>
+                <button type="submit" class="pf-btn-save">
+                    💾 Guardar Producto
+                </button>
+            </div>
+        </div>
+
+        <div class="pf-layout">
+            <!-- COLUMNA IZQUIERDA: INFORMACIÓN, IMÁGENES Y FICHA DE ESPECIE -->
+            <div class="pf-col">
+                <!-- 1. Información Básica -->
+                <div class="pf-card">
+                    <h3 class="pf-card-title">📝 Información Básica</h3>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="{{ form.categoria.id_for_label }}">Categoría</label>
+                            {{ form.categoria }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.nombre.id_for_label }}">Nombre del Producto</label>
+                            {{ form.nombre }}
+                        </div>
                     </div>
-                    <button type="button" onclick="modificarStock(1)" style="background: #ef9d71; border: 1px solid #e08b5e; border-radius: 8px; width: 44px; height: 44px; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;" onmouseover="this.style.background='#e08b5e'" onmouseout="this.style.background='#ef9d71'" title="Aumentar stock">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
+                    <div class="form-group">
+                        <label for="{{ form.descripcion.id_for_label }}">Descripción detallada</label>
+                        {{ form.descripcion }}
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="form-group" style="background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 16px 18px; margin-bottom: 24px;">
-            <label for="{{ form.tamano_envio.id_for_label }}" style="color: #002b5c; font-weight: 800; margin-bottom: 6px;">
-                📦 Tamaño en Caja de Envío (Blue Express)
-            </label>
-            {{ form.tamano_envio }}
-            <p style="font-size: 0.8rem; color: #334155; margin: 8px 0 0 0; line-height: 1.45;">
-                <strong>¿Cómo calcula el carrito la talla del paquete?</strong> Tu <strong>Caja XS tiene capacidad de 12 puntos</strong>:
-                caben p. ej. <strong>3 calcetines/bandanas</strong> (4 pts c/u) + <strong>llaveros/pines/stickers</strong> libres, o <strong>4 guías</strong> (3 pts c/u), o <strong>2 arneses</strong> (6 pts c/u), o <strong>1 arnés + 4 contadores</strong>. Un <strong>libro grande</strong> pasa directo a <strong>Talla S</strong>, y una <strong>casa de pájaros</strong> a <strong>Talla M</strong> (2+ pasan a <strong>L</strong>).
-                {% if editando and form.instance.id %}
-                    <br><span style="color: #0055b8; font-weight: 700;">Tamaño activo actual: {{ form.instance.etiqueta_tamano_envio }}</span>
-                {% endif %}
-            </p>
-        </div>
-        
-        <div class="form-group file-upload-box" style="margin-bottom: 25px;">
-            <label style="display:block; margin-bottom: 10px; font-weight: 700; color: #1e293b; font-size: 1.05rem;">
-                📷 Imagen Principal / Portada
-            </label>
-            <p style="font-size: 0.85rem; color: #64748b; margin-top: -5px; margin-bottom: 12px;">
-                Esta es la imagen principal que aparecerá en las tarjetas de la tienda y catálogo.
-            </p>
+                <!-- 2. Imágenes del Producto -->
+                <div class="pf-card">
+                    <h3 class="pf-card-title">📷 Imágenes del Producto</h3>
+                    <div class="grid-2">
+                        <div class="file-upload-box">
+                            <label style="display:block; margin-bottom: 6px; font-weight: 700; color: #1e293b; font-size: 0.92rem;">
+                                Portada Principal
+                            </label>
+                            <p style="font-size: 0.78rem; color: #64748b; margin: 0 0 10px 0;">
+                                Aparece en tarjetas y catálogo.
+                            </p>
+                            {% if form.instance.imagen %}
+                                <div style="margin-bottom: 10px; background: white; padding: 6px; border-radius: 8px; display: inline-block; border: 1px solid #e2e8f0;">
+                                    <img src="{{ form.instance.imagen.url }}" style="height: 95px; object-fit: cover; border-radius: 6px;">
+                                </div>
+                            {% endif %}
+                            <input type="file" name="{{ form.imagen.html_name }}" id="{{ form.imagen.id_for_label }}" accept="image/*" class="custom-file-input" style="max-width: 100%; font-size: 0.82rem;">
+                        </div>
 
-            {% if form.instance.imagen %}
-                <div style="margin-bottom: 12px; background: white; padding: 8px; border-radius: 8px; display: inline-block; border: 1px solid #e2e8f0;">
-                    <img src="{{ form.instance.imagen.url }}" style="height: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
-                </div>
-                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">
-                    <em>Selecciona un archivo solo si deseas reemplazar la imagen principal actual.</em>
-                </p>
-            {% endif %}
+                        <div class="file-upload-box" style="background: #f0fdf4; border-color: #86efac;">
+                            <label style="display:block; margin-bottom: 6px; font-weight: 700; color: #166534; font-size: 0.92rem;">
+                                🖼️ Galería Adicional (Opcional)
+                            </label>
+                            <p style="font-size: 0.78rem; color: #15803d; margin: 0 0 10px 0;">
+                                Selecciona varias imágenes para la vista del producto.
+                            </p>
+                            <input type="file" name="imagenes_adicionales" id="id_imagenes_adicionales" multiple accept="image/*" class="custom-file-input" style="max-width: 100%; font-size: 0.82rem;">
+                        </div>
+                    </div>
 
-            <input type="file" name="{{ form.imagen.html_name }}" id="{{ form.imagen.id_for_label }}" accept="image/*" class="custom-file-input">
-        </div>
-
-        <div class="form-group file-upload-box" style="background: #f0fdf4; border: 2px dashed #86efac;">
-            <label style="display:block; margin-bottom: 6px; font-weight: 700; color: #166534; font-size: 1.05rem;">
-                🖼️ Galería de Imágenes Adicionales (Opcional)
-            </label>
-            <p style="font-size: 0.85rem; color: #15803d; margin-bottom: 12px;">
-                Puedes seleccionar <strong>varias imágenes al mismo tiempo</strong> para crear una galería en la página del producto.
-            </p>
-
-            <input type="file" name="imagenes_adicionales" id="id_imagenes_adicionales" multiple accept="image/*" class="custom-file-input">
-
-            {% if editando and form.instance.imagenes_adicionales.all %}
-                <div style="margin-top: 18px; border-top: 1px dashed #bbf7d0; padding-top: 14px; text-align: left;">
-                    <p style="font-weight: 700; color: #166534; font-size: 0.9rem; margin-bottom: 10px;">
-                        Galería actual (marca las casillas para eliminar las imágenes que ya no desees):
-                    </p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px;">
-                        {% for img_extra in form.instance.imagenes_adicionales.all %}
-                            <div style="position: relative; background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
-                                <img src="{{ img_extra.imagen.url }}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 6px;">
-                                <label style="font-size: 0.8rem; color: #dc2626; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; user-select: none;">
-                                    <input type="checkbox" name="eliminar_imagenes" value="{{ img_extra.id }}"> 🗑️ Borrar
-                                </label>
+                    {% if editando and form.instance.imagenes_adicionales.all %}
+                        <div style="margin-top: 16px; border-top: 1px dashed #cbd5e1; padding-top: 14px;">
+                            <p style="font-weight: 700; color: #166534; font-size: 0.86rem; margin: 0 0 10px 0;">
+                                Galería actual (marca las casillas para borrar):
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                                {% for img_extra in form.instance.imagenes_adicionales.all %}
+                                    <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px; text-align: center;">
+                                        <img src="{{ img_extra.imagen.url }}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 6px;">
+                                        <label style="font-size: 0.78rem; color: #dc2626; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; margin: 0;">
+                                            <input type="checkbox" name="eliminar_imagenes" value="{{ img_extra.id }}"> 🗑️ Borrar
+                                        </label>
+                                    </div>
+                                {% endfor %}
                             </div>
-                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- 3. Ficha Educativa de Especie (Opcional) -->
+                <div class="pf-card">
+                    <label for="{{ form.tiene_ficha_especie.id_for_label }}" class="switch-wrapper" style="margin: 0;">
+                        <span class="switch-label-text">
+                            🦜 Incluir Ficha de Especie / Dato Curioso
+                        </span>
+                        <span class="toggle-switch">
+                            {{ form.tiene_ficha_especie }}
+                            <span class="toggle-slider"></span>
+                        </span>
+                    </label>
+
+                    <div id="sec-ficha-especie" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed #cbd5e1;">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="{{ form.especie_nombre_comun.id_for_label }}">{{ form.especie_nombre_comun.label }}</label>
+                                {{ form.especie_nombre_comun }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.especie_nombre_cientifico.id_for_label }}">{{ form.especie_nombre_cientifico.label }}</label>
+                                {{ form.especie_nombre_cientifico }}
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="{{ form.especie_habitat.id_for_label }}">{{ form.especie_habitat.label }}</label>
+                                {{ form.especie_habitat }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.especie_estado_conservacion.id_for_label }}">{{ form.especie_estado_conservacion.label }}</label>
+                                {{ form.especie_estado_conservacion }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.especie_dato_curioso.id_for_label }}">{{ form.especie_dato_curioso.label }}</label>
+                            {{ form.especie_dato_curioso }}
+                        </div>
                     </div>
                 </div>
-            {% endif %}
-        </div>
-
-
-        <div class="form-group checkbox-inline">
-            {{ form.disponible }}
-            <label for="{{ form.disponible.id_for_label }}">
-                El producto está disponible para la venta en la tienda
-            </label>
-        </div>
-
-        <!-- Toggle Switch para Oferta / Descuento -->
-        <label for="{{ form.en_oferta.id_for_label }}" class="switch-wrapper" style="background: #fff5f5; border-color: #fecaca; margin-bottom: 12px;">
-            <span class="switch-label-text" style="color: #b91c1c;">
-                🏷️ Activar Oferta / Descuento Especial
-            </span>
-            <span class="toggle-switch">
-                {{ form.en_oferta }}
-                <span class="toggle-slider"></span>
-            </span>
-        </label>
-
-        <!-- Campos de Oferta (Desplegable dinámicamente) -->
-        <div id="sec-oferta" style="display: none; background: #fffaf0; border: 1px dashed #fbd38d; border-radius: 12px; padding: 22px; margin-bottom: 25px;">
-            <div style="margin-bottom: 14px; font-weight: 800; color: #c05621; font-size: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                <span>🔥 Configuración de Oferta y Descuento</span>
-                <span style="font-size: 0.82rem; font-weight: 600; color: #718096;">Ingresa un porcentaje O un nuevo precio (se calculan solos)</span>
             </div>
 
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="{{ form.descuento_porcentaje.id_for_label }}">
-                        <i class="fa-solid fa-percent" style="color: #dd6b20;"></i> {{ form.descuento_porcentaje.label }}
+            <!-- COLUMNA DERECHA: PRECIO, STOCK, OFERTA Y ENVÍO -->
+            <div class="pf-col">
+                <!-- 4. Precio, Stock y Visibilidad -->
+                <div class="pf-card">
+                    <h3 class="pf-card-title">💰 Precio, Stock y Estado</h3>
+
+                    <div class="form-group">
+                        <label for="{{ form.precio.id_for_label }}">Precio Normal ($)</label>
+                        {{ form.precio }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.stock.id_for_label }}">Stock (Unidades)</label>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <button type="button" onclick="modificarStock(-1)" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; width: 42px; height: 42px; font-size: 1rem; font-weight: 800; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Disminuir stock">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <div style="flex: 1;">
+                                {{ form.stock }}
+                            </div>
+                            <button type="button" onclick="modificarStock(1)" style="background: #ef9d71; border: 1px solid #e08b5e; border-radius: 8px; width: 42px; height: 42px; font-size: 1rem; font-weight: 800; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Aumentar stock">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-inline" style="margin-top: 14px;">
+                        {{ form.disponible }}
+                        <label for="{{ form.disponible.id_for_label }}">
+                            Visible y disponible para la venta
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 5. Envío Blue Express (Capacidad de Caja) -->
+                <div class="pf-card" style="background: linear-gradient(165deg, #f8fbff 0%, #eff6ff 100%); border-color: #bfdbfe;">
+                    <h3 class="pf-card-title" style="color: #002b5c; border-bottom-color: #dbeafe;">📦 Envío Blue Express</h3>
+                    <div class="form-group">
+                        <label for="{{ form.tamano_envio.id_for_label }}" style="color: #002b5c;">Tamaño en Caja de Envío</label>
+                        {{ form.tamano_envio }}
+                        <p style="font-size: 0.78rem; color: #334155; margin: 8px 0 0 0; line-height: 1.45;">
+                            <strong>Caja XS = 12 pts:</strong> caben 3 calcetines/bandanas (4 pts) + hasta 6 pines/llaveros/stickers, o 4 guías (3 pts), o 2 arneses (6 pts). Libros pasan a <strong>S</strong> y casas de pájaros a <strong>M/L</strong>.
+                            {% if editando and form.instance.id %}
+                                <br><span style="color: #0055b8; font-weight: 700;">Activo: {{ form.instance.etiqueta_tamano_envio }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 6. Oferta / Descuento Especial -->
+                <div class="pf-card">
+                    <label for="{{ form.en_oferta.id_for_label }}" class="switch-wrapper" style="background: #fff5f5; border-color: #fecaca; margin: 0;">
+                        <span class="switch-label-text" style="color: #b91c1c;">
+                            🏷️ Activar Oferta Especial
+                        </span>
+                        <span class="toggle-switch">
+                            {{ form.en_oferta }}
+                            <span class="toggle-slider"></span>
+                        </span>
                     </label>
-                    {{ form.descuento_porcentaje }}
-                    {% if form.descuento_porcentaje.errors %}
-                        <div style="color: #e53e3e; font-size: 0.85rem; margin-top: 4px;">{{ form.descuento_porcentaje.errors }}</div>
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.precio_oferta.id_for_label }}">
-                        <i class="fa-solid fa-tag" style="color: #dd6b20;"></i> {{ form.precio_oferta.label }}
-                    </label>
-                    {{ form.precio_oferta }}
-                    {% if form.precio_oferta.errors %}
-                        <div style="color: #e53e3e; font-size: 0.85rem; margin-top: 4px;">{{ form.precio_oferta.errors }}</div>
-                    {% endif %}
-                </div>
-            </div>
 
-            <!-- Vista Previa de la Oferta en Tiempo Real -->
-            <div id="oferta-preview-box" style="margin-top: 14px; background: white; border: 1px solid #feebc8; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <span style="font-size: 0.85rem; color: #718096; font-weight: 600;">Normal:</span>
-                    <span id="preview-precio-original" style="font-size: 1rem; color: #a0aec0; text-decoration: line-through; font-weight: 600;">$0</span>
-                    <span style="font-size: 0.85rem; color: #718096; font-weight: 600;">➔ En Oferta:</span>
-                    <span id="preview-precio-oferta" style="font-size: 1.25rem; color: #e53e3e; font-weight: 800;">$0</span>
-                    <span id="preview-badge-pct" class="badge-descuento-pill" style="display: none;">-0% OFF</span>
-                </div>
-                <div id="preview-ahorro" style="font-size: 0.88rem; color: #38a169; font-weight: 700;">
-                    Ahorro para el cliente: $0
-                </div>
-            </div>
-        </div>
+                    <div id="sec-oferta" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #fbd38d;">
+                        <p style="font-size: 0.78rem; color: #718096; margin: 0 0 12px 0;">
+                            Ingresa un porcentaje <strong>O</strong> un precio final (se calculan solos):
+                        </p>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="{{ form.descuento_porcentaje.id_for_label }}">{{ form.descuento_porcentaje.label }}</label>
+                                {{ form.descuento_porcentaje }}
+                                {% if form.descuento_porcentaje.errors %}
+                                    <div style="color: #e53e3e; font-size: 0.8rem; margin-top: 4px;">{{ form.descuento_porcentaje.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.precio_oferta.id_for_label }}">{{ form.precio_oferta.label }}</label>
+                                {{ form.precio_oferta }}
+                                {% if form.precio_oferta.errors %}
+                                    <div style="color: #e53e3e; font-size: 0.8rem; margin-top: 4px;">{{ form.precio_oferta.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
 
-        <!-- Toggle Switch para Ficha de Especie -->
-        <label for="{{ form.tiene_ficha_especie.id_for_label }}" class="switch-wrapper">
-            <span class="switch-label-text">
-                🦜 Incluir Ficha de Especie / Dato Curioso sobre esta especie
-            </span>
-            <span class="toggle-switch">
-                {{ form.tiene_ficha_especie }}
-                <span class="toggle-slider"></span>
-            </span>
-        </label>
-
-        <!-- Campos de la Ficha de Especie (Desplegable dinámicamente) -->
-        <div id="sec-ficha-especie" style="display: none; background: #fafaf9; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 22px; margin-bottom: 25px;">
-            <div style="margin-bottom: 15px; font-weight: 800; color: #334155; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
-                <span>🪶 Información Educativa de la Especie</span>
-            </div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="{{ form.especie_nombre_comun.id_for_label }}">{{ form.especie_nombre_comun.label }}</label>
-                    {{ form.especie_nombre_comun }}
+                        <div id="oferta-preview-box" style="margin-top: 12px; background: #fffaf0; border: 1px solid #feebc8; border-radius: 10px; padding: 10px 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span id="preview-precio-original" style="font-size: 0.9rem; color: #a0aec0; text-decoration: line-through; font-weight: 600;">$0</span>
+                                <span style="font-size: 0.85rem; color: #718096;">➔</span>
+                                <span id="preview-precio-oferta" style="font-size: 1.15rem; color: #e53e3e; font-weight: 800;">$0</span>
+                                <span id="preview-badge-pct" class="badge-descuento-pill" style="display: none;">-0% OFF</span>
+                            </div>
+                            <div id="preview-ahorro" style="font-size: 0.8rem; color: #38a169; font-weight: 700; margin-top: 4px;">
+                                Ahorro para el cliente: $0
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="{{ form.especie_nombre_cientifico.id_for_label }}">{{ form.especie_nombre_cientifico.label }}</label>
-                    {{ form.especie_nombre_cientifico }}
+
+                <!-- Botón inferior para guardar cómodamente al terminar -->
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <a href="{% if next %}{{ next }}{% else %}{% url 'panel_productos' %}{% endif %}" class="pf-btn-cancel" style="flex: 1; text-align: center;">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="pf-btn-save" style="flex: 2;">
+                        💾 Guardar Producto
+                    </button>
                 </div>
             </div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="{{ form.especie_habitat.id_for_label }}">{{ form.especie_habitat.label }}</label>
-                    {{ form.especie_habitat }}
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.especie_estado_conservacion.id_for_label }}">{{ form.especie_estado_conservacion.label }}</label>
-                    {{ form.especie_estado_conservacion }}
-                </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 0;">
-                <label for="{{ form.especie_dato_curioso.id_for_label }}">{{ form.especie_dato_curioso.label }}</label>
-                {{ form.especie_dato_curioso }}
-            </div>
-        </div>
-
-        <script>
-        function modificarStock(delta) {
-            var stockInput = document.getElementById("{{ form.stock.id_for_label }}") || document.querySelector('input[name="stock"]');
-            if (stockInput) {
-                var actual = parseInt(stockInput.value, 10) || 0;
-                var nuevo = actual + delta;
-                if (nuevo < 0) nuevo = 0;
-                stockInput.value = nuevo;
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            // Ficha de especie
-            var chkFicha = document.getElementById("{{ form.tiene_ficha_especie.id_for_label }}");
-            var secFicha = document.getElementById("sec-ficha-especie");
-
-            function toggleFicha() {
-                if (chkFicha && secFicha) {
-                    secFicha.style.display = chkFicha.checked ? "block" : "none";
-                }
-            }
-            if (chkFicha) {
-                chkFicha.addEventListener("change", toggleFicha);
-                toggleFicha();
-            }
-
-            // Oferta
-            var chkOferta = document.getElementById("{{ form.en_oferta.id_for_label }}");
-            var secOferta = document.getElementById("sec-oferta");
-            var inputPrecio = document.getElementById("{{ form.precio.id_for_label }}") || document.querySelector('input[name="precio"]');
-            var inputPct = document.getElementById("{{ form.descuento_porcentaje.id_for_label }}") || document.querySelector('input[name="descuento_porcentaje"]');
-            var inputOferta = document.getElementById("{{ form.precio_oferta.id_for_label }}") || document.querySelector('input[name="precio_oferta"]');
-
-            var prevOrig = document.getElementById("preview-precio-original");
-            var prevOferta = document.getElementById("preview-precio-oferta");
-            var prevBadge = document.getElementById("preview-badge-pct");
-            var prevAhorro = document.getElementById("preview-ahorro");
-
-            function getPrecioBase() {
-                if (!inputPrecio) return 0;
-                var raw = String(inputPrecio.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '');
-                return parseInt(raw, 10) || 0;
-            }
-
-            function updateOfertaPreview() {
-                var precioBase = getPrecioBase();
-                var rawOferta = inputOferta ? String(inputOferta.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '') : '';
-                var pOferta = parseInt(rawOferta, 10) || 0;
-                var pct = inputPct ? parseInt(inputPct.value, 10) || 0 : 0;
-
-                if (prevOrig) prevOrig.textContent = '$' + precioBase.toLocaleString('es-CL');
-
-                if (pOferta > 0 && precioBase > 0) {
-                    if (prevOferta) prevOferta.textContent = '$' + pOferta.toLocaleString('es-CL');
-                    var calcPct = pct > 0 ? pct : Math.max(1, Math.round((1 - (pOferta / precioBase)) * 100));
-                    if (prevBadge) {
-                        prevBadge.style.display = 'inline-flex';
-                        prevBadge.textContent = '-' + calcPct + '% OFF';
-                    }
-                    var ahorro = Math.max(0, precioBase - pOferta);
-                    if (prevAhorro) prevAhorro.textContent = 'Ahorro para el cliente: $' + ahorro.toLocaleString('es-CL');
-                } else {
-                    if (prevOferta) prevOferta.textContent = '$' + precioBase.toLocaleString('es-CL');
-                    if (prevBadge) prevBadge.style.display = 'none';
-                    if (prevAhorro) prevAhorro.textContent = 'Ingresa un % o precio con rebaja';
-                }
-            }
-
-            function toggleOferta() {
-                if (chkOferta && secOferta) {
-                    secOferta.style.display = chkOferta.checked ? "block" : "none";
-                    if (chkOferta.checked) updateOfertaPreview();
-                }
-            }
-
-            if (chkOferta) {
-                chkOferta.addEventListener("change", toggleOferta);
-                toggleOferta();
-            }
-
-            // Al escribir en Porcentaje -> calcula automáticamente Precio de Oferta
-            if (inputPct) {
-                inputPct.addEventListener("input", function() {
-                    var precioBase = getPrecioBase();
-                    var pct = parseInt(inputPct.value, 10);
-                    if (precioBase > 0 && pct > 0 && pct < 100) {
-                        var nuevoPrecio = Math.round(precioBase * (1 - (pct / 100)));
-                        if (inputOferta) inputOferta.value = nuevoPrecio;
-                    }
-                    updateOfertaPreview();
-                });
-            }
-
-            // Al escribir en Precio de Oferta -> calcula automáticamente Porcentaje
-            if (inputOferta) {
-                inputOferta.addEventListener("input", function() {
-                    var precioBase = getPrecioBase();
-                    var raw = String(inputOferta.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '');
-                    var pOferta = parseInt(raw, 10);
-                    if (precioBase > 0 && pOferta > 0 && pOferta < precioBase) {
-                        var calcPct = Math.max(1, Math.round((1 - (pOferta / precioBase)) * 100));
-                        if (inputPct) inputPct.value = calcPct;
-                    }
-                    updateOfertaPreview();
-                });
-            }
-
-            if (inputPrecio) {
-                inputPrecio.addEventListener("input", updateOfertaPreview);
-            }
-        });
-        </script>
-
-        <div class="form-actions">
-            <a href="{% if next %}{{ next }}{% else %}{% url 'panel_productos' %}{% endif %}" style="padding: 10px 20px; text-decoration: none; color: #555; border: 1px solid #ccc; border-radius: 6px; font-weight: bold;">
-                Cancelar
-            </a>
-            
-            <button type="submit" class="btn-categoria" style="padding: 10px 30px; border-radius: 6px; font-size: 1.1rem;">
-                💾 Guardar Producto
-            </button>
         </div>
     </form>
 </div>
+
+<script>
+function modificarStock(delta) {
+    var stockInput = document.getElementById("{{ form.stock.id_for_label }}") || document.querySelector('input[name="stock"]');
+    if (stockInput) {
+        var actual = parseInt(stockInput.value, 10) || 0;
+        var nuevo = actual + delta;
+        if (nuevo < 0) nuevo = 0;
+        stockInput.value = nuevo;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Ficha de especie
+    var chkFicha = document.getElementById("{{ form.tiene_ficha_especie.id_for_label }}");
+    var secFicha = document.getElementById("sec-ficha-especie");
+
+    function toggleFicha() {
+        if (chkFicha && secFicha) {
+            secFicha.style.display = chkFicha.checked ? "block" : "none";
+        }
+    }
+    if (chkFicha) {
+        chkFicha.addEventListener("change", toggleFicha);
+        toggleFicha();
+    }
+
+    // Oferta
+    var chkOferta = document.getElementById("{{ form.en_oferta.id_for_label }}");
+    var secOferta = document.getElementById("sec-oferta");
+    var inputPrecio = document.getElementById("{{ form.precio.id_for_label }}") || document.querySelector('input[name="precio"]');
+    var inputPct = document.getElementById("{{ form.descuento_porcentaje.id_for_label }}") || document.querySelector('input[name="descuento_porcentaje"]');
+    var inputOferta = document.getElementById("{{ form.precio_oferta.id_for_label }}") || document.querySelector('input[name="precio_oferta"]');
+
+    var prevOrig = document.getElementById("preview-precio-original");
+    var prevOferta = document.getElementById("preview-precio-oferta");
+    var prevBadge = document.getElementById("preview-badge-pct");
+    var prevAhorro = document.getElementById("preview-ahorro");
+
+    function getPrecioBase() {
+        if (!inputPrecio) return 0;
+        var raw = String(inputPrecio.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '');
+        return parseInt(raw, 10) || 0;
+    }
+
+    function updateOfertaPreview() {
+        var precioBase = getPrecioBase();
+        var rawOferta = inputOferta ? String(inputOferta.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '') : '';
+        var pOferta = parseInt(rawOferta, 10) || 0;
+        var pct = inputPct ? parseInt(inputPct.value, 10) || 0 : 0;
+
+        if (prevOrig) prevOrig.textContent = '$' + precioBase.toLocaleString('es-CL');
+
+        if (pOferta > 0 && precioBase > 0) {
+            if (prevOferta) prevOferta.textContent = '$' + pOferta.toLocaleString('es-CL');
+            var calcPct = pct > 0 ? pct : Math.max(1, Math.round((1 - (pOferta / precioBase)) * 100));
+            if (prevBadge) {
+                prevBadge.style.display = 'inline-flex';
+                prevBadge.textContent = '-' + calcPct + '% OFF';
+            }
+            var ahorro = Math.max(0, precioBase - pOferta);
+            if (prevAhorro) prevAhorro.textContent = 'Ahorro para el cliente: $' + ahorro.toLocaleString('es-CL');
+        } else {
+            if (prevOferta) prevOferta.textContent = '$' + precioBase.toLocaleString('es-CL');
+            if (prevBadge) prevBadge.style.display = 'none';
+            if (prevAhorro) prevAhorro.textContent = 'Ingresa un % o precio con rebaja';
+        }
+    }
+
+    function toggleOferta() {
+        if (chkOferta && secOferta) {
+            secOferta.style.display = chkOferta.checked ? "block" : "none";
+            if (chkOferta.checked) updateOfertaPreview();
+        }
+    }
+
+    if (chkOferta) {
+        chkOferta.addEventListener("change", toggleOferta);
+        toggleOferta();
+    }
+
+    if (inputPct) {
+        inputPct.addEventListener("input", function() {
+            var precioBase = getPrecioBase();
+            var pct = parseInt(inputPct.value, 10);
+            if (precioBase > 0 && pct > 0 && pct < 100) {
+                var nuevoPrecio = Math.round(precioBase * (1 - (pct / 100)));
+                if (inputOferta) inputOferta.value = nuevoPrecio;
+            }
+            updateOfertaPreview();
+        });
+    }
+
+    if (inputOferta) {
+        inputOferta.addEventListener("input", function() {
+            var precioBase = getPrecioBase();
+            var raw = String(inputOferta.value).replace(/\./g, '').replace(/\$/g, '').replace(/\s/g, '');
+            var pOferta = parseInt(raw, 10);
+            if (precioBase > 0 && pOferta > 0 && pOferta < precioBase) {
+                var calcPct = Math.max(1, Math.round((1 - (pOferta / precioBase)) * 100));
+                if (inputPct) inputPct.value = calcPct;
+            }
+            updateOfertaPreview();
+        });
+    }
+
+    if (inputPrecio) {
+        inputPrecio.addEventListener("input", updateOfertaPreview);
+    }
+});
+</script>
 
 {% endblock %}
