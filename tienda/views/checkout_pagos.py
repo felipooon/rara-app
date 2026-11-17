@@ -11,6 +11,7 @@ from django.db import transaction
 
 from ..models import Producto, Pedido, ItemPedido, Cupon, LogProducto, LogPedido
 from ..carrito import Carrito
+from ..utils_email import enviar_correo_confirmacion_compra, enviar_alerta_nuevo_pedido_admin
 from ..comunas_chile import (
     ORIGEN_TIENDA_COMUNA,
     ORIGEN_TIENDA_REGION,
@@ -427,31 +428,7 @@ def procesar_pedido(request):
             detalles=detalles_creacion
         )
 
-        if getattr(settings, 'EMAIL_HOST_USER', None):
-            try:
-                asunto_admin = f"🚨 NUEVO PEDIDO RARATIENDA#{pedido.codigo_orden} - {pedido.nombre_completo}"
-                mensaje_admin = f"""¡Atención! Acaba de entrar un nuevo pedido.
-
-Cliente: {pedido.nombre_completo}
-Modalidad de Envío: {pedido.get_tipo_entrega_display()}
-Destino: {pedido.direccion}, {pedido.ciudad} ({pedido.region})
-Subtotal Productos: ${subtotal_productos}
-Envío Blue Express (Talla {pedido.talla_envio}): ${costo_envio}
-Total Final: ${total_final}
-Teléfono: +56{pedido.telefono}
-
-Revisa el panel de administración para ver el detalle completo.
-www.raratienda.cl/panel
-"""
-                send_mail(
-                    asunto_admin,
-                    mensaje_admin,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [settings.EMAIL_HOST_USER],
-                    fail_silently=True,
-                )
-            except Exception as e:
-                print(f"Error silencioso al enviar alerta de pedido: {e}")
+        enviar_alerta_nuevo_pedido_admin(pedido)
 
         if not settings.MP_ACCESS_TOKEN:
             messages.info(request, "Entorno local: MERCADOPAGO_ACCESS_TOKEN no configurado en .env. Pedido registrado correctamente.")
@@ -605,36 +582,11 @@ def webhook_mercadopago(request):
                                 )
                                 print(f"✅ ¡ÉXITO! Pedido #{pedido.id} pagado y stock descontado.")
 
-                                asunto = f'¡Pago Recibido! Tu pedido #{pedido.codigo_orden} está en camino 🦉'
-                                mensaje = f'''¡Hola {pedido.nombre_completo}!
-
-Te escribimos de Rara Tienda para contarte que hemos recibido el pago de tu pedido #{pedido.codigo_orden} con éxito a través de Mercado Pago. ✨
-
-¿Qué viene ahora?
-Estamos preparando tu paquete con mucho cuidado para despacharlo por Blue Express. 
-
-📍 Modalidad: {pedido.get_tipo_entrega_display()}
-📍 Destino: {pedido.direccion}, {pedido.ciudad}.
-
-En cuanto realicemos el envío, te contactaremos por WhatsApp al +56{pedido.telefono} para enviarte el comprobante y el número de seguimiento.
-
-¡Gracias por confiar en Rara Tienda y apoyar el arte local!
-
-Un gran abrazo,
-El equipo de Rara Tienda.
-www.raratienda.cl
-'''
-                                try:
-                                    send_mail(
-                                        asunto,
-                                        mensaje,
-                                        settings.DEFAULT_FROM_EMAIL,
-                                        [pedido.email],
-                                        fail_silently=False,
-                                    )
-                                    print(f"✅ Webhook: Pago procesado y correo enviado a {pedido.email}")
-                                except Exception as mail_error:
-                                    print(f"⚠️ Webhook: Pago OK pero falló el correo: {mail_error}")
+                                ok_mail, msg_mail = enviar_correo_confirmacion_compra(pedido)
+                                if ok_mail:
+                                    print(f"✅ Webhook: Pago procesado y correo HTML enviado a {pedido.email}")
+                                else:
+                                    print(f"⚠️ Webhook: Pago OK pero falló el correo HTML a {pedido.email}: {msg_mail}")
                             elif pedido and pedido.pagado:
                                 print(f"ℹ️ Webhook duplicado ignorado para pedido #{pedido.id}.")
                     elif payment and payment.get("status") != "approved":

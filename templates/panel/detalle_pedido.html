@@ -173,6 +173,14 @@ function ejecutarCopiaPedidoModal() {
                         <span style="color: #e67e22; font-weight: bold;">⏳ Pendiente de Pago</span>
                     {% endif %}
                 </p>
+                <div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a href="{% url 'preview_email_pedido' pedido.id %}" target="_blank" style="background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-eye"></i> Previsualizar Correo HTML ↗
+                    </a>
+                    <a href="{% url 'reenviar_confirmacion_email' pedido.id %}" onclick="return confirm('¿Reenviar correo enriquecido de confirmación a {{ pedido.email }}?');" style="background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-paper-plane"></i> Reenviar Correo de Confirmación
+                    </a>
+                </div>
             </div>
         </div>
     </div>

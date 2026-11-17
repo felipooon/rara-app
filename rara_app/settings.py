@@ -249,6 +249,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 if DEBUG:
     # Entorno Local (Tu PC): Imprime el correo en la terminal de texto
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'Rara Tienda <contacto@raratienda.cl>'
 else:
     # Producción (Render): Envía el correo real usando Gmail
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -261,7 +262,7 @@ else:
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
     
     # El nombre que verá el cliente cuando reciba el correo
-    DEFAULT_FROM_EMAIL = f"Rara Tienda <{EMAIL_HOST_USER}>"
+    DEFAULT_FROM_EMAIL = f"Rara Tienda <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else "Rara Tienda <contacto@raratienda.cl>"
 
 CORS_ALLOWED_ORIGINS = [
     "https://felipooon.github.io", 

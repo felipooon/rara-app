@@ -60,6 +60,8 @@ urlpatterns = [
     path('panel/pedidos/exportar/', views.exportar_pedidos_excel, name='exportar_pedidos_excel'),
     path('panel/pedidos/<int:id>/actualizar-estado/', views.actualizar_estado_pedido, name='actualizar_estado_pedido'),
     path('panel/pedidos/<int:id>/enviar-seguimiento/', views.enviar_seguimiento_email, name='enviar_seguimiento_email'),
+    path('panel/pedidos/<int:id>/preview-email/', views.preview_email_pedido, name='preview_email_pedido'),
+    path('panel/pedidos/<int:id>/reenviar-confirmacion/', views.reenviar_confirmacion_email, name='reenviar_confirmacion_email'),
 
     # Ruta pública para acceder al radar
     path('api/ebird/<path:ebird_path>', views.ebird_proxy, name='ebird_proxy'),

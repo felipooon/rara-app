@@ -48,6 +48,8 @@ from .panel_admin import (
     enviar_seguimiento_email,
     enviar_resena_email,
     confirmar_pago_pedido,
+    preview_email_pedido,
+    reenviar_confirmacion_email,
     panel_cupones,
     crear_cupon,
     editar_cupon,

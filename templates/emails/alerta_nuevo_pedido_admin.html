@@ -1,0 +1,227 @@
+{% load imagen_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nuevo Pedido #{{ pedido.codigo_orden }} — Panel Rara Tienda</title>
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f6f8fa;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: none;
+      color: #334155;
+    }
+    table {
+      border-collapse: separate;
+    }
+    a {
+      color: #ea580c;
+      text-decoration: none;
+    }
+    @media only screen and (max-width: 600px) {
+      .email-container {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .content-padding {
+        padding: 20px 16px !important;
+      }
+      .mobile-stack {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        text-align: left !important;
+      }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 24px 0; background-color: #f6f8fa;">
+
+  <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f6f8fa" style="background-color: #f6f8fa; padding: 12px 8px;">
+    <tr>
+      <td align="center">
+
+        <table class="email-container" width="600" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0;">
+
+          <!-- CABECERA ADMIN -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 20px 24px; text-align: center; border-bottom: 3px solid #ea580c;">
+              <h1 style="margin: 0; font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">
+                🦉 RARA TIENDA · PANEL ADMIN
+              </h1>
+            </td>
+          </tr>
+
+          <!-- CUERPO -->
+          <tr>
+            <td class="content-padding" style="padding: 26px 28px 22px 28px;">
+
+              <!-- BADGE ALERTA -->
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
+                <tr>
+                  <td align="center">
+                    <div style="background-color: #fff7ed; border: 1.5px solid #fdba74; color: #c2410c; font-weight: 800; font-size: 13px; padding: 6px 16px; border-radius: 999px; display: inline-block;">
+                      🚨 NUEVO PEDIDO REGISTRADO
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 800; color: #1e293b; text-align: center;">
+                Orden #{{ pedido.codigo_orden }} — {{ pedido.nombre_completo }}
+              </h2>
+              <p style="margin: 0 0 18px 0; font-size: 13px; color: #64748b; text-align: center;">
+                Ingresado el {{ pedido.fecha_creacion|date:"d/m/Y" }} a las {{ pedido.fecha_creacion|date:"H:i" }} hrs
+              </p>
+
+              <!-- RESUMEN RÁPIDO TOTAL Y ESTADO -->
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 12px; margin-bottom: 20px; padding: 14px 18px;">
+                <tr>
+                  <td class="mobile-stack" style="text-align: left; padding: 4px 0;">
+                    <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #c2410c; letter-spacing: 0.5px;">Total del Pedido</span>
+                    <div style="font-size: 22px; font-weight: 900; color: #ea580c; margin-top: 2px;">
+                      {{ total|clp }}
+                    </div>
+                  </td>
+                  <td class="mobile-stack" style="text-align: right; padding: 4px 0;">
+                    <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.5px;">Estado de Pago</span>
+                    <div style="font-size: 14px; font-weight: 800; margin-top: 4px; color: {% if pedido.pagado %}#047857{% else %}#b45309{% endif %};">
+                      {% if pedido.pagado %}✅ Pagado{% else %}⏳ Pendiente (En Checkout){% endif %}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- DATOS DEL CLIENTE Y DESPACHO -->
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 22px; overflow: hidden;">
+                <tr>
+                  <td style="background-color: #0f172a; padding: 9px 16px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #f8fafc; letter-spacing: 0.5px;">
+                      👤 DATOS DEL CLIENTE Y ENVÍO
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px 16px; font-size: 13.5px; color: #334155; line-height: 1.6;">
+                    <div style="margin-bottom: 6px;"><strong>Cliente:</strong> {{ pedido.nombre_completo }} ({{ pedido.rut }})</div>
+                    <div style="margin-bottom: 6px;"><strong>Email:</strong> {{ pedido.email }}</div>
+                    <div style="margin-bottom: 10px;">
+                      <strong>Teléfono:</strong> +56 {{ pedido.telefono }}
+                      <a href="https://wa.me/56{{ pedido.telefono }}" target="_blank" style="display: inline-block; margin-left: 8px; background: #25D366; color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px;">WhatsApp ↗</a>
+                    </div>
+                    <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+                      <div style="margin-bottom: 4px;">
+                        <strong>Modalidad:</strong> <span style="color: #0284c7; font-weight: 700;">{{ pedido.get_tipo_entrega_display }}</span>
+                        (Talla {{ pedido.talla_envio|default:"XS" }})
+                      </div>
+                      {% if pedido.tipo_entrega == 'PUNTO_BLUE' %}
+                        <div><strong>Punto Blue:</strong> {{ pedido.punto_blue_nombre }}</div>
+                        <div style="color: #64748b; font-size: 12.5px;">{{ pedido.punto_blue_direccion }} · {{ pedido.ciudad }} ({{ pedido.region }})</div>
+                      {% else %}
+                        <div><strong>Dirección:</strong> {{ pedido.direccion }}</div>
+                        <div style="color: #64748b; font-size: 12.5px;">{{ pedido.ciudad }} ({{ pedido.region }})</div>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- PRODUCTOS -->
+              <h3 style="margin: 0 0 10px 0; font-size: 15px; font-weight: 800; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">
+                🛍️ Productos Solicitados
+              </h3>
+
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 18px;">
+                <thead>
+                  <tr style="border-bottom: 1.5px solid #cbd5e1; text-align: left;">
+                    <th style="padding: 6px 4px; font-size: 11px; color: #64748b; text-transform: uppercase;">Producto</th>
+                    <th style="padding: 6px 4px; font-size: 11px; color: #64748b; text-transform: uppercase; text-align: center;">Cant.</th>
+                    <th style="padding: 6px 4px; font-size: 11px; color: #64748b; text-transform: uppercase; text-align: right;">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in items %}
+                  <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 9px 4px; font-size: 13.5px; font-weight: 700; color: #1e293b;">
+                      {{ item.producto.nombre }}
+                      <div style="font-size: 11.5px; font-weight: 400; color: #64748b;">{{ item.precio|clp }} c/u</div>
+                    </td>
+                    <td style="padding: 9px 4px; font-size: 13.5px; font-weight: 700; color: #334155; text-align: center;">
+                      x{{ item.cantidad }}
+                    </td>
+                    <td style="padding: 9px 4px; font-size: 13.5px; font-weight: 800; color: #1e293b; text-align: right;">
+                      {{ item.get_costo|clp }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              <!-- DESGLOSE -->
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; margin-bottom: 22px;">
+                <tr>
+                  <td style="font-size: 13px; color: #64748b; padding: 3px 0;">Subtotal Productos:</td>
+                  <td style="font-size: 13px; color: #1e293b; font-weight: 700; text-align: right; padding: 3px 0;">{{ subtotal|clp }}</td>
+                </tr>
+                {% if descuento > 0 %}
+                <tr>
+                  <td style="font-size: 13px; color: #047857; padding: 3px 0;">
+                    Descuento Cupón ({% if pedido.cupon %}{{ pedido.cupon.codigo }}{% else %}Promoción{% endif %}):
+                  </td>
+                  <td style="font-size: 13px; color: #047857; font-weight: 700; text-align: right; padding: 3px 0;">-{{ descuento|clp }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td style="font-size: 13px; color: #0284c7; padding: 3px 0;">Envío Blue Express (Talla {{ pedido.talla_envio|default:"XS" }}):</td>
+                  <td style="font-size: 13px; color: #0284c7; font-weight: 700; text-align: right; padding: 3px 0;">
+                    {% if costo_envio == 0 %}GRATIS{% else %}{{ costo_envio|clp }}{% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding: 5px 0;"><div style="border-top: 1px dashed #cbd5e1; height: 1px;"></div></td>
+                </tr>
+                <tr>
+                  <td style="font-size: 15px; color: #0f172a; font-weight: 800; padding: 4px 0;">Total Final:</td>
+                  <td style="font-size: 18px; color: #ea580c; font-weight: 900; text-align: right; padding: 4px 0;">{{ total|clp }}</td>
+                </tr>
+              </table>
+
+              <!-- BOTONES DE ACCIÓN ADMIN -->
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 6px;">
+                <tr>
+                  <td align="center">
+                    <a href="https://www.raratienda.cl/panel/pedidos/{{ pedido.id }}/" target="_blank" style="display: inline-block; background-color: #ea580c; color: #ffffff; font-size: 14px; font-weight: 800; padding: 12px 24px; border-radius: 10px; text-decoration: none; margin: 4px;">
+                      🔎 Ver Pedido en el Panel
+                    </a>
+                    <a href="https://wa.me/56{{ pedido.telefono }}" target="_blank" style="display: inline-block; background-color: #25D366; color: #ffffff; font-size: 14px; font-weight: 800; padding: 12px 20px; border-radius: 10px; text-decoration: none; margin: 4px;">
+                      💬 WhatsApp Cliente
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- PIE DE PÁGINA -->
+          <tr>
+            <td style="background-color: #0f172a; padding: 18px 24px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #1e293b;">
+              <p style="margin: 0; font-weight: 700; color: #f1f5f9;">
+                Rara Tienda · Región de Los Lagos, Chile
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+

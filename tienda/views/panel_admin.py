@@ -15,6 +15,7 @@ from django.utils import timezone
 from ..models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cupon, BlogPost, ResenaProducto, ConfiguracionSitio, LogProducto, LogPedido, MetricaDiaria, MetricaProducto, PuntajeJuego
 from ..forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ConfiguracionSitioForm
 from ..utils import generar_excel_catalogo_pos, generar_html_codigos_barra
+from ..utils_email import enviar_correo_confirmacion_compra
 from ..comunas_chile import actualizar_puntos_desde_api, cargar_puntos_lista, obtener_fecha_puntos, ORIGEN_TIENDA_COMUNA
 from .juegos_api import _rango_mes_actual_y_anterior
 
@@ -502,31 +503,50 @@ def confirmar_pago_pedido(request, id):
                 detalles="Pago confirmado manualmente por administrador desde el panel"
             )
         
-        asunto = f'¡Pago Confirmado! Pedido #{pedido.codigo_orden} en Rara Tienda 🦉'
-        mensaje = f'''Hola {pedido.nombre_completo},
-
-¡Tenemos excelentes noticias! Hemos confirmado el pago de tu pedido.
-
-Tu nido de productos ya está siendo preparado con mucho cariño para ser enviado a {pedido.direccion}, {pedido.ciudad}. 
-
-Te avisaremos por esta misma vía en cuanto el paquete inicie su vuelo.
-
-¡Gracias por apoyar el arte y la naturaleza!
-El equipo de Rara Tienda.
-'''
-        try:
-            send_mail(
-                asunto, 
-                mensaje, 
-                settings.DEFAULT_FROM_EMAIL, 
-                [pedido.email], 
-                fail_silently=False
-            )
-            messages.success(request, f'Pago confirmado, stock actualizado y correo enviado a {pedido.email}.')
-        except Exception as e:
-            messages.warning(request, f'Pago confirmado y stock descontado, pero no se pudo enviar el correo automático.')
-            print(f"Error SMTP: {e}")
+        ok_mail, msg_mail = enviar_correo_confirmacion_compra(pedido)
+        if ok_mail:
+            messages.success(request, f'Pago confirmado, stock actualizado y correo enriquecido enviado a {pedido.email}.')
+        else:
+            messages.warning(request, f'Pago confirmado y stock descontado, pero hubo un detalle al enviar el correo automático: {msg_mail}')
             
+    return redirect('detalle_pedido', id=pedido.id)
+
+
+@staff_member_required(login_url='login')
+def preview_email_pedido(request, id):
+    """Permite al administrador previsualizar el correo HTML del pedido en el navegador."""
+    pedido = get_object_or_404(Pedido, id=id)
+    items = list(pedido.items.select_related('producto').all())
+    context = {
+        'pedido': pedido,
+        'items': items,
+        'subtotal': pedido.get_total_cost(),
+        'descuento': pedido.descuento_aplicado,
+        'costo_envio': pedido.costo_envio,
+        'total': pedido.get_total_final(),
+    }
+    return render(request, 'emails/confirmacion_compra.html', context)
+
+
+@staff_member_required(login_url='login')
+def reenviar_confirmacion_email(request, id):
+    """Permite al administrador reenviar manualmente el correo HTML de confirmación."""
+    pedido = get_object_or_404(Pedido, id=id)
+    ok_mail, msg_mail = enviar_correo_confirmacion_compra(pedido)
+    if ok_mail:
+        messages.success(request, f"Correo enriquecido de confirmación reenviado exitosamente a {pedido.email}.")
+        usuario_log = request.user if request.user.is_authenticated else None
+        LogPedido.objects.create(
+            pedido_id=pedido.id,
+            codigo_orden=pedido.codigo_orden,
+            cliente_nombre=pedido.nombre_completo,
+            cliente_email=pedido.email,
+            accion='EMAIL_REENVIADO',
+            usuario=usuario_log,
+            detalles=f"Correo HTML de confirmación de compra reenviado manualmente desde el panel a {pedido.email}"
+        )
+    else:
+        messages.error(request, f"No se pudo reenviar el correo: {msg_mail}")
     return redirect('detalle_pedido', id=pedido.id)
 
 

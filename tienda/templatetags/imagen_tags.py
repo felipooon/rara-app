@@ -16,3 +16,16 @@ def cloudinary_url(image_field_or_url, width=None):
             width = None
 
     return get_cloudinary_url(image_field_or_url, width=width)
+
+@register.filter
+def clp(value):
+    """
+    Formatea un número o monto a formato chileno CLP: $25.000
+    """
+    if value is None or value == '':
+        return '$0'
+    try:
+        val = int(value)
+        return f"${val:,.0f}".replace(",", ".")
+    except (ValueError, TypeError):
+        return f"${value}"
