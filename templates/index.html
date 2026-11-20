@@ -694,4 +694,205 @@ async function shuffleDestacados() {
 }
 </script>
 
+<!-- Modal Promocional: 6to Festival de las Aves de Coihuín y Chamiza -->
+<div id="promo-festival-modal" class="promo-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="promo-festival-title" style="display: none;">
+  <div class="promo-modal-card">
+    <button type="button" class="promo-modal-close" id="promo-festival-close" aria-label="Cerrar aviso">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <div class="promo-modal-img-wrap">
+      <img src="{% static 'img/festival_aves_coihuin_chamiza.jpg' %}" alt="6to Festival de las Aves de Coihuín y Chamiza" class="promo-modal-img">
+    </div>
+
+    <div class="promo-modal-body">
+      <span class="promo-modal-badge">🦜 ¡Este sábado!</span>
+      <h3 id="promo-festival-title" class="promo-modal-title">
+        Estaremos en la Feria de Aves de Coihuín y Chamiza
+      </h3>
+      <p class="promo-modal-text">
+        Este sábado <strong>21 de noviembre</strong> acompáñanos en la <strong>Escuela Rural La Chamiza</strong>. Para más información y para ver la programación completa, ingresa al siguiente enlace:
+      </p>
+      <div class="promo-modal-actions">
+        <a id="promo-festival-link" href="https://www.redobservadores.cl/se-acerca-el-festival-de-aves-de-coihuin-y-chamiza-revisa-las-actividades-e-inscribete/" target="_blank" rel="noopener noreferrer" class="promo-modal-btn">
+          <i class="fa-solid fa-calendar-days"></i> Ver programación y más información
+        </a>
+        <button type="button" id="promo-festival-dismiss" class="promo-modal-btn-secondary">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .promo-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: promoFadeIn 0.25s ease-out;
+  }
+  .promo-modal-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 22px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    border: 1px solid #e2ece5;
+    animation: promoScaleIn 0.25s ease-out;
+  }
+  .promo-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.92);
+    color: #334155;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .promo-modal-close:hover {
+    transform: scale(1.08);
+    background: #ffffff;
+  }
+  .promo-modal-img-wrap {
+    background: #eef4fa;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .promo-modal-img {
+    width: 100%;
+    max-height: 380px;
+    object-fit: contain;
+    display: block;
+  }
+  .promo-modal-body {
+    padding: 20px 24px 24px;
+    text-align: center;
+  }
+  .promo-modal-badge {
+    display: inline-block;
+    background: rgba(101, 193, 140, 0.18);
+    color: #2f855a;
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .promo-modal-title {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+  }
+  .promo-modal-text {
+    color: #4a5568;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0 0 18px 0;
+  }
+  .promo-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .promo-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #ef9d71;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(239, 157, 113, 0.35);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .promo-modal-btn:hover {
+    background: #e88957;
+    transform: translateY(-1px);
+  }
+  .promo-modal-btn-secondary {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 12px;
+  }
+  .promo-modal-btn-secondary:hover {
+    color: #334155;
+  }
+  @keyframes promoFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes promoScaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const modal = document.getElementById('promo-festival-modal');
+  const closeBtn = document.getElementById('promo-festival-close');
+  const dismissBtn = document.getElementById('promo-festival-dismiss');
+  if (!modal) return;
+
+  const storageKey = 'promo_festival_aves_coihuin_2026_cerrado';
+  if (!sessionStorage.getItem(storageKey)) {
+    modal.style.display = 'flex';
+  }
+
+  function closePromoModal() {
+    modal.style.display = 'none';
+    sessionStorage.setItem(storageKey, '1');
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closePromoModal);
+  if (dismissBtn) dismissBtn.addEventListener('click', closePromoModal);
+
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) {
+      closePromoModal();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+      closePromoModal();
+    }
+  });
+});
+</script>
+
 {% endblock %}
