@@ -5,7 +5,8 @@
 
 {% block content %}
 <!-- Hero -->
- <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap"
+  rel="stylesheet">
 
 <section id="inicio" class="intro">
   <div class="container hero-text">
@@ -51,7 +52,7 @@
       <div class="desafio-mes-text">
         <span>¡Juega <strong>{{ config_sitio.juego_premio_nombre }}</strong> y lidera el ranking!</span>
         {% if config_sitio.texto_premio_mes %}
-          <span class="desafio-mes-premio">🎁 {{ config_sitio.texto_premio_mes }}</span>
+        <span class="desafio-mes-premio">🎁 {{ config_sitio.texto_premio_mes }}</span>
         {% endif %}
       </div>
     </div>
@@ -68,6 +69,7 @@
     border-bottom: 1px solid #fcd34d;
     padding: 0.9rem 1rem;
   }
+
   .desafio-mes-card {
     max-width: 1120px;
     margin: 0 auto;
@@ -76,12 +78,14 @@
     justify-content: space-between;
     gap: 14px;
   }
+
   .desafio-mes-info {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
   }
+
   .desafio-mes-badge {
     background: linear-gradient(135deg, #f59e0b, #ea580c);
     color: #fff;
@@ -93,6 +97,7 @@
     white-space: nowrap;
     box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
   }
+
   .desafio-mes-text {
     color: #78350f;
     font-size: 0.95rem;
@@ -102,10 +107,12 @@
     flex-wrap: wrap;
     gap: 6px;
   }
+
   .desafio-mes-premio {
     color: #b45309;
     font-weight: 700;
   }
+
   .desafio-mes-btn {
     background: #ea580c;
     color: #fff;
@@ -119,13 +126,16 @@
     transition: transform 0.15s;
     flex-shrink: 0;
   }
+
   .desafio-mes-btn:hover {
     transform: translateY(-1px);
   }
+
   @media (max-width: 768px) {
     .desafio-mes-section {
       padding: 0.9rem 0.9rem;
     }
+
     .desafio-mes-card {
       flex-direction: column;
       text-align: center;
@@ -136,21 +146,25 @@
       gap: 10px;
       box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
     }
+
     .desafio-mes-info {
       flex-direction: column;
       justify-content: center;
       gap: 8px;
     }
+
     .desafio-mes-text {
       justify-content: center;
       font-size: 0.9rem;
       gap: 4px;
     }
+
     .desafio-mes-premio {
       display: block;
       width: 100%;
       font-size: 0.85rem;
     }
+
     .desafio-mes-btn {
       width: 100%;
       text-align: center;
@@ -162,16 +176,18 @@
 {% endif %}
 
 <!-- Destacados -->
-<section id="destacados" class="catalogo-seccion" style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 2.5rem 1rem 3rem;">
-  
+<section id="destacados" class="catalogo-seccion"
+  style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 2.5rem 1rem 3rem;">
+
   <div class="destacados-header-box">
     <div>
       <h2 style="font-family: 'Quicksand', sans-serif; font-size: 1.6rem; font-weight: 700; color: #4a4a4a; margin: 0;">
         Novedades Destacadas
       </h2>
-      <p style="color: #64748b; font-size: 0.9rem; margin: 2px 0 0 0;">Descubre creaciones únicas de la fauna chilena</p>
+      <p style="color: #64748b; font-size: 0.9rem; margin: 2px 0 0 0;">Descubre creaciones únicas de la fauna chilena
+      </p>
     </div>
-    
+
     <button type="button" class="btn-shuffle" onclick="shuffleDestacados()" id="btn-shuffle-destacados">
       <i class="fa-solid fa-dice" id="shuffle-icon"></i> Descubrir más
     </button>
@@ -184,42 +200,46 @@
 
     <div class="catalogo-destacados-slider" id="destacados-container">
       {% for p in productos_destacados %}
-        <div class="producto-destacado-card">
-          <div class="img-box">
+      <div class="producto-destacado-card">
+        <div class="img-box">
 
 
-            {% if p.imagen %}
-              <img src="{{ p.get_imagen_url_600 }}" alt="{{ p.nombre }}" loading="lazy">
-            {% endif %}
-            {% if not p.disponible %}
-              <span class="agotado">Agotado</span>
-            {% elif p.tiene_descuento %}
-              <span class="badge-oferta"><i class="fa-solid fa-tag"></i> {{ p.porcentaje_descuento }}% OFF</span>
-            {% endif %}
-          </div>
-          
-          <h3 style="font-size: 1rem; font-weight: 700; color: #334155; margin: 0 0 4px 0; font-family: 'Quicksand', sans-serif;">{{ p.nombre }}</h3>
-          {% if p.tiene_descuento %}
-            <div style="display: flex; align-items: baseline; gap: 8px; margin: 0 0 12px 0; flex-wrap: wrap;">
-              <span style="font-weight: 800; color: #e11d48; font-size: 1.15rem;">${{ p.precio_actual }}</span>
-              <span class="precio-original-tachado">${{ p.precio }}</span>
-              <span class="badge-descuento-pill">-{{ p.porcentaje_descuento }}%</span>
-            </div>
-          {% else %}
-            <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">${{ p.precio }}</p>
+          {% if p.imagen %}
+          <img src="{{ p.get_imagen_url_600 }}" alt="{{ p.nombre }}" loading="lazy">
           {% endif %}
-          
-          <div style="display: flex; gap: 6px; margin-top: auto;">
-            <a href="{{ p.get_absolute_url }}" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0;">
-              <i class="fa-solid fa-eye"></i> Ver
-            </a>
-            <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria" style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0; background-color: var(--acento);">
-              <i class="fa-solid fa-cart-plus"></i> Añadir
-            </a>
-          </div>
+          {% if not p.disponible %}
+          <span class="agotado">Agotado</span>
+          {% elif p.tiene_descuento %}
+          <span class="badge-oferta"><i class="fa-solid fa-tag"></i> {{ p.porcentaje_descuento }}% OFF</span>
+          {% endif %}
         </div>
+
+        <h3
+          style="font-size: 1rem; font-weight: 700; color: #334155; margin: 0 0 4px 0; font-family: 'Quicksand', sans-serif;">
+          {{ p.nombre }}</h3>
+        {% if p.tiene_descuento %}
+        <div style="display: flex; align-items: baseline; gap: 8px; margin: 0 0 12px 0; flex-wrap: wrap;">
+          <span style="font-weight: 800; color: #e11d48; font-size: 1.15rem;">${{ p.precio_actual }}</span>
+          <span class="precio-original-tachado">${{ p.precio }}</span>
+          <span class="badge-descuento-pill">-{{ p.porcentaje_descuento }}%</span>
+        </div>
+        {% else %}
+        <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">${{ p.precio }}</p>
+        {% endif %}
+
+        <div style="display: flex; gap: 6px; margin-top: auto;">
+          <a href="{{ p.get_absolute_url }}" class="btn-categoria"
+            style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0;">
+            <i class="fa-solid fa-eye"></i> Ver
+          </a>
+          <a href="{% url 'agregar_al_carrito' p.id %}" title="Agregar al nido" class="btn-categoria"
+            style="flex: 1; text-align: center; padding: 7px 10px; font-size: 12px; margin: 0; background-color: var(--acento);">
+            <i class="fa-solid fa-cart-plus"></i> Añadir
+          </a>
+        </div>
+      </div>
       {% empty %}
-        <p>No hay productos destacados aún.</p>
+      <p>No hay productos destacados aún.</p>
       {% endfor %}
     </div>
 
@@ -245,39 +265,39 @@
       <i class="fa-solid fa-border-all"></i> Todas
     </a>
     {% for c in categorias %}
-      <a href="{% url 'categoria' c.slug %}" class="chip-btn">
-        {% if 'polera' in c.nombre.lower or 'ropa' in c.nombre.lower %}
-          <i class="fa-solid fa-shirt"></i>
-        {% elif 'taz' in c.nombre.lower or 'mug' in c.nombre.lower %}
-          <i class="fa-solid fa-mug-hot"></i>
-        {% elif 'libro' in c.nombre.lower or 'guia' in c.nombre.lower %}
-          <i class="fa-solid fa-book-open"></i>
-        {% else %}
-          <i class="fa-solid fa-leaf"></i>
-        {% endif %}
-        {{ c.nombre }}
-      </a>
+    <a href="{% url 'categoria' c.slug %}" class="chip-btn">
+      {% if 'polera' in c.nombre.lower or 'ropa' in c.nombre.lower %}
+      <i class="fa-solid fa-shirt"></i>
+      {% elif 'taz' in c.nombre.lower or 'mug' in c.nombre.lower %}
+      <i class="fa-solid fa-mug-hot"></i>
+      {% elif 'libro' in c.nombre.lower or 'guia' in c.nombre.lower %}
+      <i class="fa-solid fa-book-open"></i>
+      {% else %}
+      <i class="fa-solid fa-leaf"></i>
+      {% endif %}
+      {{ c.nombre }}
+    </a>
     {% endfor %}
   </div>
 
   <!-- Grilla de Categorías (2 columnas en celular) -->
   <div class="catalogo-grid">
     {% for c in categorias %}
-      <div class="producto" id="cat-{{ c.slug }}">
-        {% if c.imagen %}
-          <img src="{{ c.get_imagen_url_600 }}" alt="{{ c.nombre }}" loading="lazy">
-        {% else %}
-          <img src="{% static 'img/default-category.png' %}" alt="Sin imagen">
-        {% endif %}
+    <div class="producto" id="cat-{{ c.slug }}">
+      {% if c.imagen %}
+      <img src="{{ c.get_imagen_url_600 }}" alt="{{ c.nombre }}" loading="lazy">
+      {% else %}
+      <img src="{% static 'img/default-category.png' %}" alt="Sin imagen">
+      {% endif %}
 
-        <h3>{{ c.nombre }}</h3>
+      <h3>{{ c.nombre }}</h3>
 
-        <a href="{% url 'categoria' c.slug %}" class="btn-categoria">
-          <i class="fa-solid fa-layer-group"></i> Ir a Colección
-        </a>
-      </div>
+      <a href="{% url 'categoria' c.slug %}" class="btn-categoria">
+        <i class="fa-solid fa-layer-group"></i> Ir a Colección
+      </a>
+    </div>
     {% empty %}
-      <p>No hay categorías creadas aún.</p>
+    <p>No hay categorías creadas aún.</p>
     {% endfor %}
   </div>
 
@@ -285,15 +305,19 @@
 
 {% if config_sitio.mostrar_blog and ultimas_entradas_blog %}
 <!-- Sección de la Bitácora / Blog en el Index -->
-<section id="blog-index" style="background-color: #FFF9F6; background-image: radial-gradient(#fcd7c4 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 60px 20px; border-top: 1px solid #f9e2d5;">
+<section id="blog-index"
+  style="background-color: #FFF9F6; background-image: radial-gradient(#fcd7c4 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 60px 20px; border-top: 1px solid #f9e2d5;">
   <div style="max-width: 1100px; margin: 0 auto;">
-    
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px; flex-wrap: wrap; gap: 15px;">
+
+    <div
+      style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px; flex-wrap: wrap; gap: 15px;">
       <div>
-        <span style="background: rgba(239, 157, 113, 0.18); color: #c26332; font-weight: 800; font-size: 0.85rem; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">
+        <span
+          style="background: rgba(239, 157, 113, 0.18); color: #c26332; font-weight: 800; font-size: 0.85rem; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">
           📖 Bitácora Rara
         </span>
-        <h2 style="font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 700; color: #2d3748; margin-top: 10px; margin-bottom: 4px;">
+        <h2
+          style="font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 700; color: #2d3748; margin-top: 10px; margin-bottom: 4px;">
           Últimas publicaciones del Blog
         </h2>
         <p style="color: #718096; font-size: 0.95rem; margin: 0;">
@@ -301,47 +325,58 @@
         </p>
       </div>
 
-      <a href="{% url 'blog_list' %}" class="btn" style="background: #ef9d71; color: white; border-radius: 12px; padding: 10px 20px; font-weight: 700; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+      <a href="{% url 'blog_list' %}" class="btn"
+        style="background: #ef9d71; color: white; border-radius: 12px; padding: 10px 20px; font-weight: 700; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
         Ver todas las entradas <i class="fa-solid fa-arrow-right"></i>
       </a>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
       {% for post in ultimas_entradas_blog %}
-        <article style="background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 6px 22px rgba(0,0,0,0.05); border: 1px solid #e2ece5; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; display: flex; flex-direction: column;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 14px 30px rgba(101, 193, 140, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 22px rgba(0,0,0,0.05)';">
-          
-          <div style="margin: 12px 12px 0 12px; border-radius: 14px; overflow: hidden;">
-            <a href="{{ post.get_absolute_url }}" style="text-decoration: none; color: inherit; display: block; overflow: hidden; position: relative; aspect-ratio: 16/9; background: #f7fafc;">
-              {% if post.imagen %}
-                <img src="{{ post.get_imagen_url_600 }}" alt="{{ post.titulo }}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
-              {% else %}
-                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ef9d71 0%, #65C18C 100%); color: white; font-size: 2.5rem;">
-                  🦜
-                </div>
-              {% endif %}
+      <article
+        style="background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 6px 22px rgba(0,0,0,0.05); border: 1px solid #e2ece5; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; display: flex; flex-direction: column;"
+        onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 14px 30px rgba(101, 193, 140, 0.15)';"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 22px rgba(0,0,0,0.05)';">
+
+        <div style="margin: 12px 12px 0 12px; border-radius: 14px; overflow: hidden;">
+          <a href="{{ post.get_absolute_url }}"
+            style="text-decoration: none; color: inherit; display: block; overflow: hidden; position: relative; aspect-ratio: 16/9; background: #f7fafc;">
+            {% if post.imagen %}
+            <img src="{{ post.get_imagen_url_600 }}" alt="{{ post.titulo }}" loading="lazy"
+              style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+            {% else %}
+            <div
+              style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ef9d71 0%, #65C18C 100%); color: white; font-size: 2.5rem;">
+              🦜
+            </div>
+            {% endif %}
+          </a>
+        </div>
+
+        <div style="padding: 20px 22px 22px; flex: 1; display: flex; flex-direction: column;">
+          <span
+            style="font-size: 0.8rem; color: #a0aec0; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-regular fa-calendar" style="color: #ef9d71;"></i> {{ post.fecha_creacion|date:"d \d\e F, Y" }}
+          </span>
+
+          <h3
+            style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700; color: #2d3748; margin: 0 0 10px 0; line-height: 1.35;">
+            <a href="{{ post.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+              {{ post.titulo }}
             </a>
-          </div>
-          
-          <div style="padding: 20px 22px 22px; flex: 1; display: flex; flex-direction: column;">
-            <span style="font-size: 0.8rem; color: #a0aec0; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-              <i class="fa-regular fa-calendar" style="color: #ef9d71;"></i> {{ post.fecha_creacion|date:"d \d\e F, Y" }}
-            </span>
-            
-            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700; color: #2d3748; margin: 0 0 10px 0; line-height: 1.35;">
-              <a href="{{ post.get_absolute_url }}" style="text-decoration: none; color: inherit;">
-                {{ post.titulo }}
-              </a>
-            </h3>
-            
-            <p style="color: #4a5568; font-size: 0.9rem; line-height: 1.5; margin: 0 0 18px 0; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-              {% if post.resumen %}{{ post.resumen }}{% else %}{{ post.contenido|striptags|truncatewords:20 }}{% endif %}
-            </p>
-            
-            <a href="{{ post.get_absolute_url }}" style="font-weight: 800; font-size: 0.88rem; color: #ef9d71; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-              Leer artículo <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
-            </a>
-          </div>
-        </article>
+          </h3>
+
+          <p
+            style="color: #4a5568; font-size: 0.9rem; line-height: 1.5; margin: 0 0 18px 0; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+            {% if post.resumen %}{{ post.resumen }}{% else %}{{ post.contenido|striptags|truncatewords:20 }}{% endif %}
+          </p>
+
+          <a href="{{ post.get_absolute_url }}"
+            style="font-weight: 800; font-size: 0.88rem; color: #ef9d71; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            Leer artículo <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+          </a>
+        </div>
+      </article>
       {% endfor %}
     </div>
 
@@ -351,14 +386,17 @@
 
 {% if config_sitio.mostrar_resenas and resenas %}
 <!-- Reseñas de Compradores Verificados -->
-<section id="resenas-compradores" style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 50px 20px 60px; border-top: 1px solid #e2ece5;">
+<section id="resenas-compradores"
+  style="background-color: #F4F9F5; background-image: radial-gradient(#c2ebd3 1.5px, transparent 1.5px); background-size: 30px 30px; padding: 50px 20px 60px; border-top: 1px solid #e2ece5;">
   <div style="max-width: 1100px; margin: 0 auto;">
-    
+
     <div style="text-align: center; margin-bottom: 36px;">
-      <span style="background: rgba(239, 157, 113, 0.18); color: #c26332; font-weight: 800; font-size: 0.85rem; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">
+      <span
+        style="background: rgba(239, 157, 113, 0.18); color: #c26332; font-weight: 800; font-size: 0.85rem; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">
         ⭐ Opiniones Reales
       </span>
-      <h2 style="font-family: 'Quicksand', sans-serif; font-size: 2.1rem; font-weight: 700; color: #4a4a4a; margin-top: 10px; margin-bottom: 8px;">
+      <h2
+        style="font-family: 'Quicksand', sans-serif; font-size: 2.1rem; font-weight: 700; color: #4a4a4a; margin-top: 10px; margin-bottom: 8px;">
         Lo que dicen nuestros Compradores Verificados
       </h2>
       <p style="color: #718096; font-size: 0.98rem; max-width: 600px; margin: 0 auto;">
@@ -368,57 +406,66 @@
 
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
       {% for r in resenas %}
-        <div style="background: #ffffff; border-radius: 18px; padding: 22px; border: 1px solid #e2ece5; box-shadow: 0 6px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between;">
-          
-          <div>
-            <!-- Header: Producto Imagen + Nombre + Estrellas -->
-            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
-              {% if r.producto.imagen %}
-                <img src="{{ r.producto.get_imagen_url_300 }}" alt="{{ r.producto.nombre }}" loading="lazy" style="width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+      <div
+        style="background: #ffffff; border-radius: 18px; padding: 22px; border: 1px solid #e2ece5; box-shadow: 0 6px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between;">
+
+        <div>
+          <!-- Header: Producto Imagen + Nombre + Estrellas -->
+          <div
+            style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+            {% if r.producto.imagen %}
+            <img src="{{ r.producto.get_imagen_url_300 }}" alt="{{ r.producto.nombre }}" loading="lazy"
+              style="width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+            {% else %}
+            <div
+              style="width: 52px; height: 52px; background: #e2e8f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
+              🛍️</div>
+            {% endif %}
+
+            <div style="overflow: hidden;">
+              {% if r.producto.disponible %}
+              <a href="{{ r.producto.get_absolute_url }}"
+                style="text-decoration: none; font-weight: 800; font-size: 0.95rem; color: #2d3748; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ r.producto.nombre }}
+              </a>
               {% else %}
-                <div style="width: 52px; height: 52px; background: #e2e8f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">🛍️</div>
+              <span
+                style="font-weight: 800; font-size: 0.95rem; color: #2d3748; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ r.producto.nombre }}
+              </span>
               {% endif %}
-              
-              <div style="overflow: hidden;">
-                {% if r.producto.disponible %}
-                  <a href="{{ r.producto.get_absolute_url }}" style="text-decoration: none; font-weight: 800; font-size: 0.95rem; color: #2d3748; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    {{ r.producto.nombre }}
-                  </a>
-                {% else %}
-                  <span style="font-weight: 800; font-size: 0.95rem; color: #2d3748; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    {{ r.producto.nombre }}
-                  </span>
-                {% endif %}
-                
-                <div style="color: #f59e0b; font-size: 0.88rem; margin-top: 2px;">
-                  {% for i in "12345"|make_list %}
-                    {% if forloop.counter <= r.calificacion %}★{% else %}☆{% endif %}
-                  {% endfor %}
-                  <span style="color: #718096; font-size: 0.78rem; margin-left: 4px; font-weight: 600;">({{ r.calificacion }}/5)</span>
-                </div>
+
+              <div style="color: #f59e0b; font-size: 0.88rem; margin-top: 2px;">
+                {% for i in "12345"|make_list %}
+                {% if forloop.counter <= r.calificacion %}★{% else %}☆{% endif %} {% endfor %} <span
+                  style="color: #718096; font-size: 0.78rem; margin-left: 4px; font-weight: 600;">({{ r.calificacion
+                  }}/5)</span>
               </div>
             </div>
-
-            <!-- Comentario -->
-            <p style="color: #475569; font-size: 0.93rem; line-height: 1.55; margin: 0 0 16px 0; font-style: italic;">
-              "{{ r.comentario }}"
-            </p>
           </div>
 
-          <!-- Footer: Cliente + Medalla Verificado + Fecha -->
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #f1f5f9; padding-top: 10px;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <strong style="color: #1e293b;">{{ r.nombre_cliente }}</strong>
-              {% if r.comprador_verificado %}
-                <span style="background: #e6f4ea; color: #137333; font-weight: 800; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3px;">
-                  <i class="fa-solid fa-circle-check"></i> Verificado
-                </span>
-              {% endif %}
-            </div>
-            <span>{{ r.fecha|date:"d \d\e M, Y" }}</span>
-          </div>
-
+          <!-- Comentario -->
+          <p style="color: #475569; font-size: 0.93rem; line-height: 1.55; margin: 0 0 16px 0; font-style: italic;">
+            "{{ r.comentario }}"
+          </p>
         </div>
+
+        <!-- Footer: Cliente + Medalla Verificado + Fecha -->
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #f1f5f9; padding-top: 10px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <strong style="color: #1e293b;">{{ r.nombre_cliente }}</strong>
+            {% if r.comprador_verificado %}
+            <span
+              style="background: #e6f4ea; color: #137333; font-weight: 800; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3px;">
+              <i class="fa-solid fa-circle-check"></i> Verificado
+            </span>
+            {% endif %}
+          </div>
+          <span>{{ r.fecha|date:"d \d\e M, Y" }}</span>
+        </div>
+
+      </div>
       {% endfor %}
     </div>
 
@@ -429,58 +476,84 @@
 
 
 <!-- Nosotros -->
-<section id="acerca" class="nosotros" style="position: relative; padding: 4rem 1rem; width: 100%; min-height: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;">
-  <img src="{% static 'img/nosotros.png' %}" alt="Nosotros" class="hero-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;">
+<section id="acerca" class="nosotros"
+  style="position: relative; padding: 4rem 1rem; width: 100%; min-height: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;">
+  <img src="{% static 'img/nosotros.png' %}" alt="Nosotros" class="hero-bg"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;">
 
   <!-- Dark overlay gradient (más ligero y transparente) -->
-  <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.45) 100%); z-index: 1;"></div>
+  <div
+    style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.45) 100%); z-index: 1;">
+  </div>
 
   <div style="position: relative; z-index: 2; max-width: 1050px; margin: 0 auto; text-align: center; width: 100%;">
-    
+
     <div style="margin-bottom: 2.5rem;">
-      <span style="display: inline-block; background: rgba(252, 163, 17, 0.2); color: #fca311; border: 1px solid rgba(252, 163, 17, 0.4); font-size: 0.85rem; font-weight: 800; padding: 5px 16px; border-radius: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; backdrop-filter: blur(5px);">
+      <span
+        style="display: inline-block; background: rgba(252, 163, 17, 0.2); color: #fca311; border: 1px solid rgba(252, 163, 17, 0.4); font-size: 0.85rem; font-weight: 800; padding: 5px 16px; border-radius: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; backdrop-filter: blur(5px);">
         Nuestra Historia
       </span>
-      <h2 style="font-family: 'Quicksand', sans-serif; font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0 0 12px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.4);">
+      <h2
+        style="font-family: 'Quicksand', sans-serif; font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0 0 12px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.4);">
         ¿Quiénes Somos?
       </h2>
-      <p style="color: rgba(255, 255, 255, 0.95); font-size: 1.1rem; max-width: 680px; margin: 0 auto; line-height: 1.6; text-shadow: 0 1px 4px rgba(0,0,0,0.4);">
-        Somos una pareja de entusiastas pajareros de la Región de Los Lagos, apasionados por la fauna nativa y la vida al aire libre.
+      <p
+        style="color: rgba(255, 255, 255, 0.95); font-size: 1.1rem; max-width: 680px; margin: 0 auto; line-height: 1.6; text-shadow: 0 1px 4px rgba(0,0,0,0.4);">
+        Somos una pareja de entusiastas pajareros de la Región de Los Lagos, apasionados por la fauna nativa y la vida
+        al aire libre.
       </p>
     </div>
 
     <!-- 3 Pilares con Tarjetas Cristal Oscuras Transparentes -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; margin-bottom: 2.5rem;">
-      
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; margin-bottom: 2.5rem;">
+
       <!-- Pilar 1 -->
-      <div style="background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 30px 22px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 10px 0;">Origen del Sur</h3>
+      <div
+        style="background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 30px 22px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease;"
+        onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+        <h3
+          style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 10px 0;">
+          Origen del Sur</h3>
         <p style="color: rgba(255, 255, 255, 0.88); font-size: 0.93rem; line-height: 1.6; margin: 0;">
-          Desde el corazón de Los Lagos, rodeados de bosques, volcanes y costa, nacen las ideas inspiradas en la biodiversidad chilena.
+          Desde el corazón de Los Lagos, rodeados de bosques, volcanes y costa, nacen las ideas inspiradas en la
+          biodiversidad chilena.
         </p>
       </div>
 
       <!-- Pilar 2 -->
-      <div style="background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 30px 22px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 10px 0;">Ilustración de Autor</h3>
+      <div
+        style="background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 30px 22px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease;"
+        onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+        <h3
+          style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 10px 0;">
+          Ilustración de Autor</h3>
         <p style="color: rgba(255, 255, 255, 0.88); font-size: 0.93rem; line-height: 1.6; margin: 0;">
-          Nuestros llaveros, imanes, stickers, libretas y cuadros cuentan con ilustraciones originales creadas con dedicación y respeto por cada especie.
+          Nuestros llaveros, imanes, stickers, libretas y cuadros cuentan con ilustraciones originales creadas con
+          dedicación y respeto por cada especie.
         </p>
       </div>
 
       <!-- Pilar 3 -->
-      <div style="background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 30px 22px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 10px 0;">Pasión Pajarera</h3>
+      <div
+        style="background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 30px 22px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease;"
+        onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+        <h3
+          style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin: 0 0 10px 0;">
+          Pasión Pajarera</h3>
         <p style="color: rgba(255, 255, 255, 0.88); font-size: 0.93rem; line-height: 1.6; margin: 0;">
-          Diseñado por y para amantes de la naturaleza, el trekking y las salidas a terreno para llevar nuestra fauna con orgullo.
+          Diseñado por y para amantes de la naturaleza, el trekking y las salidas a terreno para llevar nuestra fauna
+          con orgullo.
         </p>
       </div>
 
     </div>
 
     <!-- Firma de Agradecimiento -->
-    <div style="background: rgba(0, 0, 0, 0.38); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px dashed rgba(255, 255, 255, 0.25); border-radius: 16px; padding: 20px 25px; display: inline-block; max-width: 600px; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
-      <p style="font-family: 'Quicksand', sans-serif; font-size: 1.05rem; font-weight: 600; color: rgba(255, 255, 255, 0.95); margin: 0 0 8px 0; font-style: italic;">
+    <div
+      style="background: rgba(0, 0, 0, 0.38); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px dashed rgba(255, 255, 255, 0.25); border-radius: 16px; padding: 20px 25px; display: inline-block; max-width: 600px; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
+      <p
+        style="font-family: 'Quicksand', sans-serif; font-size: 1.05rem; font-weight: 600; color: rgba(255, 255, 255, 0.95); margin: 0 0 8px 0; font-style: italic;">
         "¡Gracias por pajarear con nosotros y llevar un pedacito de nuestra naturaleza en tu día a día!"
       </p>
       <span style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 800; color: #fca311;">
@@ -494,13 +567,15 @@
 <!-- Contacto -->
 <section id="contacto" class="contacto" style="min-height: auto; padding: 4.5rem 1rem; background-color: #FAF8F5;">
   <div style="max-width: 1000px; margin: 0 auto; width: 100%;">
-    
+
     <!-- Encabezado -->
     <div style="text-align: center; margin-bottom: 3rem;">
-      <span style="display: inline-block; background: #fff3e0; color: #e67e22; font-size: 0.85rem; font-weight: 800; padding: 5px 16px; border-radius: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+      <span
+        style="display: inline-block; background: #fff3e0; color: #e67e22; font-size: 0.85rem; font-weight: 800; padding: 5px 16px; border-radius: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
         Atención al Cliente
       </span>
-      <h2 style="font-family: 'Quicksand', sans-serif; font-size: 2.4rem; font-weight: 700; color: #2d3748; margin: 0 0 10px 0;">
+      <h2
+        style="font-family: 'Quicksand', sans-serif; font-size: 2.4rem; font-weight: 700; color: #2d3748; margin: 0 0 10px 0;">
         Contáctanos
       </h2>
       <p style="color: #64748b; font-size: 1.05rem; max-width: 600px; margin: 0 auto; line-height: 1.6;">
@@ -509,32 +584,42 @@
     </div>
 
     <!-- Bloque 1: FAQ / Dudas Frecuentes antes de comprar -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 3rem;">
-      
-      <div style="background: white; padding: 22px 18px; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: left;">
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 3rem;">
+
+      <div
+        style="background: white; padding: 22px 18px; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: left;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
           <i class="fa-solid fa-truck-fast" style="color: #fca311; font-size: 1.2rem;"></i>
-          <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: #2d3748;">¿Envíos a todo Chile?</h4>
+          <h4
+            style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: #2d3748;">
+            ¿Envíos a todo Chile?</h4>
         </div>
         <p style="margin: 0; font-size: 0.9rem; color: #64748b; line-height: 1.5;">
           Sí, despachamos a todas las regiones por los medios a convenir.
         </p>
       </div>
 
-      <div style="background: white; padding: 22px 18px; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: left;">
+      <div
+        style="background: white; padding: 22px 18px; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: left;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
           <i class="fa-solid fa-clock" style="color: #fca311; font-size: 1.2rem;"></i>
-          <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: #2d3748;">¿Tiempo de despacho?</h4>
+          <h4
+            style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: #2d3748;">
+            ¿Tiempo de despacho?</h4>
         </div>
         <p style="margin: 0; font-size: 0.9rem; color: #64748b; line-height: 1.5;">
           Preparamos y enviamos tu pedido en un máximo de 24 horas hábiles.
         </p>
       </div>
 
-      <div style="background: white; padding: 22px 18px; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: left;">
+      <div
+        style="background: white; padding: 22px 18px; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: left;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
           <i class="fa-solid fa-credit-card" style="color: #fca311; font-size: 1.2rem;"></i>
-          <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: #2d3748;">¿Medios de pago?</h4>
+          <h4
+            style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; color: #2d3748;">
+            ¿Medios de pago?</h4>
         </div>
         <p style="margin: 0; font-size: 0.9rem; color: #64748b; line-height: 1.5;">
           Aceptamos MercadoPago (tarjetas de débito/crédito) y transferencia bancaria.
@@ -544,52 +629,71 @@
     </div>
 
     <!-- Bloque 2: Tarjetas de Canales de Contacto Directo -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 2.5rem;">
-      
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 2.5rem;">
+
       <!-- WhatsApp -->
-      <div style="background: white; padding: 28px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 8px 25px rgba(0,0,0,0.04); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+      <div
+        style="background: white; padding: 28px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 8px 25px rgba(0,0,0,0.04); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
         <div>
-          <div style="width: 54px; height: 54px; background: #e8f5e9; color: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 1.8rem;">
+          <div
+            style="width: 54px; height: 54px; background: #e8f5e9; color: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 1.8rem;">
             <i class="fab fa-whatsapp"></i>
           </div>
-          <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #2d3748; margin: 0 0 8px 0;">WhatsApp Directo</h3>
+          <h3
+            style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #2d3748; margin: 0 0 8px 0;">
+            WhatsApp Directo</h3>
           <p style="color: #64748b; font-size: 0.92rem; line-height: 1.5; margin: 0 0 20px 0;">
             Escríbenos para consultas rápidas sobre productos, stock o tu número de envío.
           </p>
         </div>
-        <a href="https://wa.me/56930027170" target="_blank" rel="noopener noreferrer" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #25D366; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <a href="https://wa.me/56930027170" target="_blank" rel="noopener noreferrer"
+          style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #25D366; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25); transition: transform 0.2s;"
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
           <i class="fab fa-whatsapp" style="font-size: 1.1rem;"></i> Escribir a WhatsApp
         </a>
       </div>
 
       <!-- Instagram -->
-      <div style="background: white; padding: 28px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 8px 25px rgba(0,0,0,0.04); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+      <div
+        style="background: white; padding: 28px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 8px 25px rgba(0,0,0,0.04); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
         <div>
-          <div style="width: 54px; height: 54px; background: #fdf2f8; color: #E1306C; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 1.8rem;">
+          <div
+            style="width: 54px; height: 54px; background: #fdf2f8; color: #E1306C; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 1.8rem;">
             <i class="fab fa-instagram"></i>
           </div>
-          <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #2d3748; margin: 0 0 8px 0;">Instagram</h3>
+          <h3
+            style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #2d3748; margin: 0 0 8px 0;">
+            Instagram</h3>
           <p style="color: #64748b; font-size: 0.92rem; line-height: 1.5; margin: 0 0 20px 0;">
             Síguenos para conocer nuevos lanzamientos, ilustraciones de aves y fotos en terreno.
           </p>
         </div>
-        <a href="https://www.instagram.com/lararatienda/" target="_blank" rel="noopener noreferrer" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(45deg, #405DE6, #833AB4, #E1306C, #FD1D1D); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.25); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <a href="https://www.instagram.com/lararatienda/" target="_blank" rel="noopener noreferrer"
+          style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(45deg, #405DE6, #833AB4, #E1306C, #FD1D1D); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.25); transition: transform 0.2s;"
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
           <i class="fab fa-instagram" style="font-size: 1.1rem;"></i> Ir a Instagram
         </a>
       </div>
 
       <!-- Email -->
-      <div style="background: white; padding: 28px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 8px 25px rgba(0,0,0,0.04); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+      <div
+        style="background: white; padding: 28px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 8px 25px rgba(0,0,0,0.04); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
         <div>
-          <div style="width: 54px; height: 54px; background: #f1f5f9; color: #4a5568; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 1.8rem;">
+          <div
+            style="width: 54px; height: 54px; background: #f1f5f9; color: #4a5568; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 1.8rem;">
             <i class="fa-solid fa-envelope"></i>
           </div>
-          <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #2d3748; margin: 0 0 8px 0;">Correo Electrónico</h3>
+          <h3
+            style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #2d3748; margin: 0 0 8px 0;">
+            Correo Electrónico</h3>
           <p style="color: #64748b; font-size: 0.92rem; line-height: 1.5; margin: 0 0 20px 0;">
             Escríbenos a contacto@raratienda.cl para consultas generales o empresariales.
           </p>
         </div>
-        <a href="mailto:contacto@raratienda.cl" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #4a5568; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(74, 85, 104, 0.25); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <a href="mailto:contacto@raratienda.cl"
+          style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #4a5568; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(74, 85, 104, 0.25); transition: transform 0.2s;"
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
           <i class="fa-solid fa-envelope" style="font-size: 1.1rem;"></i> Enviar Correo
         </a>
       </div>
@@ -597,9 +701,11 @@
     </div>
 
     <!-- Bloque 3: Horarios & Sello de Origen -->
-    <div style="text-align: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 25px; max-width: 750px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+    <div
+      style="text-align: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 25px; max-width: 750px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
       <p style="margin: 0 0 6px 0; font-size: 0.92rem; color: #475569; font-weight: 600;">
-        <i class="fa-solid fa-user-clock" style="color: #fca311; margin-right: 6px;"></i> Horario de Atención: Lunes a Sábado de 09:00 a 19:00 hrs.
+        <i class="fa-solid fa-user-clock" style="color: #fca311; margin-right: 6px;"></i> Horario de Atención: Lunes a
+        Sábado de 09:00 a 19:00 hrs.
       </p>
       <p style="margin: 0; font-size: 0.88rem; color: #64748b;">
         📍 Preparado y despachado con cariño desde la Región de Los Lagos a todo Chile.
@@ -610,50 +716,50 @@
 </section>
 
 <script>
-function scrollDestacados(amount) {
-  const container = document.getElementById('destacados-container');
-  if (!container) return;
+  function scrollDestacados(amount) {
+    const container = document.getElementById('destacados-container');
+    if (!container) return;
 
-  const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
 
-  if (amount > 0) {
-    if (container.scrollLeft >= maxScrollLeft - 15) {
-      const firstCard = container.firstElementChild;
-      if (firstCard) {
-        container.appendChild(firstCard);
+    if (amount > 0) {
+      if (container.scrollLeft >= maxScrollLeft - 15) {
+        const firstCard = container.firstElementChild;
+        if (firstCard) {
+          container.appendChild(firstCard);
+        }
       }
-    }
-    container.scrollBy({ left: amount, behavior: 'smooth' });
-  } else {
-    if (container.scrollLeft <= 15) {
-      const lastCard = container.lastElementChild;
-      if (lastCard) {
-        container.insertBefore(lastCard, container.firstElementChild);
+      container.scrollBy({ left: amount, behavior: 'smooth' });
+    } else {
+      if (container.scrollLeft <= 15) {
+        const lastCard = container.lastElementChild;
+        if (lastCard) {
+          container.insertBefore(lastCard, container.firstElementChild);
+        }
       }
+      container.scrollBy({ left: amount, behavior: 'smooth' });
     }
-    container.scrollBy({ left: amount, behavior: 'smooth' });
   }
-}
 
-async function shuffleDestacados() {
-  const container = document.getElementById('destacados-container');
-  const icon = document.getElementById('shuffle-icon');
-  if (!container) return;
+  async function shuffleDestacados() {
+    const container = document.getElementById('destacados-container');
+    const icon = document.getElementById('shuffle-icon');
+    if (!container) return;
 
-  if (icon) icon.classList.add('fa-spin');
-  
-  container.style.opacity = '0.4';
-  container.style.transition = 'opacity 0.25s ease';
+    if (icon) icon.classList.add('fa-spin');
 
-  try {
-    const response = await fetch('/api/destacados-random/');
-    const data = await response.json();
-    
-    if (data.productos && data.productos.length > 0) {
-      container.innerHTML = '';
-      data.productos.forEach(p => {
-        const badgeOfertaHtml = p.en_oferta ? `<span class="badge-oferta"><i class="fa-solid fa-tag"></i> ${p.descuento_porcentaje}% OFF</span>` : '';
-        const precioHtml = p.en_oferta ? `
+    container.style.opacity = '0.4';
+    container.style.transition = 'opacity 0.25s ease';
+
+    try {
+      const response = await fetch('/api/destacados-random/');
+      const data = await response.json();
+
+      if (data.productos && data.productos.length > 0) {
+        container.innerHTML = '';
+        data.productos.forEach(p => {
+          const badgeOfertaHtml = p.en_oferta ? `<span class="badge-oferta"><i class="fa-solid fa-tag"></i> ${p.descuento_porcentaje}% OFF</span>` : '';
+          const precioHtml = p.en_oferta ? `
           <div style="display: flex; align-items: baseline; gap: 8px; margin: 0 0 12px 0; flex-wrap: wrap;">
             <span style="font-weight: 800; color: #e11d48; font-size: 1.15rem;">$${p.precio_actual}</span>
             <span class="precio-original-tachado">$${p.precio}</span>
@@ -662,7 +768,7 @@ async function shuffleDestacados() {
         ` : `
           <p style="font-weight: 800; color: #ef9d71; font-size: 1.1rem; margin: 0 0 12px 0;">$${p.precio}</p>
         `;
-        const cardHtml = `
+          const cardHtml = `
           <div class="producto-destacado-card">
             <div class="img-box">
               ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}">` : ''}
@@ -680,224 +786,256 @@ async function shuffleDestacados() {
             </div>
           </div>
         `;
-        container.insertAdjacentHTML('beforeend', cardHtml);
-      });
+          container.insertAdjacentHTML('beforeend', cardHtml);
+        });
+      }
+    } catch (err) {
+      console.error('Error al actualizar destacados:', err);
+    } finally {
+      setTimeout(() => {
+        container.style.opacity = '1';
+        if (icon) icon.classList.remove('fa-spin');
+      }, 200);
     }
-  } catch (err) {
-    console.error('Error al actualizar destacados:', err);
-  } finally {
-    setTimeout(() => {
-      container.style.opacity = '1';
-      if (icon) icon.classList.remove('fa-spin');
-    }, 200);
   }
-}
 </script>
 
 {% now "Y-m-d" as hoy %}
-{% if hoy < "2026-11-22" %}
-<!-- Modal Promocional: 6to Festival de las Aves de Coihuín y Chamiza -->
-<div id="promo-festival-modal" class="promo-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="promo-festival-title" style="display: none;">
-  <div class="promo-modal-card">
-    <button type="button" class="promo-modal-close" id="promo-festival-close" aria-label="Cerrar aviso">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
+{% if hoy < "2026-11-22" %} <!-- Modal Promocional: 6to Festival de las Aves de Coihuín y Chamiza -->
+  <div id="promo-festival-modal" class="promo-modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="promo-festival-title" style="display: none;">
+    <div class="promo-modal-card">
+      <button type="button" class="promo-modal-close" id="promo-festival-close" aria-label="Cerrar aviso">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
 
-    <div class="promo-modal-img-wrap">
-      <img src="{% static 'img/festival_aves_coihuin_chamiza.jpg' %}" alt="6to Festival de las Aves de Coihuín y Chamiza" class="promo-modal-img">
-    </div>
+      <div class="promo-modal-img-wrap">
+        <img src="{% static 'img/festival_aves_coihuin_chamiza.jpg' %}"
+          alt="6to Festival de las Aves de Coihuín y Chamiza" class="promo-modal-img">
+      </div>
 
-    <div class="promo-modal-body">
-      <span class="promo-modal-badge">🦜 ¡Este sábado!</span>
-      <h3 id="promo-festival-title" class="promo-modal-title">
-        Estaremos en la Feria de Aves de Coihuín y Chamiza
-      </h3>
-      <p class="promo-modal-text">
-        Este sábado <strong>21 de noviembre</strong> acompáñanos en la <strong>Escuela Rural La Chamiza</strong>. Para más información y para ver la programación completa, ingresa al siguiente enlace:
-      </p>
-      <div class="promo-modal-actions">
-        <a id="promo-festival-link" href="https://www.redobservadores.cl/se-acerca-el-festival-de-aves-de-coihuin-y-chamiza-revisa-las-actividades-e-inscribete/" target="_blank" rel="noopener noreferrer" class="promo-modal-btn">
-          <i class="fa-solid fa-calendar-days"></i> Ver programación y más información
-        </a>
-        <button type="button" id="promo-festival-dismiss" class="promo-modal-btn-secondary">
-          Cerrar
-        </button>
+      <div class="promo-modal-body">
+        <span class="promo-modal-badge">🦜 ¡Este sábado!</span>
+        <h3 id="promo-festival-title" class="promo-modal-title">
+          Estaremos en la Feria de Aves de Coihuín y Chamiza
+        </h3>
+        <p class="promo-modal-text">
+          Este sábado <strong>21 de noviembre</strong> acompáñanos en la <strong>Escuela Rural La Chamiza</strong>. Para
+          más información y para ver la programación completa, ingresa al siguiente enlace:
+        </p>
+        <div class="promo-modal-actions">
+          <a id="promo-festival-link"
+            href="https://www.redobservadores.cl/ya-viene-volando-la-6-a-version-del-festival-de-aves-de-coihuin-y-chamiza/"
+            target="_blank" rel="noopener noreferrer" class="promo-modal-btn">
+            <i class="fa-solid fa-calendar-days"></i> Ver programación y más información
+          </a>
+          <button type="button" id="promo-festival-dismiss" class="promo-modal-btn-secondary">
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<style>
-  .promo-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    animation: promoFadeIn 0.25s ease-out;
-  }
-  .promo-modal-card {
-    position: relative;
-    background: #ffffff;
-    border-radius: 22px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 92vh;
-    overflow-y: auto;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-    border: 1px solid #e2ece5;
-    animation: promoScaleIn 0.25s ease-out;
-  }
-  .promo-modal-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 2;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, 0.92);
-    color: #334155;
-    font-size: 1.05rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-    transition: transform 0.15s ease, background 0.15s ease;
-  }
-  .promo-modal-close:hover {
-    transform: scale(1.08);
-    background: #ffffff;
-  }
-  .promo-modal-img-wrap {
-    background: #eef4fa;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-  }
-  .promo-modal-img {
-    width: 100%;
-    max-height: 380px;
-    object-fit: contain;
-    display: block;
-  }
-  .promo-modal-body {
-    padding: 20px 24px 24px;
-    text-align: center;
-  }
-  .promo-modal-badge {
-    display: inline-block;
-    background: rgba(101, 193, 140, 0.18);
-    color: #2f855a;
-    font-weight: 800;
-    font-size: 0.78rem;
-    padding: 4px 12px;
-    border-radius: 999px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-  .promo-modal-title {
-    font-family: 'Quicksand', sans-serif;
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #2d3748;
-    margin: 0 0 10px 0;
-    line-height: 1.3;
-  }
-  .promo-modal-text {
-    color: #4a5568;
-    font-size: 0.95rem;
-    line-height: 1.55;
-    margin: 0 0 18px 0;
-  }
-  .promo-modal-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .promo-modal-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: #ef9d71;
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 800;
-    font-size: 0.95rem;
-    padding: 12px 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 16px rgba(239, 157, 113, 0.35);
-    transition: transform 0.15s ease, background 0.15s ease;
-  }
-  .promo-modal-btn:hover {
-    background: #e88957;
-    transform: translateY(-1px);
-  }
-  .promo-modal-btn-secondary {
-    background: transparent;
-    border: none;
-    color: #64748b;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 6px 12px;
-  }
-  .promo-modal-btn-secondary:hover {
-    color: #334155;
-  }
-  @keyframes promoFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes promoScaleIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const modal = document.getElementById('promo-festival-modal');
-  const closeBtn = document.getElementById('promo-festival-close');
-  const dismissBtn = document.getElementById('promo-festival-dismiss');
-  if (!modal) return;
-
-  if (new Date() >= new Date('2026-11-22T00:00:00-03:00')) return;
-
-  const storageKey = 'promo_festival_aves_coihuin_2026_cerrado';
-  if (!sessionStorage.getItem(storageKey)) {
-    modal.style.display = 'flex';
-  }
-
-  function closePromoModal() {
-    modal.style.display = 'none';
-    sessionStorage.setItem(storageKey, '1');
-  }
-
-  if (closeBtn) closeBtn.addEventListener('click', closePromoModal);
-  if (dismissBtn) dismissBtn.addEventListener('click', closePromoModal);
-
-  modal.addEventListener('click', function (e) {
-    if (e.target === modal) {
-      closePromoModal();
+  <style>
+    .promo-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: promoFadeIn 0.25s ease-out;
     }
-  });
 
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && modal.style.display === 'flex') {
-      closePromoModal();
+    .promo-modal-card {
+      position: relative;
+      background: #ffffff;
+      border-radius: 22px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+      border: 1px solid #e2ece5;
+      animation: promoScaleIn 0.25s ease-out;
     }
-  });
-});
-</script>
-{% endif %}
 
-{% endblock %}
+    .promo-modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.92);
+      color: #334155;
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .promo-modal-close:hover {
+      transform: scale(1.08);
+      background: #ffffff;
+    }
+
+    .promo-modal-img-wrap {
+      background: #eef4fa;
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .promo-modal-img {
+      width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .promo-modal-body {
+      padding: 20px 24px 24px;
+      text-align: center;
+    }
+
+    .promo-modal-badge {
+      display: inline-block;
+      background: rgba(101, 193, 140, 0.18);
+      color: #2f855a;
+      font-weight: 800;
+      font-size: 0.78rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .promo-modal-title {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin: 0 0 10px 0;
+      line-height: 1.3;
+    }
+
+    .promo-modal-text {
+      color: #4a5568;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      margin: 0 0 18px 0;
+    }
+
+    .promo-modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .promo-modal-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #ef9d71;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(239, 157, 113, 0.35);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .promo-modal-btn:hover {
+      background: #e88957;
+      transform: translateY(-1px);
+    }
+
+    .promo-modal-btn-secondary {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 12px;
+    }
+
+    .promo-modal-btn-secondary:hover {
+      color: #334155;
+    }
+
+    @keyframes promoFadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes promoScaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modal = document.getElementById('promo-festival-modal');
+      const closeBtn = document.getElementById('promo-festival-close');
+      const dismissBtn = document.getElementById('promo-festival-dismiss');
+      if (!modal) return;
+
+      if (new Date() >= new Date('2026-11-22T00:00:00-03:00')) return;
+
+      const storageKey = 'promo_festival_aves_coihuin_2026_cerrado';
+      if (!sessionStorage.getItem(storageKey)) {
+        modal.style.display = 'flex';
+      }
+
+      function closePromoModal() {
+        modal.style.display = 'none';
+        sessionStorage.setItem(storageKey, '1');
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', closePromoModal);
+      if (dismissBtn) dismissBtn.addEventListener('click', closePromoModal);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+          closePromoModal();
+        }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+          closePromoModal();
+        }
+      });
+    });
+  </script>
+  {% endif %}
+
+  {% endblock %}
