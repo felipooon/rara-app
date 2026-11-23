@@ -406,7 +406,20 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="{{ form.descripcion.id_for_label }}">Descripción detallada</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+                            <label for="{{ form.descripcion.id_for_label }}" style="margin-bottom: 0;">Descripción detallada</label>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <select id="selectorPlantillaDesc" style="width: auto; padding: 5px 10px; font-size: 0.82rem; border-radius: 7px; border: 1px solid #cbd5e1; background: #f8fafc;">
+                                    <option value="">-- Seleccionar plantilla --</option>
+                                    {% for tpl in plantillas_desc %}
+                                    <option value="{{ tpl.key }}" {% if plantilla_sugerida == tpl.key %}selected{% endif %}>{{ tpl.label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" onclick="cargarPlantillaDescripcion()" style="background: #fff7ed; color: #ea580c; border: 1px solid #fdba74; padding: 5px 11px; border-radius: 7px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                                    📋 Cargar plantilla de categoría
+                                </button>
+                            </div>
+                        </div>
                         {{ form.descripcion }}
                     </div>
                 </div>
@@ -720,6 +733,94 @@ document.addEventListener("DOMContentLoaded", function() {
         inputPrecio.addEventListener("input", updateOfertaPreview);
     }
 });
+
+const PLANTILLAS_DESC_MAP = {
+    {% for tpl in plantillas_desc %}
+    "{{ tpl.key|escapejs }}": "{{ tpl.template|escapejs }}",
+    {% endfor %}
+};
+
+function sugerirPlantillaPorCategoria() {
+    var catSelect = document.getElementById("id_categoria");
+    var nomInput = document.getElementById("id_nombre");
+    var selector = document.getElementById("selectorPlantillaDesc");
+    if (!catSelect || !selector) return;
+
+    var catText = (catSelect.options[catSelect.selectedIndex]?.text || "").toLowerCase();
+    var nomText = (nomInput ? nomInput.value : "").toLowerCase();
+    var key = "";
+
+    if (catText.includes("calcet")) {
+        key = nomText.includes("digital") ? "calcetines_digital" : "calcetines_algodon";
+    } else if (catText.includes("crocs") || catText.includes("bamer")) {
+        key = "pins_crocs";
+    } else if (catText.includes("pin")) {
+        key = "pins_estandar";
+    } else if (catText.includes("accesorios") || catText.includes("birding")) {
+        key = (nomText.includes("arnés") || nomText.includes("arnes")) ? "accesorios_arnes" : "accesorios_otro";
+    } else if (catText.includes("scrunchie")) {
+        key = "scrunchies";
+    } else if (catText.includes("bandana")) {
+        key = "bandanas";
+    } else if (catText.includes("beanie")) {
+        key = "beanies";
+    } else if (catText.includes("bordado") && !catText.includes("llavero")) {
+        key = "bordados";
+    } else if (catText.includes("llavero") && catText.includes("bordado")) {
+        key = "llaveros_bordados";
+    } else if (catText.includes("llavero")) {
+        key = "llaveros_madera";
+    } else if (catText.includes("posavaso")) {
+        key = "posavasos";
+    } else if (catText.includes("anidera") || catText.includes("casa")) {
+        key = "casas_anideras";
+    } else if (catText.includes("juego")) {
+        key = "juegos_rompecabezas";
+    } else if (catText.includes("libro") || catText.includes("guía") || catText.includes("guia")) {
+        key = "libros_guias";
+    }
+
+    if (key && PLANTILLAS_DESC_MAP[key]) {
+        selector.value = key;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var catSelect = document.getElementById("id_categoria");
+    if (catSelect) {
+        catSelect.addEventListener("change", sugerirPlantillaPorCategoria);
+        {% if not plantilla_sugerida %}
+        sugerirPlantillaPorCategoria();
+        {% endif %}
+    }
+});
+
+function cargarPlantillaDescripcion() {
+    var selector = document.getElementById("selectorPlantillaDesc");
+    var textarea = document.getElementById("id_descripcion");
+    if (!selector || !textarea) return;
+
+    var key = selector.value;
+    if (!key) {
+        sugerirPlantillaPorCategoria();
+        key = selector.value;
+    }
+    if (!key || !PLANTILLAS_DESC_MAP[key]) {
+        alert("Selecciona una plantilla de la lista primero.");
+        return;
+    }
+
+    var actual = (textarea.value || "").trim();
+    var esVaciaOPorDefecto = !actual || actual.toLowerCase() === "sin descripción detallada.";
+    if (!esVaciaOPorDefecto) {
+        if (!confirm("La descripción actual ya tiene texto. ¿Deseas reemplazarla con la plantilla seleccionada?")) {
+            return;
+        }
+    }
+
+    textarea.value = PLANTILLAS_DESC_MAP[key];
+    textarea.focus();
+}
 </script>
 
 {% endblock %}

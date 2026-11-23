@@ -16,6 +16,7 @@ from ..models import Categoria, Producto, ImagenProducto, Pedido, ItemPedido, Cu
 from ..forms import CategoriaForm, ProductoForm, CuponForm, BlogPostForm, ConfiguracionSitioForm
 from ..utils import generar_excel_catalogo_pos, generar_html_codigos_barra
 from ..utils_email import enviar_correo_confirmacion_compra
+from ..plantillas_descripcion import listar_plantillas_para_panel, seleccionar_plantilla_key
 from ..comunas_chile import actualizar_puntos_desde_api, cargar_puntos_lista, obtener_fecha_puntos, ORIGEN_TIENDA_COMUNA
 from .juegos_api import _rango_mes_actual_y_anterior
 
@@ -167,7 +168,9 @@ def crear_producto(request):
 
     return render(request, "panel/producto_form.html", {
         "form": form,
-        "next": next_url
+        "next": next_url,
+        "plantillas_desc": listar_plantillas_para_panel(),
+        "plantilla_sugerida": "",
     })
 
 
@@ -314,10 +317,18 @@ def editar_producto(request, id):
         messages.success(request, f"Producto '{prod_editado.nombre}' actualizado.")
         return redirect(next_url)
         
+    plantilla_sugerida = seleccionar_plantilla_key(
+        producto.categoria.nombre if producto.categoria else '',
+        nombre_producto=producto.nombre,
+        precio=producto.precio_actual,
+        descripcion_actual=producto.descripcion,
+    )
     return render(request, "panel/producto_form.html", {
         "form": form,
         "editando": True,
-        "next": next_url
+        "next": next_url,
+        "plantillas_desc": listar_plantillas_para_panel(),
+        "plantilla_sugerida": plantilla_sugerida,
     })
 
 
