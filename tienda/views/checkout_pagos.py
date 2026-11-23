@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 from django.db import transaction
 
 from ..models import Producto, Pedido, ItemPedido, Cupon, LogProducto, LogPedido
@@ -165,30 +166,63 @@ def quitar_cupon(request):
     return redirect('procesar_pedido')
 
 
+def _es_ajax_carrito(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
+def _respuesta_carrito_ajax(request, carrito, message='', level='success', ok=True):
+    drawer_html = render_to_string('includes/carrito_contenido.html', {'carrito': carrito}, request=request)
+    return JsonResponse({
+        'ok': ok,
+        'message': message,
+        'level': level,
+        'total_items': carrito.total_items,
+        'total': carrito.get_total(),
+        'pack_info': carrito.info_pack_calcetines,
+        'drawer_html': drawer_html,
+    })
+
+
 def agregar_al_carrito(request, producto_id):
     carrito = Carrito(request)
     producto = get_object_or_404(Producto, id=producto_id)
 
     try:
-        cantidad = int(request.POST.get('cantidad', 1))
+        cantidad = int(request.POST.get('cantidad', 1) if request.method == 'POST' else 1)
         if cantidad <= 0:
+            if _es_ajax_carrito(request):
+                return _respuesta_carrito_ajax(request, carrito, "La cantidad debe ser un número positivo.", level='error', ok=False)
             messages.error(request, "La cantidad debe ser un número positivo.")
             return redirect(request.META.get('HTTP_REFERER', '/'))
     except ValueError:
+        if _es_ajax_carrito(request):
+            return _respuesta_carrito_ajax(request, carrito, "Cantidad no válida.", level='error', ok=False)
         messages.error(request, "Cantidad no válida.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
-    
-    cantidad = int(request.POST.get('cantidad', 1) if request.method == 'POST' else 1)
 
     if producto.hay_stock():
         agregado_exitosamente = carrito.agregar(producto, cantidad)
         if agregado_exitosamente:
-            messages.success(request, f'¡{producto.nombre} agregado a tu nido! 🪹')
+            msg = f'¡{producto.nombre} agregado a tu nido! 🪹'
+            level = 'success'
+            if not _es_ajax_carrito(request):
+                messages.success(request, msg)
         else:
-            messages.warning(request, f'¡Límite alcanzado! Solo nos quedan {producto.stock} unidades de {producto.nombre} y ya están en tu nido. 🪹')
+            msg = f'¡Límite alcanzado! Solo nos quedan {producto.stock} unidades de {producto.nombre} en tu nido. 🪹'
+            level = 'warning'
+            if not _es_ajax_carrito(request):
+                messages.warning(request, msg)
     else:
-        messages.error(request, f'Lo sentimos, {producto.nombre} está agotado por ahora.')
-        
+        msg = f'Lo sentimos, {producto.nombre} está agotado por ahora.'
+        level = 'error'
+        if not _es_ajax_carrito(request):
+            messages.error(request, msg)
+        if _es_ajax_carrito(request):
+            return _respuesta_carrito_ajax(request, carrito, msg, level=level, ok=False)
+
+    if _es_ajax_carrito(request):
+        return _respuesta_carrito_ajax(request, carrito, msg, level=level, ok=True)
+
     url_anterior = request.META.get('HTTP_REFERER', '/')
     if '?' in url_anterior:
         return redirect(url_anterior + '&cart=open')
@@ -204,6 +238,8 @@ def restar_del_carrito(request, producto_id):
     carrito = Carrito(request)
     producto = get_object_or_404(Producto, id=producto_id)
     carrito.restar(producto)
+    if _es_ajax_carrito(request):
+        return _respuesta_carrito_ajax(request, carrito, f'{producto.nombre} actualizado en tu nido.', level='info', ok=True)
     url_anterior = request.META.get('HTTP_REFERER', '/')
     if '?' in url_anterior:
         return redirect(url_anterior + '&cart=open')
@@ -215,6 +251,8 @@ def quitar_del_carrito(request, producto_id):
     carrito = Carrito(request)
     producto = get_object_or_404(Producto, id=producto_id)
     carrito.eliminar(producto)
+    if _es_ajax_carrito(request):
+        return _respuesta_carrito_ajax(request, carrito, f'{producto.nombre} quitado de tu nido.', level='info', ok=True)
     url_anterior = request.META.get('HTTP_REFERER', '/')
     if '?' in url_anterior:
         return redirect(url_anterior + '&cart=open')
@@ -251,8 +289,12 @@ def procesar_pedido(request):
             messages.warning(request, f"¡Atención! Mientras pensabas, el stock de '{producto.nombre}' bajó a {producto.stock} unidades. Por favor ajusta tu carrito.")
             return redirect('ver_carrito')
 
-    total_bruto = carrito.get_total()
-    cupon_obj, descuento_aplicado = obtener_descuento_cupon(request, total_bruto, carrito=carrito)
+    total_bruto = carrito.get_total_bruto()
+    pack_info = carrito.info_pack_calcetines
+    descuento_pack = pack_info['descuento_pack']
+    total_con_pack = max(0, total_bruto - descuento_pack)
+    cupon_obj, descuento_cupon = obtener_descuento_cupon(request, total_con_pack, carrito=carrito)
+    descuento_aplicado = descuento_pack + descuento_cupon
     subtotal_productos = max(0, total_bruto - descuento_aplicado)
 
     comuna_default = ORIGEN_TIENDA_COMUNA
@@ -301,7 +343,9 @@ def procesar_pedido(request):
         base_context = {
             'carrito': carrito,
             'cupon': cupon_obj,
-            'descuento': descuento_aplicado,
+            'descuento': descuento_cupon,
+            'descuento_pack': descuento_pack,
+            'pack_info': pack_info,
             'subtotal_productos': subtotal_productos,
             'costo_envio': costo_envio,
             'costo_retiro_actual': costo_retiro_actual,
@@ -416,8 +460,10 @@ def procesar_pedido(request):
             f"Ítems: {items_summary} | Destino: {pedido.direccion}, {pedido.ciudad} ({pedido.region}) | "
             f"RUT: {pedido.rut} | Teléfono: +56{pedido.telefono}"
         )
+        if descuento_pack > 0:
+            detalles_creacion += f" | Pack Calcetines ({pack_info['packs_completos']}x3: -${descuento_pack})"
         if cupon_obj:
-            detalles_creacion += f" | Cupón: {cupon_obj.codigo} (-${descuento_aplicado})"
+            detalles_creacion += f" | Cupón: {cupon_obj.codigo} (-${descuento_cupon})"
 
         LogPedido.objects.create(
             pedido_id=pedido.id,
@@ -446,11 +492,19 @@ def procesar_pedido(request):
                     "currency_id": "CLP"
                 })
 
-            if descuento_aplicado > 0 and cupon_obj:
+            if descuento_pack > 0:
+                items_mp.append({
+                    "title": f"Descuento Pack Calcetines ({pack_info['packs_completos']}x 3 pares por $15.990)",
+                    "quantity": 1,
+                    "unit_price": -int(descuento_pack),
+                    "currency_id": "CLP"
+                })
+
+            if descuento_cupon > 0 and cupon_obj:
                 items_mp.append({
                     "title": f"Descuento Cupón ({cupon_obj.codigo})",
                     "quantity": 1,
-                    "unit_price": -int(descuento_aplicado),
+                    "unit_price": -int(descuento_cupon),
                     "currency_id": "CLP"
                 })
 
@@ -518,7 +572,9 @@ def procesar_pedido(request):
     return render(request, 'checkout.html', {
         'carrito': carrito,
         'cupon': cupon_obj,
-        'descuento': descuento_aplicado,
+        'descuento': descuento_cupon,
+        'descuento_pack': descuento_pack,
+        'pack_info': pack_info,
         'subtotal_productos': subtotal_productos,
         'costo_envio': costo_envio_inicial,
         'costo_retiro_actual': costo_retiro_actual,

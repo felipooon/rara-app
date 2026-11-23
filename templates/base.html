@@ -83,6 +83,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </a>
                 <ul class="nav-dropdown-menu">
                     <li><a href="/#catalogo"><i class="fa-solid fa-border-all"></i> Ver todo el catálogo</a></li>
+                    <li><a href="{% url 'categoria' 'calcetines' %}" style="color: #ea580c;"><i class="fa-solid fa-socks"></i> Pack 3 Calcetines ($15.990)</a></li>
                     {% if categorias_nav %}
                     <li class="nav-dropdown-divider"></li>
                     {% for cat in categorias_nav %}
@@ -140,6 +141,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <ul class="mobile-drawer-nav">
             <li><a href="/#inicio"><span class="nav-icon"><i class="fa-solid fa-house"></i></span> Inicio</a></li>
             <li><a href="/#catalogo"><span class="nav-icon"><i class="fa-solid fa-shapes"></i></span> Catálogo</a></li>
+            <li>
+                <a href="{% url 'categoria' 'calcetines' %}" style="color: #ea580c; font-weight: 800;">
+                    <span class="nav-icon" style="color: #ea580c;"><i class="fa-solid fa-socks"></i></span> Pack 3 Calcetines
+                    <span style="background: #fff7ed; color: #ea580c; border: 1px solid #fdba74; font-size: 0.68rem; font-weight: 800; padding: 1px 7px; border-radius: 999px; margin-left: 6px;">$15.990</span>
+                </a>
+            </li>
             <li>
                 <a href="{% url 'menu_pajarea' %}">
                     <span class="nav-icon"><i class="fa-solid fa-binoculars"></i></span> Pajarea
@@ -463,97 +470,12 @@ if (!links.contains(e.target) && !toggle.contains(e.target)) {
 <div id="overlay-carrito" class="overlay-carrito" onclick="cerrarCarrito()"></div>
 
 <div id="sidebar-carrito" class="sidebar-carrito">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee; flex-shrink: 0;">
-        <span style="margin: 0; font-weight: 700; font-size: 1.1rem;">Tu Nido 🪺</span>
-        <button onclick="cerrarCarrito()" style="border: none; background: none; font-size: 1.5rem; cursor: pointer;">❌</button>
-    </div>
-
-    {% if carrito and carrito.get_total > 0 %}
-    <div style="padding: 12px 18px; border-bottom: 1px solid rgba(0,0,0,0.06); background: {% if carrito.tiene_entrega_gratis %}rgba(240, 253, 244, 0.92){% else %}rgba(255, 251, 235, 0.92){% endif %}; flex-shrink: 0;">
-        {% if carrito.tiene_entrega_gratis %}
-            <div style="font-size: 0.82rem; color: #15803d; font-weight: 700; margin-bottom: 6px; line-height: 1.35;">
-                🎉 ¡Desbloqueaste <strong>Reparto Local GRATIS ($0)</strong> en Puerto Montt o Puerto Varas!
-            </div>
-            <div style="width: 100%; height: 7px; background: #dcfce7; border-radius: 999px; overflow: hidden;">
-                <div style="width: 100%; height: 100%; background: #16a34a; border-radius: 999px;"></div>
-            </div>
-        {% else %}
-            <div style="font-size: 0.82rem; color: #92400e; font-weight: 600; margin-bottom: 6px; line-height: 1.35;">
-                🚗 ¡Te faltan <strong style="color: #d97706;">${{ carrito.falta_para_entrega_gratis }}</strong> para <strong>Reparto Local GRATIS</strong> en Puerto Montt o Puerto Varas!
-            </div>
-            <div style="width: 100%; height: 7px; background: #fde68a; border-radius: 999px; overflow: hidden; margin-bottom: 4px;">
-                <div style="width: {{ carrito.porcentaje_entrega_gratis }}%; height: 100%; background: linear-gradient(90deg, #fca311, #16a34a); border-radius: 999px; transition: width 0.35s ease;"></div>
-            </div>
-            <div style="font-size: 0.72rem; color: #78350f;">
-                Sobre ${{ carrito.minimo_entrega_gratis }} es Gratis ($0) · Bajo ese monto el reparto local cuesta solo ${{ carrito.costo_entrega_reducido }}
-            </div>
-        {% endif %}
-    </div>
-    {% endif %}
-    
-    <div style="padding: 20px; overflow-y: auto; flex-grow: 1;">
-        {% if not carrito or carrito.get_total == 0 %}
-            <p style="text-align: center; color: #888; margin-top: 50px;">Tu nido está vacío.</p>
-        {% else %}
-            {% for item in carrito %}
-                <div style="display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0;">
-                    
-                    {% if item.imagen %}
-                        <img src="{{ item.imagen }}" alt="Imagen de {{ item.nombre }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
-                    {% endif %}
-                    
-                    <div style="flex-grow: 1;">
-                        <h4 style="margin: 0 0 8px 0; font-size: 1rem; color: #333;">{{ item.nombre }}</h4>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            
-                            <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 4px 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-                                <a href="{% url 'restar_del_carrito' item.producto_id %}" style="text-decoration: none; color: #555; font-weight: bold; padding: 2px 8px; transition: color 0.2s;" onmouseover="this.style.color='#fca311'" onmouseout="this.style.color='#555'">-</a>
-                                <span style="font-weight: bold; font-size: 0.95rem; min-width: 15px; text-align: center; color: #333;">{{ item.cantidad }}</span>
-                                <a href="{% url 'agregar_al_carrito' item.producto_id %}" style="text-decoration: none; color: #555; font-weight: bold; padding: 2px 8px; transition: color 0.2s;" onmouseover="this.style.color='#fca311'" onmouseout="this.style.color='#555'">+</a>
-                            </div>
-
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="text-align: right;">
-                                    {% if item.en_oferta %}
-                                        <span style="display: block; font-size: 0.75rem; color: #94a3b8; text-decoration: line-through;">${{ item.precio_original }}</span>
-                                        <span style="display: block; font-size: 0.82rem; color: #e11d48; font-weight: 700;">${{ item.precio }} c/u</span>
-                                    {% else %}
-                                        <span style="display: block; font-size: 0.8rem; color: #888;">${{ item.precio }} c/u</span>
-                                    {% endif %}
-                                    <span style="font-weight: bold; color: #333;">${{ item.precio_total }}</span>
-                                </div>
-                                <a href="{% url 'quitar_del_carrito' item.producto_id %}" style="color: #dc3545; text-decoration: none; font-size: 1.2rem; padding-left: 5px; border-left: 1px solid rgba(0,0,0,0.05); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Quitar del nido">
-                                    🗑️
-                                </a>
-                            </div>
-                            
-                        </div>
-                    </div>
-                    
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-
-    <div style="padding: 20px; border-top: 1px solid rgba(0,0,0,0.05); background: rgba(249,249,249,0.5); flex-shrink: 0;">
-        <h3 style="display: flex; justify-content: space-between; margin-top: 0; font-family: 'Outfit', sans-serif;">
-            <span>Total:</span> <span style="color: #fca311;">${{ carrito.get_total }}</span>
-        </h3>
-        <button onclick="cerrarCarrito()" style="display: block; width: 100%; background: rgba(255,255,255,0.8); color: #555; border: 1px solid rgba(0,0,0,0.1); padding: 12px 0; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: all 0.3s;" onmouseover="this.style.background='white'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.8)'; this.style.boxShadow='none'">
-    ← Seguir pajareando
-        </button>
-        <a href="{% url 'procesar_pedido' %}" style="display: block; width: 100%; text-align: center; background: linear-gradient(135deg, #fca311, #ff8c00); color: white; padding: 14px 0; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-top: 15px; box-shadow: 0 6px 15px rgba(252, 163, 17, 0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(252, 163, 17, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 15px rgba(252, 163, 17, 0.3)'">
-            Ir a Pagar ➔
-        </a>
-    </div>
+    {% include "includes/carrito_contenido.html" %}
 </div>
 
-{% if carrito.get_total > 0 %}
-<button class="btn-flotante-carrito" onclick="abrirCarrito()">
-    🪺 <span style="position: absolute; top: -5px; right: -5px; background: red; font-size: 0.8rem; padding: 2px 6px; border-radius: 50%;">!</span>
+<button id="btn-flotante-carrito" class="btn-flotante-carrito" onclick="abrirCarrito()" style="display: {% if carrito.total_items > 0 %}flex{% else %}none{% endif %}; align-items: center; justify-content: center; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);">
+    🪺 <span id="cart-floating-badge" style="position: absolute; top: -5px; right: -5px; background: #ea580c; color: #fff; font-size: 0.78rem; font-weight: 800; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">{{ carrito.total_items|default:0 }}</span>
 </button>
-{% endif %}
 
 <script>
     function abrirCarrito() {
@@ -564,6 +486,162 @@ if (!links.contains(e.target) && !toggle.contains(e.target)) {
         document.getElementById('sidebar-carrito').classList.remove('abierto');
         document.getElementById('overlay-carrito').classList.remove('abierto');
     }
+
+    function mostrarToastCarrito(msg, level) {
+        if (!msg) return;
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position: fixed; top: 90px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; max-width: 360px; width: calc(100% - 40px); pointer-events: none;';
+            document.body.appendChild(container);
+        }
+        const colors = {
+            success: 'background-color: #e8f8f5; color: #116b47; border: 1px solid #a3e4d7;',
+            warning: 'background-color: #fff9e6; color: #975a16; border: 1px solid #ffe082;',
+            error: 'background-color: #fdf2f2; color: #9b2c2c; border: 1px solid #f8b4b4;',
+            info: 'background-color: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8;'
+        };
+        const toast = document.createElement('div');
+        toast.className = 'toast-item';
+        toast.style.cssText = 'pointer-events: auto; padding: 11px 16px; border-radius: 12px; font-weight: 600; font-family: Inter, sans-serif; font-size: 0.9rem; box-shadow: 0 8px 24px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 0.35s ease; ' + (colors[level] || colors.success);
+        toast.innerHTML = '<span>' + msg + '</span><button type="button" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:inherit;opacity:0.6;" onclick="this.parentElement.remove()">&times;</button>';
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(25px)';
+            setTimeout(() => toast.remove(), 350);
+        }, 2600);
+    }
+
+    function animarVueloAlNido(sourceEl) {
+        const btnNido = document.getElementById('btn-flotante-carrito');
+        if (!btnNido || !sourceEl) return;
+
+        // Asegurar que el botón del nido sea visible para calcular su posición destino
+        if (btnNido.style.display === 'none') {
+            btnNido.style.display = 'flex';
+        }
+
+        const card = sourceEl.closest('.producto, .product-card, .producto-detalle, form') || sourceEl;
+        const img = card.querySelector('img');
+        const startRect = (img || sourceEl).getBoundingClientRect();
+        const endRect = btnNido.getBoundingClientRect();
+
+        const flyer = img ? img.cloneNode(false) : document.createElement('div');
+        if (img) {
+            flyer.style.cssText = 'position: fixed; z-index: 999999; pointer-events: none; border-radius: 12px; object-fit: cover; box-shadow: 0 10px 25px rgba(234,88,12,0.35); transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);';
+            flyer.style.left = startRect.left + 'px';
+            flyer.style.top = startRect.top + 'px';
+            flyer.style.width = Math.min(startRect.width, 90) + 'px';
+            flyer.style.height = Math.min(startRect.height, 90) + 'px';
+        } else {
+            flyer.textContent = '🪺';
+            flyer.style.cssText = 'position: fixed; z-index: 999999; pointer-events: none; font-size: 28px; transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);';
+            flyer.style.left = startRect.left + 'px';
+            flyer.style.top = startRect.top + 'px';
+        }
+        document.body.appendChild(flyer);
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                flyer.style.left = (endRect.left + endRect.width / 2 - 14) + 'px';
+                flyer.style.top = (endRect.top + endRect.height / 2 - 14) + 'px';
+                flyer.style.width = '28px';
+                flyer.style.height = '28px';
+                flyer.style.opacity = '0.25';
+                flyer.style.transform = 'scale(0.5) rotate(12deg)';
+            });
+        });
+
+        setTimeout(() => {
+            flyer.remove();
+            btnNido.style.transform = 'scale(1.22)';
+            setTimeout(() => { btnNido.style.transform = 'scale(1)'; }, 220);
+        }, 560);
+    }
+
+    function aplicarRespuestaCarritoAjax(data) {
+        const sidebar = document.getElementById('sidebar-carrito');
+        if (sidebar && data.drawer_html) {
+            sidebar.innerHTML = data.drawer_html;
+        }
+        const btnNido = document.getElementById('btn-flotante-carrito');
+        const badge = document.getElementById('cart-floating-badge');
+        if (btnNido) {
+            btnNido.style.display = data.total_items > 0 ? 'flex' : 'none';
+        }
+        if (badge) {
+            badge.textContent = data.total_items || 0;
+        }
+        const packEl = document.getElementById('pack-live-status');
+        if (packEl && data.pack_info) {
+            const p = data.pack_info;
+            if (p.descuento_pack > 0 && p.faltan_para_pack === 3) {
+                packEl.style.color = '#047857';
+                packEl.textContent = '✅ ' + p.cantidad_calcetines + ' pares en tu nido · ¡Pack aplicado (-$' + p.descuento_pack + ')!';
+            } else if (p.cantidad_calcetines > 0) {
+                packEl.style.color = '#c2410c';
+                packEl.textContent = '🧦 Llevas ' + p.cantidad_calcetines + ' · ¡Falta ' + p.faltan_para_pack + ' para tu pack!';
+            } else {
+                packEl.style.color = '#c2410c';
+                packEl.textContent = 'Elige 3 pares de la lista ↓';
+            }
+        }
+    }
+
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('a[href*="/carrito/agregar/"], a[href*="/carrito/restar/"], a[href*="/carrito/quitar/"]');
+        if (!link) return;
+        e.preventDefault();
+
+        const esDentroDelDrawer = !!link.closest('#sidebar-carrito');
+        const esAgregar = link.getAttribute('href').includes('/carrito/agregar/');
+
+        if (esAgregar && !esDentroDelDrawer) {
+            animarVueloAlNido(link);
+        }
+
+        fetch(link.href, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            aplicarRespuestaCarritoAjax(data);
+            if (!esDentroDelDrawer && data.message) {
+                mostrarToastCarrito(data.message, data.level);
+            }
+        })
+        .catch(() => {
+            window.location.href = link.href;
+        });
+    });
+
+    document.addEventListener('submit', function (e) {
+        const form = e.target.closest('form[action*="/carrito/agregar/"]');
+        if (!form) return;
+        e.preventDefault();
+
+        const btnSubmit = form.querySelector('button[type="submit"]') || form;
+        animarVueloAlNido(btnSubmit);
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: new FormData(form)
+        })
+        .then(r => r.json())
+        .then(data => {
+            aplicarRespuestaCarritoAjax(data);
+            if (data.message) {
+                mostrarToastCarrito(data.message, data.level);
+            }
+        })
+        .catch(() => {
+            form.submit();
+        });
+    });
 
     // Truco: Si la URL dice que el carrito debe estar abierto, lo abrimos automáticamente
     if (window.location.search.includes('cart=open')) {

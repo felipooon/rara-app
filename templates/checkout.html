@@ -337,8 +337,14 @@
 
                 <!-- Desglose Subtotal + Envío + Total -->
                 <div class="summary-totals-box">
+                    {% if descuento_pack > 0 %}
+                    <div class="summary-row" style="color: #047857;">
+                        <span>🧦 Pack Calcetines ({{ pack_info.packs_completos }}x 3 pares):</span>
+                        <strong>-${{ descuento_pack }}</strong>
+                    </div>
+                    {% endif %}
                     <div class="summary-row">
-                        <span>Subtotal productos{% if cupon %} (con dcto.){% endif %}:</span>
+                        <span>Subtotal productos{% if cupon or descuento_pack > 0 %} (con dcto.){% endif %}:</span>
                         <strong id="resumen-subtotal" data-subtotal="{{ subtotal_productos }}">${{ subtotal_productos }}</strong>
                     </div>
                     <div class="summary-row summary-row-shipping">

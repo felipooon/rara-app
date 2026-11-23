@@ -3,6 +3,9 @@ from django.conf import settings
 from .models import Producto
 
 class Carrito:
+    PACK_CALCETINES_CANTIDAD = 3
+    PACK_CALCETINES_PRECIO = 15990
+
     def __init__(self, request):
         """
         Inicializa el carrito pidiéndole a Django la sesión actual del usuario.
@@ -15,6 +18,8 @@ class Carrito:
             carrito = self.session['carrito'] = {}
             
         self.carrito = carrito
+        self._productos_cache = None
+        self._pack_info_cache = None
 
     def agregar(self, producto, cantidad=1):
         id = str(producto.id)
@@ -98,17 +103,103 @@ class Carrito:
         self.session['carrito'] = {}
         self.guardar()
 
+    def _invalidar_cache(self):
+        self._productos_cache = None
+        self._pack_info_cache = None
+
+    def _get_productos_map(self):
+        """Obtiene y cachea en memoria por petición los Producto del carrito."""
+        if self._productos_cache is None:
+            producto_ids = list(self.carrito.keys())
+            if not producto_ids:
+                self._productos_cache = {}
+            else:
+                self._productos_cache = {
+                    str(p.id): p
+                    for p in Producto.objects.select_related('categoria').filter(id__in=producto_ids)
+                }
+        return self._productos_cache
+
     def guardar(self):
         """
         Le avisa a Django que la sesión fue modificada y debe guardarse.
         """
+        self._invalidar_cache()
         self.session.modified = True
+
+    def get_total_bruto(self):
+        """Calcula el precio bruto total (sin descuento de pack) de todos los items en el carrito."""
+        return sum(int(item['precio']) * item['cantidad'] for item in self.carrito.values())
+
+    def get_info_pack_calcetines(self):
+        """
+        Calcula si hay packs completos de calcetines (3 pares por $15.990) en el carrito.
+        Retorna un dict con cantidad_calcetines, packs_completos, faltan_para_pack y descuento_pack.
+        """
+        if self._pack_info_cache is not None:
+            return self._pack_info_cache
+
+        if not self.carrito:
+            self._pack_info_cache = {
+                'cantidad_calcetines': 0,
+                'packs_completos': 0,
+                'faltan_para_pack': self.PACK_CALCETINES_CANTIDAD,
+                'descuento_pack': 0,
+                'precio_pack': self.PACK_CALCETINES_PRECIO,
+                'cantidad_pack': self.PACK_CALCETINES_CANTIDAD,
+            }
+            return self._pack_info_cache
+
+        productos_map = self._get_productos_map()
+
+        precios_calcetines = []
+        for pid, data in self.carrito.items():
+            cant = max(0, int(data.get('cantidad', 0)))
+            if cant <= 0:
+                continue
+            prod = productos_map.get(str(pid))
+            if prod and prod.categoria:
+                slug_cat = (prod.categoria.slug or '').lower()
+                nom_cat = (prod.categoria.nombre or '').lower()
+                if 'calcetin' in slug_cat or 'calcet' in nom_cat:
+                    precio_unit = int(prod.precio_actual)
+                    precios_calcetines.extend([precio_unit] * cant)
+
+        total_calcetines = len(precios_calcetines)
+        packs_completos = total_calcetines // self.PACK_CALCETINES_CANTIDAD
+        descuento_pack = 0
+
+        if packs_completos > 0:
+            precios_calcetines.sort(reverse=True)
+            unidades_en_pack = packs_completos * self.PACK_CALCETINES_CANTIDAD
+            costo_normal_packs = sum(precios_calcetines[:unidades_en_pack])
+            descuento_pack = max(0, costo_normal_packs - (packs_completos * self.PACK_CALCETINES_PRECIO))
+
+        resto = total_calcetines % self.PACK_CALCETINES_CANTIDAD
+        faltan_para_pack = (self.PACK_CALCETINES_CANTIDAD - resto) if resto > 0 else self.PACK_CALCETINES_CANTIDAD
+
+        self._pack_info_cache = {
+            'cantidad_calcetines': total_calcetines,
+            'packs_completos': packs_completos,
+            'faltan_para_pack': faltan_para_pack,
+            'descuento_pack': descuento_pack,
+            'precio_pack': self.PACK_CALCETINES_PRECIO,
+            'cantidad_pack': self.PACK_CALCETINES_CANTIDAD,
+        }
+        return self._pack_info_cache
+
+    @property
+    def info_pack_calcetines(self):
+        return self.get_info_pack_calcetines()
+
+    def get_descuento_pack(self):
+        return self.get_info_pack_calcetines()['descuento_pack']
 
     def get_total(self):
         """
-        Calcula el precio total de todos los items en el carrito.
+        Calcula el precio total de todos los items en el carrito aplicando el pack de calcetines.
         """
-        return sum(int(item['precio']) * item['cantidad'] for item in self.carrito.values())
+        return max(0, self.get_total_bruto() - self.get_descuento_pack())
 
     def __len__(self):
         """
@@ -160,11 +251,7 @@ class Carrito:
         if not self.carrito:
             return 0.0
 
-        producto_ids = list(self.carrito.keys())
-        productos_map = {
-            str(p.id): p
-            for p in Producto.objects.select_related('categoria').filter(id__in=producto_ids)
-        }
+        productos_map = self._get_productos_map()
 
         puntos_no_mini = 0.0
         puntos_mini = 0.0
@@ -224,9 +311,7 @@ class Carrito:
         trae los objetos Producto reales de la base de datos para validaciones de stock.
         Crea una copia independiente de cada item para no contaminar la sesión de Django con objetos no serializables.
         """
-        producto_ids = self.carrito.keys()
-        # Obtenemos los productos reales de la base de datos
-        productos = Producto.objects.filter(id__in=producto_ids)
+        productos = self._get_productos_map().values()
         
         # Hacemos una copia independiente de los diccionarios internos del carrito
         carrito_copia = {key: value.copy() for key, value in self.carrito.items()}

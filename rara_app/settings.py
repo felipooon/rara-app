@@ -189,35 +189,37 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #  STORAGES
 #---------------------
 
-if DEBUG:
-    # ==========================================
-    # MODO LOCAL (Tu PC): Guarda en tu disco duro
-    # ==========================================
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
-    # Le decimos a Django dónde crear la carpeta local
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
+USE_CLOUDINARY = all([
+    os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    os.environ.get("CLOUDINARY_API_KEY"),
+    os.environ.get("CLOUDINARY_API_SECRET"),
+])
 
-else:
-    # ==========================================
-    # MODO PRODUCCIÓN (Render): Guarda en Cloudinary
-    # ==========================================
+if USE_CLOUDINARY:
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': os.environ.get("CLOUDINARY_CLOUD_NAME"),
         'API_KEY': os.environ.get("CLOUDINARY_API_KEY"),
         'API_SECRET': os.environ.get("CLOUDINARY_API_SECRET"),
     }
-    
+    DEFAULT_FILE_STORAGE_BACKEND = "cloudinary_storage.storage.MediaCloudinaryStorage"
+else:
+    DEFAULT_FILE_STORAGE_BACKEND = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+if DEBUG:
     STORAGES = {
         "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+            "BACKEND": DEFAULT_FILE_STORAGE_BACKEND,
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": DEFAULT_FILE_STORAGE_BACKEND,
         },
         "staticfiles": {
             "BACKEND": "whitenoise.storage.ManifestStaticFilesStorage",
