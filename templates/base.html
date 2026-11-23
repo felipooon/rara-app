@@ -77,14 +77,45 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- NAVEGACIÓN ESCRITORIO -->
         <ul class="nav-links">
             <li><a href="/#inicio">Inicio</a></li>
-            <li><a href="/#catalogo">Catálogo</a></li>
-            <li>
+            <li class="nav-dropdown">
+                <a href="/#catalogo" style="display: inline-flex; align-items: center; gap: 5px;">
+                    Catálogo <i class="fa-solid fa-chevron-down" style="font-size: 0.68rem; opacity: 0.85;"></i>
+                </a>
+                <ul class="nav-dropdown-menu">
+                    <li><a href="/#catalogo"><i class="fa-solid fa-border-all"></i> Ver todo el catálogo</a></li>
+                    {% if categorias_nav %}
+                    <li class="nav-dropdown-divider"></li>
+                    {% for cat in categorias_nav %}
+                    <li><a href="{% url 'categoria' cat.slug %}"><i class="fa-solid fa-tag"></i> {{ cat.nombre }}</a></li>
+                    {% endfor %}
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="nav-dropdown">
+                <a href="{% url 'menu_pajarea' %}" style="display: inline-flex; align-items: center; gap: 5px;">
+                    Pajarea <i class="fa-solid fa-chevron-down" style="font-size: 0.68rem; opacity: 0.85;"></i>
+                </a>
+                <ul class="nav-dropdown-menu">
+                    <li><a href="{% url 'planificador:index' %}"><i class="fa-solid fa-map-location-dot"></i> Planificador de Rutas</a></li>
+                    <li><a href="{% url 'radar_realtime' %}"><i class="fa-solid fa-satellite-dish"></i> Radar en Vivo</a></li>
+                    <li><a href="{% url 'aves_en_tu_zona' %}"><i class="fa-solid fa-location-dot"></i> Aves en tu Zona</a></li>
+                </ul>
+            </li>
+            <li class="nav-dropdown">
                 <a href="{% url 'menu_juegos' %}" style="display: inline-flex; align-items: center; gap: 5px;">
                     Juegos
                     {% if config_sitio and config_sitio.juego_premio_mes %}
                         <span style="background: #f59e0b; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 1px 6px; border-radius: 999px; line-height: 1.3;">🎁 Premio</span>
                     {% endif %}
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.68rem; opacity: 0.85;"></i>
                 </a>
+                <ul class="nav-dropdown-menu">
+                    <li><a href="{% url 'quien_es_esta_ave' %}"><i class="fa-solid fa-crow"></i> ¿Quién es esta ave?</a></li>
+                    <li><a href="{% url 'memorice' %}"><i class="fa-solid fa-clone"></i> Memorice</a></li>
+                    <li><a href="{% url 'letras_locas' %}"><i class="fa-solid fa-spell-check"></i> Letras Locas</a></li>
+                    <li><a href="{% url 'minijuego' %}"><i class="fa-solid fa-flask"></i> Trivia Científica</a></li>
+                    <li><a href="{% url 'rosco' %}"><i class="fa-solid fa-circle-notch"></i> Rosco Pajarero</a></li>
+                </ul>
             </li>
             {% if config_sitio.mostrar_blog %}
             <li><a href="{% url 'blog_list' %}">Blog</a></li>
@@ -109,6 +140,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <ul class="mobile-drawer-nav">
             <li><a href="/#inicio"><span class="nav-icon"><i class="fa-solid fa-house"></i></span> Inicio</a></li>
             <li><a href="/#catalogo"><span class="nav-icon"><i class="fa-solid fa-shapes"></i></span> Catálogo</a></li>
+            <li>
+                <a href="{% url 'menu_pajarea' %}">
+                    <span class="nav-icon"><i class="fa-solid fa-binoculars"></i></span> Pajarea
+                </a>
+            </li>
             <li>
                 <a href="{% url 'menu_juegos' %}">
                     <span class="nav-icon"><i class="fa-solid fa-gamepad"></i></span> Juegos

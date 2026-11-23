@@ -86,6 +86,7 @@ def panel_productos(request):
     categoria_id = request.GET.get("categoria", "")
     estado = request.GET.get("estado", "")
     per_page = request.GET.get('per_page', '10')
+    q = request.GET.get("q", "").strip()
 
     if categoria_id:
         productos_list = productos_list.filter(categoria_id=categoria_id)
@@ -96,6 +97,19 @@ def panel_productos(request):
         productos_list = productos_list.filter(disponible=False)
     elif estado == "pendiente_pos":
         productos_list = productos_list.filter(exportado_pos=False)
+
+    if q:
+        q_filter = (
+            models.Q(nombre__icontains=q)
+            | models.Q(especie_nombre_comun__icontains=q)
+        )
+        if q.isdigit():
+            ids_codigo = [
+                p.id for p in productos_list.only('id')
+                if q in p.codigo_sku or q in p.codigo_barras or str(p.id) == q
+            ]
+            q_filter = q_filter | models.Q(id__in=ids_codigo)
+        productos_list = productos_list.filter(q_filter)
 
     categorias = Categoria.objects.all()
     pendientes_pos_count = Producto.objects.exclude(nombre__iexact='test').filter(exportado_pos=False).count()
@@ -110,6 +124,7 @@ def panel_productos(request):
         "categoria_actual": categoria_id,
         "estado_actual": estado,
         "per_page": per_page,
+        "q_actual": q,
         "pendientes_pos_count": pendientes_pos_count,
     })
 

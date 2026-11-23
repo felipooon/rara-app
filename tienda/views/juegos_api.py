@@ -24,6 +24,10 @@ def menu_juegos(request):
     return render(request, "juegos/menu_juegos.html")
 
 
+def menu_pajarea(request):
+    return render(request, "pajarea/menu_pajarea.html")
+
+
 def quien_es_esta_ave(request):
     return render(request, "juegos/quien_es_esta_ave.html")
 

@@ -1,0 +1,435 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pajarea · Exploración y Terreno - Rara Tienda</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}">
+
+    <!-- Fuentes Google: Nunito y Outfit -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #fdfaf6;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #64748b;
+            --primary: #ef9d71;
+            --primary-strong: #ea580c;
+            --accent-warm: #fca311;
+            --success: #65C18C;
+            --accent: #c2ebd3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--accent) 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 1rem 3.5rem 1rem;
+        }
+
+        /* TOP BAR RARA TIENDA */
+        .rara-topbar {
+            width: 100%;
+            max-width: 980px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(239, 157, 113, 0.25);
+            border-radius: 20px;
+            padding: 0.75rem 1.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 8px 25px rgba(239, 157, 113, 0.1);
+            margin-bottom: 2.2rem;
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+        }
+
+        .rara-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .rara-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .rara-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rara-brand-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+
+        .rara-brand-tag {
+            font-size: 0.72rem;
+            color: var(--primary-strong);
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .rara-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .rara-nav-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .rara-nav-link:hover,
+        .rara-nav-link.active {
+            color: var(--primary-strong);
+            background: rgba(234, 88, 12, 0.08);
+        }
+
+        .rara-cart-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            font-weight: 800;
+            font-size: 0.88rem;
+            padding: 0.5rem 1.05rem;
+            border-radius: 999px;
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.28);
+            transition: transform 0.2s ease;
+        }
+
+        .rara-cart-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .rara-cart-badge {
+            background: #fff;
+            color: #ea580c;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 999px;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            max-width: 720px;
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(234, 88, 12, 0.1);
+            color: var(--primary-strong);
+            font-weight: 800;
+            font-size: 0.82rem;
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-bottom: 0.85rem;
+            border: 1px solid rgba(234, 88, 12, 0.22);
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 5vw, 2.85rem);
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.65rem;
+            line-height: 1.15;
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-bottom: 1.4rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-header-store {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .btn-header-store:hover {
+            border-color: var(--primary-strong);
+            color: var(--primary-strong);
+            transform: translateY(-2px);
+        }
+
+        /* GRILLA DE HERRAMIENTAS */
+        .tools-grid {
+            width: 100%;
+            max-width: 980px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2rem 1.7rem;
+            text-decoration: none;
+            color: inherit;
+            border: 1.5px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            position: relative;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(234, 88, 12, 0.14);
+            border-color: rgba(234, 88, 12, 0.45);
+        }
+
+        .tool-card.featured {
+            border-color: rgba(234, 88, 12, 0.35);
+            background: linear-gradient(170deg, #fffaf5 0%, #ffffff 60%);
+        }
+
+        .tool-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.15rem;
+            background: #fff7ed;
+            border: 1px solid rgba(234, 88, 12, 0.2);
+        }
+
+        .tool-card.radar .tool-icon {
+            background: #eff6ff;
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .tool-card.zona .tool-icon {
+            background: #ecfdf5;
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .tool-tag {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary-strong);
+            background: rgba(234, 88, 12, 0.1);
+            padding: 3px 10px;
+            border-radius: 999px;
+            margin-bottom: 0.6rem;
+        }
+
+        .tool-card.radar .tool-tag {
+            color: #2563eb;
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .tool-card.zona .tool-tag {
+            color: #059669;
+            background: rgba(16, 185, 129, 0.12);
+        }
+
+        .tool-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.6rem;
+        }
+
+        .tool-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-bottom: 1.4rem;
+            flex: 1;
+        }
+
+        .tool-cta {
+            width: 100%;
+            text-align: center;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.94rem;
+            padding: 0.78rem 1.2rem;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+            transition: opacity 0.2s ease;
+        }
+
+        .tool-card.radar .tool-cta {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .tool-card.zona .tool-cta {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+        }
+
+        @media (max-width: 720px) {
+            .rara-topbar {
+                flex-direction: column;
+                padding: 0.9rem 1rem;
+            }
+            .rara-nav-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP BAR DE NAVEGACIÓN RARA TIENDA -->
+    <nav class="rara-topbar">
+        <a href="{% url 'index' %}" class="rara-brand">
+            <img src="{% static 'img/logo_rara.png' %}" alt="Logo Rara Tienda" class="rara-logo">
+            <div class="rara-brand-text">
+                <span class="rara-brand-name">Rara Tienda</span>
+                <span class="rara-brand-tag">Ilustración & Fauna</span>
+            </div>
+        </a>
+
+        <div class="rara-nav-links">
+            <a href="{% url 'index' %}" class="rara-nav-link">Inicio</a>
+            <a href="{% url 'index' %}#catalogo" class="rara-nav-link">Catálogo</a>
+            <a href="{% url 'menu_pajarea' %}" class="rara-nav-link active">Pajarea</a>
+            <a href="{% url 'menu_juegos' %}" class="rara-nav-link">Juegos</a>
+            <a href="{% url 'index' %}?cart=open" class="rara-cart-btn" title="Ver carrito de compras">
+                <span>Tu Nido 🪺</span>
+                {% if carrito and carrito.total_items > 0 %}
+                <span class="rara-cart-badge">{{ carrito.total_items }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </nav>
+
+    <!-- HEADER PAJAREA -->
+    <header>
+        <div class="brand-badge">🔭 Exploración & Terreno · Rara Tienda</div>
+        <h1>Pajarea por Chile</h1>
+        <p class="subtitle">
+            Herramientas de ciencia ciudadana para descubrir qué aves están cerca de ti, explorar avistamientos en vivo
+            y planificar tus salidas a terreno.
+        </p>
+        <div class="header-actions">
+            <a href="{% url 'index' %}" class="btn-header-store">🛍️ Ir a la Tienda</a>
+        </div>
+    </header>
+
+    <!-- GRILLA DE HERRAMIENTAS -->
+    <div class="tools-grid">
+        <!-- Planificador de Rutas -->
+        <a href="{% url 'planificador:index' %}" class="tool-card featured">
+            <div class="tool-icon">🗺️</div>
+            <span class="tool-tag">16 Regiones · Mareas & Clima</span>
+            <h2 class="tool-title">Planificador de Rutas</h2>
+            <p class="tool-desc">
+                Arma tu itinerario de observación hora a hora con puntos clave de eBird, mareas astronómicas en toda la
+                costa chilena y alertas de rarezas en ruta.
+            </p>
+            <span class="tool-cta">Planificar Salida ↗</span>
+        </a>
+
+        <!-- Radar en Vivo -->
+        <a href="{% url 'radar_realtime' %}" class="tool-card radar">
+            <div class="tool-icon">📡</div>
+            <span class="tool-tag">Mapa en Tiempo Real</span>
+            <h2 class="tool-title">Radar en Vivo</h2>
+            <p class="tool-desc">
+                Explora sobre el mapa los últimos avistamientos reportados en eBird, filtra especies y descubre puntos
+                calientes activos cerca de ti.
+            </p>
+            <span class="tool-cta">Abrir Radar ↗</span>
+        </a>
+
+        <!-- Aves en tu Zona -->
+        <a href="{% url 'aves_en_tu_zona' %}" class="tool-card zona">
+            <div class="tool-icon">📍</div>
+            <span class="tool-tag">Detección por Ubicación</span>
+            <h2 class="tool-title">Aves en tu Zona</h2>
+            <p class="tool-desc">
+                Consulta la lista de especies observadas recientemente alrededor de tu ubicación GPS o comuna, con
+                fichas, nombres comunes y científicos.
+            </p>
+            <span class="tool-cta">Explorar Zona ↗</span>
+        </a>
+    </div>
+
+</body>
+
+</html>
+

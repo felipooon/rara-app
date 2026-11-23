@@ -77,6 +77,7 @@ from .panel_admin import (
 
 from .juegos_api import (
     menu_juegos,
+    menu_pajarea,
     quien_es_esta_ave,
     memorice,
     letras_locas,

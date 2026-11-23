@@ -69,6 +69,9 @@ urlpatterns = [
     path('api/juegos/ranking/', views.api_ranking_juego, name='api_ranking_juego'),
     path('api/juegos/ranking/guardar/', views.api_guardar_puntaje_juego, name='api_guardar_puntaje_juego'),
     
+    # Pajarea (Exploración y Terreno)
+    path('pajarea/', views.menu_pajarea, name='menu_pajarea'),
+
     # Juegos
     path('juegos/', views.menu_juegos, name='menu_juegos'),
     path('juegos/quien-es-esta-ave/', views.quien_es_esta_ave, name='quien_es_esta_ave'),
