@@ -136,13 +136,12 @@ PLANTILLAS_DESCRIPCION = [
     },
     {
         'key': 'llaveros_bordados',
-        'label': 'Llaveros bordados',
+        'label': 'Llaveros bordados (Confección propia)',
         'template': (
-            "Llavero textil bordado con diseño de [ESPECIE], liviano y resistente para llaves, mochilas o estuches.\n"
-            "- Origen: [CONFECCION_O_BORDADO]\n"
-            "- Material: [MATERIAL]\n"
-            "- Medidas: [MEDIDA_CM]\n"
-            "- Herraje: [TIPO_ARGOLLA]"
+            "Llavero artesanal bordado con diseño de [ESPECIE], liviano y resistente para llaves, mochilas o estuches.\n"
+            "- Origen: Confección propia Rara Tienda (hecho a mano)\n"
+            "- Material: Hilo bordado con marco de madera\n"
+            "- Medidas: 3 cm aprox."
         ),
     },
     {
