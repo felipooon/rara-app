@@ -341,13 +341,46 @@
                 {% endif %}
 
                 <!-- Descripción detallada -->
-                <div style="color: #555; line-height: 1.7; font-size: 1rem; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 18px 0; margin-bottom: 25px;">
+                <div style="color: #555; line-height: 1.7; font-size: 1rem; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 18px 0; margin-bottom: 22px;">
                     {% if producto.descripcion %}
                         {{ producto.descripcion|linebreaks }}
                     {% else %}
                         <p style="color: #888; font-style: italic;">Sin descripción detallada.</p>
                     {% endif %}
                 </div>
+            </div>
+
+            <div>
+                <!-- Formulario de Compra -->
+                {% if producto.disponible %}
+                <form action="{% url 'agregar_al_carrito' producto.id %}" method="POST" style="margin-bottom: 25px;">
+                    {% csrf_token %}
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <label style="font-weight: 600; color: #444; font-size: 0.95rem;">Cantidad:</label>
+                        
+                        <div style="display: inline-flex; align-items: center; border: 2px solid #eaeaea; border-radius: 10px; overflow: hidden; background: #fdfdfd;">
+                            <button type="button" onclick="restarCant()" style="border: none; background: transparent; padding: 8px 14px; font-size: 1.1rem; cursor: pointer; font-weight: bold; color: #555;">-</button>
+                            <input type="number" id="input-cantidad" name="cantidad" value="1" min="1" max="{{ producto.stock }}" readonly style="width: 45px; text-align: center; border: none; font-size: 1rem; font-weight: bold; background: transparent; outline: none;">
+                            <button type="button" onclick="sumarCant({{ producto.stock }})" style="border: none; background: transparent; padding: 8px 14px; font-size: 1.1rem; cursor: pointer; font-weight: bold; color: #555;">+</button>
+                        </div>
+
+                        <span style="font-size: 0.85rem; color: #888;">(Máximo {{ producto.stock }} unid.)</span>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <button type="submit" style="width: 100%; padding: 16px 25px; background: linear-gradient(135deg, #fca311, #ff8c00); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 18px rgba(252, 163, 17, 0.35); transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar a mi Nido 🪹
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div style="margin-bottom: 25px;">
+                    <button disabled style="width: 100%; padding: 16px; background: #ccc; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: not-allowed;">
+                        Producto Agotado
+                    </button>
+                </div>
+                {% endif %}
 
                 {% if producto.tiene_ficha_especie %}
                 <!-- Ficha de Especie / Dato Curioso Educativo -->
@@ -393,39 +426,6 @@
                         {{ producto.especie_dato_curioso|linebreaksbr }}
                     </div>
                     {% endif %}
-                </div>
-                {% endif %}
-            </div>
-
-            <div>
-                <!-- Formulario de Compra -->
-                {% if producto.disponible %}
-                <form action="{% url 'agregar_al_carrito' producto.id %}" method="POST" style="margin-bottom: 25px;">
-                    {% csrf_token %}
-                    
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <label style="font-weight: 600; color: #444; font-size: 0.95rem;">Cantidad:</label>
-                        
-                        <div style="display: inline-flex; align-items: center; border: 2px solid #eaeaea; border-radius: 10px; overflow: hidden; background: #fdfdfd;">
-                            <button type="button" onclick="restarCant()" style="border: none; background: transparent; padding: 8px 14px; font-size: 1.1rem; cursor: pointer; font-weight: bold; color: #555;">-</button>
-                            <input type="number" id="input-cantidad" name="cantidad" value="1" min="1" max="{{ producto.stock }}" readonly style="width: 45px; text-align: center; border: none; font-size: 1rem; font-weight: bold; background: transparent; outline: none;">
-                            <button type="button" onclick="sumarCant({{ producto.stock }})" style="border: none; background: transparent; padding: 8px 14px; font-size: 1.1rem; cursor: pointer; font-weight: bold; color: #555;">+</button>
-                        </div>
-
-                        <span style="font-size: 0.85rem; color: #888;">(Máximo {{ producto.stock }} unid.)</span>
-                    </div>
-
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <button type="submit" style="width: 100%; padding: 16px 25px; background: linear-gradient(135deg, #fca311, #ff8c00); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 18px rgba(252, 163, 17, 0.35); transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                            <i class="fa-solid fa-cart-plus"></i> Agregar a mi Nido 🪹
-                        </button>
-                    </div>
-                </form>
-                {% else %}
-                <div style="margin-bottom: 25px;">
-                    <button disabled style="width: 100%; padding: 16px; background: #ccc; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: not-allowed;">
-                        Producto Agotado
-                    </button>
                 </div>
                 {% endif %}
 
